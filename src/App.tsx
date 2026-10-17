@@ -3,6 +3,8 @@ import { EjercicioPagina } from './vistas/EjercicioPagina';
 import { Inicio, TemaPagina } from './vistas/Inicio';
 import { Laboratorio } from './vistas/Laboratorio';
 import { Visualizar, VisualizarLista } from './vistas/Visualizar';
+import { StackPageRoute } from './vistas/StackView';
+import { temaVisible } from './ejercicios/registro';
 
 // Enrutado con # para que funcione en cualquier alojamiento estático (Vercel incluido).
 function useRuta() {
@@ -22,6 +24,7 @@ export function App() {
   if (partes[0] === 'ej' && partes[1]) pagina = <EjercicioPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'tema' && partes[1]) pagina = <TemaPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'lab') pagina = <Laboratorio />;
+  else if (partes[0] === 'ver' && partes[1]?.startsWith('pila') && temaVisible('3')) pagina = <StackPageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && partes[1]) pagina = <VisualizarLista id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver') pagina = <Visualizar />;
   else pagina = <Inicio />;

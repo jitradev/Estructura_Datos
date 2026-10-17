@@ -1,4 +1,4 @@
-import { TEMAS } from '../ejercicios/registro';
+import { nombreTemasVisibles, TEMAS, temaVisible } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
 import { nombreTipo } from './EjercicioPagina';
@@ -68,7 +68,7 @@ export function Inicio() {
     <main className="contenido">
       <section className="portada">
         <p className="antetitulo">Estructura de Datos y Algoritmos · Universidad San Jorge</p>
-        <h1>Listas, pilas y colas, paso a paso</h1>
+        <h1>{nombreTemasVisibles()}, paso a paso</h1>
         <p className="entradilla">
           Escribe las sentencias, pulsa «Ejecutar» y mira cómo cambia la memoria línea a línea. Si algo falla (un NULL, un nodo ya liberado, una fuga), la
           animación se para justo ahí. Tu progreso se guarda en este navegador.
@@ -99,12 +99,14 @@ export function Inicio() {
       </section>
       <section className="lab-link">
         <a href="#/ver" className="tarjeta-tema ancha">
-          <strong>Visualizar las listas</strong>
-          <span className="resumen">Simple, doble, circular y circular doble: cómo se ve cada una y sus operaciones paso a paso, con el código del TAD.</span>
+          <strong>Visualizar</strong>
+          <span className="resumen">
+            {temaVisible('3') ? 'Las cuatro listas del TAD y las dos pilas' : 'Las cuatro listas del TAD'}: cómo se ve cada una en memoria y sus operaciones paso a paso, con su código.
+          </span>
         </a>
         <a href="#/lab" className="tarjeta-tema ancha">
           <strong>Laboratorio</strong>
-          <span className="resumen">Elige una lista, una pila o una cola, escribe lo que quieras y mira qué pasa en la memoria. Sin corrección.</span>
+          <span className="resumen">Elige {['una lista', temaVisible('3') && 'una pila', temaVisible('4') && 'una cola'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' o $1')}, escribe lo que quieras y mira qué pasa en la memoria. Sin corrección.</span>
         </a>
       </section>
       <p className="nota pie">

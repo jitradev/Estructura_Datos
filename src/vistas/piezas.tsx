@@ -53,3 +53,23 @@ export function Chuleta({ ctx }: { ctx: Contexto }) {
     </details>
   );
 }
+
+/** Colour key shared by the Visualizar pages. */
+export function Leyenda() {
+  return (
+    <ul className="leyenda">
+      <li>
+        <span className="muestra rojo" /> lo que cambia en este paso
+      </li>
+      <li>
+        <span className="muestra gris" /> el enlace que deja de valer
+      </li>
+      <li>
+        <span className="muestra liberado" /> nodo liberado con free
+      </li>
+      <li>
+        <span className="muestra local" /> variable de la función en curso
+      </li>
+    </ul>
+  );
+}

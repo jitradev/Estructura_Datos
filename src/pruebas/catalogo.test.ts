@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { TEMAS } from '../ejercicios/registro';
+import { TODOS_LOS_TEMAS } from '../ejercicios/registro';
 import { comprobarCaso, ejecutarCaso } from '../ejercicios/comprobar';
 
-const todos = TEMAS.flatMap((t) => t.ejercicios);
+const todos = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios);
 
 describe('catálogo', () => {
   it('ids únicos', () => {

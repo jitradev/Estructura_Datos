@@ -1,7 +1,7 @@
-// Visualizar: cómo se ve cada una de las cuatro listas del TAD y sus operaciones paso
-// a paso, ejecutando el código de los .c tal cual con el intérprete.
+// Visualizar: landing page (lists and stacks) and the page of each list, with its
+// operations step by step running the .c code untouched in the interpreter.
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { comentarioDe, LISTAS, buscarLista, Operacion, TipoLista } from '../listas/catalogo';
 import { DibujoLista } from '../listas/DibujoLista';
 import { construirLista, ejecutarOperacion, leerLista, memoriaDe, Parametros, structsDe } from '../listas/preparar';
@@ -9,7 +9,9 @@ import { verValor } from '../interprete/ejecutar';
 import { Memoria, Valor } from '../memoria/modelo';
 import { EditorCodigo } from './EditorCodigo';
 import { Rico } from './comun';
-import { estadosLineas } from './piezas';
+import { estadosLineas, Leyenda } from './piezas';
+import { temaVisible } from '../ejercicios/registro';
+import { StackGallery } from './StackView';
 import { Reproductor, useReproductor } from './Reproductor';
 
 const COMPARA: { pregunta: string; r: Record<string, string> }[] = [
@@ -28,11 +30,24 @@ export function Visualizar() {
       <nav className="miga">
         <a href="#/">Temas</a>
       </nav>
-      <h1>Visualizar las listas</h1>
+      <h1>Visualizar</h1>
       <p className="entradilla">
-        Las cuatro listas del TAD, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los <code>.c</code>{' '}
-        línea a línea.
+        Cómo se ve cada estructura en memoria, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los{' '}
+        <code>.c</code> línea a línea.
       </p>
+      {temaVisible('3') && (
+        <nav className="indice-ver" aria-label="Secciones">
+          <a href="#ver-listas" onClick={(e) => saltar(e, 'ver-listas')}>
+            Listas
+          </a>
+          <a href="#ver-pilas" onClick={(e) => saltar(e, 'ver-pilas')}>
+            Pilas
+          </a>
+        </nav>
+      )}
+      <h2 className="titulo-seccion" id="ver-listas">
+        Listas
+      </h2>
       <section className="galeria-listas">
         {LISTAS.map((t) => (
           <a key={t.id} className="tarjeta-lista" href={`#/ver/${t.id}`}>
@@ -50,7 +65,7 @@ export function Visualizar() {
         ))}
       </section>
       <section className="panel compara">
-        <h2>Las cuatro, cara a cara</h2>
+        <h3>Las cuatro, cara a cara</h3>
         <div className="tabla-scroll">
           <table>
             <thead>
@@ -76,8 +91,22 @@ export function Visualizar() {
           </table>
         </div>
       </section>
+      {temaVisible('3') && (
+        <>
+          <h2 className="titulo-seccion" id="ver-pilas">
+            Pilas
+          </h2>
+          <StackGallery />
+        </>
+      )}
     </main>
   );
+}
+
+/** In-page jump that does not touch the hash (the hash is the route). */
+function saltar(e: React.MouseEvent, id: string) {
+  e.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ---------------------------------------------------------------- una lista
@@ -277,24 +306,5 @@ function PaginaLista({ tipo }: { tipo: TipoLista }) {
       </div>
       <Leyenda />
     </main>
-  );
-}
-
-function Leyenda() {
-  return (
-    <ul className="leyenda">
-      <li>
-        <span className="muestra rojo" /> lo que cambia en este paso
-      </li>
-      <li>
-        <span className="muestra gris" /> el enlace que deja de valer
-      </li>
-      <li>
-        <span className="muestra liberado" /> nodo liberado con free
-      </li>
-      <li>
-        <span className="muestra local" /> variable de la función en curso
-      </li>
-    </ul>
   );
 }

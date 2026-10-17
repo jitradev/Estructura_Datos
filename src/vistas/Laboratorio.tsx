@@ -15,33 +15,40 @@ import {
   pilaArray,
   pilaEnlazada,
 } from '../memoria/construir';
+import { temaVisible } from '../ejercicios/registro';
 import { Contexto } from '../memoria/modelo';
 import { EditorCodigo } from './EditorCodigo';
 import { Chuleta, estadosLineas } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
 
-const MESAS: { nombre: string; ctx: Contexto; inicial: Constructor[]; ejemplo: string }[] = [
+const TODAS_LAS_MESAS: { tema: string; nombre: string; ctx: Contexto; inicial: Constructor[]; ejemplo: string }[] = [
   {
+    tema: '2',
     nombre: 'Lista: cab → 9 → 3 → 7',
     ctx: CTX_LISTA,
     inicial: [lista('cab', [9, 3, 7])],
     ejemplo: 'Nodo *p = cab;\nwhile (p != NULL) {\n    p->valor = p->valor * 2;\n    p = p->siguiente;\n}\n',
   },
-  { nombre: 'Pila con array (MAX 6)', ctx: CTX_PILA_ARRAY, inicial: [pilaArray('p', [4, 1]), entero('x', 0)], ejemplo: 'p->datos[++p->cima] = 8;\nx = p->datos[p->cima--];\n' },
-  { nombre: 'Pila enlazada', ctx: CTX_PILA_ENLAZADA, inicial: [pilaEnlazada('p', [4, 1]), entero('x', 0)], ejemplo: 'Nodo *v = p->cima;\nx = v->valor;\np->cima = v->siguiente;\nfree(v);\np->n--;\n' },
+  { tema: '3', nombre: 'Pila con array (MAX 6)', ctx: CTX_PILA_ARRAY, inicial: [pilaArray('p', [4, 1]), entero('x', 0)], ejemplo: 'p->datos[++p->cima] = 8;\nx = p->datos[p->cima--];\n' },
+  { tema: '3', nombre: 'Pila enlazada', ctx: CTX_PILA_ENLAZADA, inicial: [pilaEnlazada('p', [4, 1]), entero('x', 0)], ejemplo: 'Nodo *v = p->cima;\nx = v->valor;\np->cima = v->siguiente;\nfree(v);\np->n--;\n' },
   {
+    tema: '4',
     nombre: 'Cola circular (MAX 5)',
     ctx: CTX_COLA_CIRCULAR,
     inicial: [colaCircular('c', [8, 4], 3), entero('x', 0)],
     ejemplo: 'c->datos[c->final] = 9;\nc->final = (c->final + 1) % MAX;\nc->n++;\n',
   },
   {
+    tema: '4',
     nombre: 'Cola enlazada',
     ctx: CTX_COLA_ENLAZADA,
     inicial: [colaEnlazada('c', [1, 2]), entero('x', 0)],
     ejemplo: 'Nodo *nuevo = malloc(sizeof(Nodo));\nnuevo->dato = 3;\nnuevo->siguiente = NULL;\nc->final->siguiente = nuevo;\nc->final = nuevo;\nc->n++;\n',
   },
 ];
+
+// Only the starting structures of the visible topics
+const MESAS = TODAS_LAS_MESAS.filter((m) => temaVisible(m.tema));
 
 export function Laboratorio() {
   const [mesa, setMesa] = useState(0);

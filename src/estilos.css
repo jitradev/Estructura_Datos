@@ -320,6 +320,7 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 .indice-ver a { padding: 6px 14px; border-radius: 999px; border: 1.5px solid #d9c9c1; color: var(--grafito); text-decoration: none; font-weight: 600; font-size: 0.9rem; background: #fff; }
 .indice-ver a:hover { border-color: var(--carmin); color: var(--tinta); }
 .compara h3 { margin: 0 0 10px; }
+.subtitulo-familia { margin: 22px 0 10px; font-size: 1.05rem; color: var(--grafito); }
 .marca-cima { font: 700 12px var(--f-txt) !important; fill: var(--carmin-osc); }
 .celda-fantasma { fill: none; stroke: var(--palo); stroke-dasharray: 4 4; }
 .record-caja.liberada { fill: #f6f1ee; stroke: #8a7a76; stroke-dasharray: 5 4; }

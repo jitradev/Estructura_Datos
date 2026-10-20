@@ -14,7 +14,7 @@ Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de
 - **Escribe la función**: completar una función de las cabeceras del tema (`insertarFinal`, `suprimir`, `pop`, `encolar`...). Se prueba con varios casos (lista vacía, un nodo, varios; pila llena o vacía...).
 - **Encuentra el fallo**: una función con un fallo típico. Cuatro pasos: encontrar el caso que falla, marcar la línea, decir qué tipo de fallo es y arreglarlo.
 - **Laboratorio**: lista, pila o cola de partida y código libre, sin corrección.
-- **Visualizar** (`#/ver`): las dos pilas del proyecto Pilas (`PilaArray` y `PilaEnlazada`, en `src/stacks/`) y las cuatro listas del TAD (simple, doble, circular y circular doble) dibujadas con sus structs, una tabla que las compara y, para cada una, sus operaciones paso a paso (insertar, eliminar, consultar) con la lista de partida y los parámetros que se quieran. Se ejecuta el código de `src/listas/c/*.c` tal cual: las funciones del TAD Nodo y las de consulta van de un solo paso y el resto se ve línea a línea.
+- **Visualizar** (`#/ver`): las dos pilas del proyecto Pilas (`PilaArray` y `PilaEnlazada`, en `src/stacks/`), las colas del proyecto del tema 4 (cola circular y enlazada, bicola circular y enlazada y cola con prioridad, en `src/queues/`) y las cuatro listas del TAD (simple, doble, circular y circular doble) dibujadas con sus structs, una tabla que las compara y, para cada una, sus operaciones paso a paso (insertar, eliminar, consultar) con la lista de partida y los parámetros que se quieran. Se ejecuta el código de `src/listas/c/*.c` tal cual: las funciones del TAD Nodo y las de consulta van de un solo paso y el resto se ve línea a línea.
 
 Los structs son los de `soluciones-codigo` con los nombres de campo del TAD Lista (`Nodo` con `valor` y `siguiente`, y `anterior` en el nodo doble; en la cola enlazada el dato es `dato`; `MAX` 6 en la pila y 5 en la cola circular con contador).
 
@@ -47,9 +47,13 @@ Están en `src/ejercicios/tema2.ts`, `tema3.ts` y `tema4.ts`. Cada uno lleva `ct
 
 `src/stacks/c/` y `src/stacks/h/` son copias del proyecto `Pilas`. Se ejecuta solo la función elegida paso a paso; el resto (`esVacia`, `limpiar` dentro de `destruir`...) va de un solo paso. Las funciones `imprimir` no se cargan. `TAM` vale 1024 en el código y 8 en el dibujo (`TAM_DIBUJO` en `src/stacks/catalog.ts`). `npm test` repite el `main.c` de las pilas.
 
+## Visualizar: el código de las colas
+
+`src/queues/c/` y `src/queues/h/` son copias del `proyecto-TAD` del tema 4. main tiene la cola por valor, como en sus `main_*.c` (`ColaCircular c;`), y las llamadas van con `&c`. Se ejecuta solo la función elegida paso a paso; `mostrar` e `implementacion` no se cargan. `MAX` vale 5, igual que en el código. `cola_prioridad_array.c` se deja fuera a propósito: es parte del trabajo individual 2 y no se reparte. `npm test` repite los `main` de las colas.
+
 ## Temas ocultos
 
-Los temas que no se ven en la web están en `OCULTOS`, en `src/ejercicios/registro.ts` (ahora el 4, colas). Los tests los siguen comprobando.
+Los temas que no se ven en la web están en `OCULTOS`, en `src/ejercicios/registro.ts` (ahora ninguno). Los tests los siguen comprobando.
 
 ## Pendiente
 

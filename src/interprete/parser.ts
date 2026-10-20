@@ -153,12 +153,13 @@ export function analizar(src: string, tipos: string[]): Programa {
   };
   const esTipo = (o = 0) => {
     let t = ver(o);
+    if (t.v === 'static') t = ver(++o);
     if (t.v === 'const' || t.v === 'struct') t = ver(o + 1);
     return t.t === 'id' && TIPOS.has(t.v);
   };
 
   function tipo(): Tipo {
-    while (es('const') || es('struct')) p++;
+    while (es('static') || es('const') || es('struct')) p++;
     const t = ver();
     if (t.t !== 'id' || !TIPOS.has(t.v)) throw new ErrorSintaxis(t.linea, `«${t.v}» no es un tipo conocido.`);
     p++;

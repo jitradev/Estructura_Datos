@@ -1,4 +1,4 @@
-// Visualizar: landing page (lists and stacks) and the page of each list, with its
+// Visualizar: landing page (lists, stacks and queues) and the page of each list, with its
 // operations step by step running the .c code untouched in the interpreter.
 
 import React, { useEffect, useMemo, useState } from 'react';
@@ -12,6 +12,7 @@ import { Rico } from './comun';
 import { estadosLineas, Leyenda } from './piezas';
 import { temaVisible } from '../ejercicios/registro';
 import { StackGallery } from './StackView';
+import { QueueGallery } from './QueueView';
 import { Reproductor, useReproductor } from './Reproductor';
 
 const COMPARA: { pregunta: string; r: Record<string, string> }[] = [
@@ -35,14 +36,21 @@ export function Visualizar() {
         Cómo se ve cada estructura en memoria, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los{' '}
         <code>.c</code> línea a línea.
       </p>
-      {temaVisible('3') && (
+      {(temaVisible('3') || temaVisible('4')) && (
         <nav className="indice-ver" aria-label="Secciones">
           <a href="#ver-listas" onClick={(e) => saltar(e, 'ver-listas')}>
             Listas
           </a>
-          <a href="#ver-pilas" onClick={(e) => saltar(e, 'ver-pilas')}>
-            Pilas
-          </a>
+          {temaVisible('3') && (
+            <a href="#ver-pilas" onClick={(e) => saltar(e, 'ver-pilas')}>
+              Pilas
+            </a>
+          )}
+          {temaVisible('4') && (
+            <a href="#ver-colas" onClick={(e) => saltar(e, 'ver-colas')}>
+              Colas
+            </a>
+          )}
         </nav>
       )}
       <h2 className="titulo-seccion" id="ver-listas">
@@ -97,6 +105,14 @@ export function Visualizar() {
             Pilas
           </h2>
           <StackGallery />
+        </>
+      )}
+      {temaVisible('4') && (
+        <>
+          <h2 className="titulo-seccion" id="ver-colas">
+            Colas
+          </h2>
+          <QueueGallery />
         </>
       )}
     </main>

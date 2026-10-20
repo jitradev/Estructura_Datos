@@ -101,7 +101,7 @@ export function Inicio() {
         <a href="#/ver" className="tarjeta-tema ancha">
           <strong>Visualizar</strong>
           <span className="resumen">
-            {temaVisible('3') ? 'Las cuatro listas del TAD y las dos pilas' : 'Las cuatro listas del TAD'}: cómo se ve cada una en memoria y sus operaciones paso a paso, con su código.
+            {['Las cuatro listas del TAD', temaVisible('3') && 'las dos pilas', temaVisible('4') && 'las colas, bicolas y colas con prioridad'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' y $1')}: cómo se ve cada una en memoria y sus operaciones paso a paso, con su código.
           </span>
         </a>
         <a href="#/lab" className="tarjeta-tema ancha">

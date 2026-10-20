@@ -57,7 +57,7 @@ export function trocear(src: string): ArchivoC {
     // comentario pegado encima
     let lcom = lc;
     while (lcom > 0 && /^\s*\/\//.test(lineas[lcom - 1]) && !/^\s*\/\/\s*=+/.test(lineas[lcom - 1])) lcom--;
-    const struct = /^\s*(typedef\s+)?struct\s+\w+\s*$/.test(cabecera);
+    const struct = /^\s*(typedef\s+)?struct(\s+\w+)?\s*$/.test(cabecera);
     if (struct) {
       structs.push(lineas.slice(lc, lf + 1).join('\n'));
     } else {

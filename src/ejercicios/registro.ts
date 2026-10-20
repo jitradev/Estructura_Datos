@@ -7,7 +7,7 @@ import { Ejercicio, Tema } from './tipos';
 export const TODOS_LOS_TEMAS: Tema[] = [tema2, tema3, tema4];
 
 /** Topics hidden from the website. Remove an id to publish it (3 = stacks, 4 = queues). */
-const OCULTOS = new Set(['4']);
+const OCULTOS = new Set<string>();
 export const TEMAS: Tema[] = TODOS_LOS_TEMAS.filter((t) => !OCULTOS.has(t.id));
 export const temaVisible = (id: string) => !OCULTOS.has(id);
 

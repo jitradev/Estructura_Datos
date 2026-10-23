@@ -178,9 +178,6 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
       case 'id': {
         const v = buscarVar(e.n);
         if (!v) {
-          // a struct declared in main by value («ColaCircular c;»): only main sees it by name
-          const local = marco() === 0 ? Object.values(m.objetos).find((o) => !o.heap && o.nombre === e.n) : undefined;
-          if (local) return { k: 'objeto', id: local.id };
           if (ctx.constantes && e.n in ctx.constantes) return fallar(e.linea, 'tipo', `${e.n} es una constante: no se puede cambiar.`);
           return fallar(e.linea, 'nombre', `No existe la variable «${e.n}». ¿La has declarado?`);
         }

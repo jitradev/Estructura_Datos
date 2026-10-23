@@ -94,14 +94,14 @@ export const tema4: Tema = {
       id: '4-05',
       tipo: 'programar',
       titulo: 'Encolar el 3, a mano, enlazada',
-      enunciado: 'La cola enlazada `c` tiene 1 y 2. Encola el **3** a mano. Ojo: en `cola_enlazada.h` el campo del nodo se llama `dato`.',
+      enunciado: 'La cola enlazada `c` tiene 1 y 2. Encola el **3** a mano.',
       pistas: ['El nuevo va detrás del último: `c->final->siguiente`.', 'Y después el nuevo pasa a ser el final.'],
       ctx: CE,
       casos: [{ nombre: 'Cola 1 2', inicial: [colaEnlazada('c', [1, 2])] }],
       observar: ['c'],
       solucion: c(`
         Nodo *nuevo = malloc(sizeof(Nodo));
-        nuevo->dato = 3;
+        nuevo->valor = 3;
         nuevo->siguiente = NULL;
         c->final->siguiente = nuevo;
         c->final = nuevo;
@@ -128,7 +128,7 @@ export const tema4: Tema = {
         int encolar(Cola *c, int x)
         {
             Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->dato = x;
+            nuevo->valor = x;
             nuevo->siguiente = NULL;
             if (esVacia(c)) c->frente = nuevo;
             else c->final->siguiente = nuevo;
@@ -160,7 +160,7 @@ export const tema4: Tema = {
         {
             if (esVacia(c)) return 0;
             Nodo *viejo = c->frente;
-            *x = viejo->dato;
+            *x = viejo->valor;
             c->frente = viejo->siguiente;
             if (c->frente == NULL)
                 c->final = NULL;
@@ -173,11 +173,11 @@ export const tema4: Tema = {
       id: '4-08',
       tipo: 'programar',
       titulo: 'Rotar la cola',
-      enunciado: 'Pasa el nodo del frente al final: `1 2 3` queda `2 3 1`. Sin `malloc`, sin `free` y sin tocar `dato`.',
+      enunciado: 'Pasa el nodo del frente al final: `1 2 3` queda `2 3 1`. Sin `malloc`, sin `free` y sin tocar `valor`.',
       ctx: CE,
       casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('c', [1, 2, 3])] }],
       observar: ['c'],
-      prohibidos: ['dato'],
+      prohibidos: ['valor'],
       solucion: c(`
         Nodo *primero = c->frente;
         c->frente = primero->siguiente;
@@ -278,7 +278,7 @@ export const tema4: Tema = {
         {
             if (esVacia(c)) return 0;
             Nodo *viejo = c->frente;
-            *x = viejo->dato;
+            *x = viejo->valor;
             c->frente = viejo->siguiente;
             free(viejo);
             c->n--;
@@ -293,7 +293,7 @@ export const tema4: Tema = {
         {
             if (esVacia(c)) return 0;
             Nodo *viejo = c->frente;
-            *x = viejo->dato;
+            *x = viejo->valor;
             c->frente = viejo->siguiente;
             if (c->frente == NULL)
                 c->final = NULL;
@@ -317,7 +317,7 @@ export const tema4: Tema = {
         int encolar(Cola *c, int x)
         {
             Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->dato = x;
+            nuevo->valor = x;
             nuevo->siguiente = NULL;
             c->final->siguiente = nuevo;
             c->final = nuevo;
@@ -332,7 +332,7 @@ export const tema4: Tema = {
         int encolar(Cola *c, int x)
         {
             Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->dato = x;
+            nuevo->valor = x;
             nuevo->siguiente = NULL;
             if (esVacia(c)) c->frente = nuevo;
             else c->final->siguiente = nuevo;
@@ -388,7 +388,7 @@ export const tema4: Tema = {
             if (esVacia(c)) return 0;
             Nodo *viejo = c->frente;
             free(viejo);
-            *x = viejo->dato;
+            *x = viejo->valor;
             c->frente = viejo->siguiente;
             if (c->frente == NULL)
                 c->final = NULL;
@@ -403,7 +403,7 @@ export const tema4: Tema = {
         {
             if (esVacia(c)) return 0;
             Nodo *viejo = c->frente;
-            *x = viejo->dato;
+            *x = viejo->valor;
             c->frente = viejo->siguiente;
             if (c->frente == NULL)
                 c->final = NULL;

@@ -52,10 +52,10 @@ int estaVacia(ColaCircular *c) { return c->n == 0; }
 int estaLlena(ColaCircular *c) { return c->n == MAX; }`,
 };
 
-/** Tema 4: cola_enlazada.h (el nodo se llama igual pero su dato es «dato») */
+/** Tema 4: cola enlazada, con el mismo Nodo que listas y pilas */
 export const CTX_COLA_ENLAZADA: Contexto = {
   structs: [
-    { nombre: 'Nodo', campos: [{ nombre: 'dato', tipo: { base: 'int', ptr: 0 } }, { nombre: 'siguiente', tipo: { base: 'Nodo', ptr: 1 } }] },
+    NODO,
     {
       nombre: 'Cola',
       campos: [
@@ -148,7 +148,7 @@ export const colaEnlazada =
   (nombre: string, valores: number[]): Constructor =>
   (m, ctx) => {
     const o = nuevoObjeto(m, ctx, 'Cola', false, 'cola');
-    const primero = nodos(m, ctx, valores, 'dato');
+    const primero = nodos(m, ctx, valores);
     o.campos.frente = primero;
     let ultimo: Valor = NULO;
     let v = primero;

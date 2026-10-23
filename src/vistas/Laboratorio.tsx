@@ -43,7 +43,7 @@ const TODAS_LAS_MESAS: { tema: string; nombre: string; ctx: Contexto; inicial: C
     nombre: 'Cola enlazada',
     ctx: CTX_COLA_ENLAZADA,
     inicial: [colaEnlazada('c', [1, 2]), entero('x', 0)],
-    ejemplo: 'Nodo *nuevo = malloc(sizeof(Nodo));\nnuevo->dato = 3;\nnuevo->siguiente = NULL;\nc->final->siguiente = nuevo;\nc->final = nuevo;\nc->n++;\n',
+    ejemplo: 'Nodo *nuevo = malloc(sizeof(Nodo));\nnuevo->valor = 3;\nnuevo->siguiente = NULL;\nc->final->siguiente = nuevo;\nc->final = nuevo;\nc->n++;\n',
   },
 ];
 

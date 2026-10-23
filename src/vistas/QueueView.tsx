@@ -1,10 +1,10 @@
 // Visualizar for the queues: what each one looks like and its operations step by step,
-// running the code of the Tema 4 project untouched.
+// running the code of the Colas project untouched.
 
 import { useEffect, useMemo, useState } from 'react';
 import { verValor } from '../interprete/ejecutar';
 import { Memoria } from '../memoria/modelo';
-import { buscarCola, COLAS, FAMILIAS, MAX, NPRIO, QueueType } from '../queues/catalog';
+import { buscarCola, COLAS, FAMILIAS, NUM_PRIORIDADES, QueueType } from '../queues/catalog';
 import { QueueDrawing } from '../queues/QueueDrawing';
 import { buildQueue, esArray, readQueue, runQueueOp, structsOf } from '../queues/prepare';
 import { Rico } from './comun';
@@ -14,14 +14,18 @@ import { Reproductor, useReproductor } from './Reproductor';
 
 export const COMPARA_COLAS: { familia: string; pregunta: string; r: Record<string, string> }[] = [
   { familia: 'Cola', pregunta: 'Dónde están los datos', r: { 'cola-array': 'en un array circular dentro del struct', 'cola-enlazada': 'en nodos sueltos en el montón' } },
-  { familia: 'Cola', pregunta: 'Qué son frente y final', r: { 'cola-array': 'índices: el primero y el primer hueco libre', 'cola-enlazada': 'punteros al primer y al último nodo' } },
-  { familia: 'Cola', pregunta: 'Vacía', r: { 'cola-array': 'n == 0', 'cola-enlazada': 'frente == NULL' } },
-  { familia: 'Cola', pregunta: '¿Se llena?', r: { 'cola-array': 'sí, con MAX elementos', 'cola-enlazada': 'no, solo si malloc falla' } },
-  { familia: 'Cola', pregunta: 'Desencolar', r: { 'cola-array': 'avanza frente con % MAX; el dato se queda en el array', 'cola-enlazada': 'avanza frente y hace free del nodo' } },
-  { familia: 'Bicola', pregunta: 'Qué se guarda', r: { 'bicola-array': 'frente y n: el último se calcula', 'bicola-enlazada': 'frente y final, y cada nodo ant y sig' } },
-  { familia: 'Bicola', pregunta: 'Insertar por el frente', r: { 'bicola-array': 'retrocede el frente: (frente - 1 + MAX) % MAX', 'bicola-enlazada': 'nodo nuevo delante; el viejo frente apunta atrás a él' } },
-  { familia: 'Bicola', pregunta: 'Extraer por el final', r: { 'bicola-array': 'resta 1 a n: el frente no se mueve', 'bicola-enlazada': 'final = final->ant, sin recorrer' } },
-  { familia: 'Bicola', pregunta: '¿Se llena?', r: { 'bicola-array': 'sí, con MAX elementos', 'bicola-enlazada': 'no: esLlena siempre devuelve 0' } },
+  { familia: 'Cola', pregunta: 'Qué marca los extremos', r: { 'cola-array': 'frente y final: índices del primero y del primer hueco libre', 'cola-enlazada': 'inicio y final: punteros al primer y al último nodo' } },
+  { familia: 'Cola', pregunta: 'Vacía', r: { 'cola-array': 'numElementos == 0', 'cola-enlazada': 'inicio == NULL' } },
+  { familia: 'Cola', pregunta: '¿Se llena?', r: { 'cola-array': 'sí, con TAM_COLA_ARRAY elementos', 'cola-enlazada': 'no, solo si malloc falla' } },
+  { familia: 'Cola', pregunta: 'Desencolar', r: { 'cola-array': 'avanza frente con %; el valor se queda en el array', 'cola-enlazada': 'avanza inicio y elimina el nodo' } },
+  { familia: 'Bicola', pregunta: 'Cómo es por dentro', r: { 'bicola-array': 'array circular con frente, final y numElementos', 'bicola-enlazada': 'lista doble con inicio y final', 'bicola-salida-restringida': 'lista simple con inicio y final' } },
+  { familia: 'Bicola', pregunta: 'Insertar al principio', r: { 'bicola-array': 'retrocede frente: (frente - 1 + TAM) % TAM', 'bicola-enlazada': 'nodo nuevo delante; el viejo inicio apunta atrás a él', 'bicola-salida-restringida': 'nodo nuevo delante del inicio' } },
+  { familia: 'Bicola', pregunta: 'Eliminar del final', r: { 'bicola-array': 'retrocede final y lee esa casilla', 'bicola-enlazada': 'final pasa a su anterior, sin recorrer', 'bicola-salida-restringida': 'no se puede: solo sale por el principio' } },
+  { familia: 'Bicola', pregunta: '¿Se llena?', r: { 'bicola-array': 'sí, con TAM_BICOLA_ARRAY elementos', 'bicola-enlazada': 'no, solo si malloc falla', 'bicola-salida-restringida': 'no, solo si malloc falla' } },
+  { familia: 'Cola con prioridad', pregunta: 'Cómo es por dentro', r: { 'cola-prioridad-lista': 'una lista ordenada por prioridad', 'cola-prioridad-array': 'una ColaEnlazada por prioridad' } },
+  { familia: 'Cola con prioridad', pregunta: 'Encolar', r: { 'cola-prioridad-lista': 'recorre hasta el hueco de su prioridad', 'cola-prioridad-array': 'directo, al final de colas[prioridad]' } },
+  { familia: 'Cola con prioridad', pregunta: 'Desencolar', r: { 'cola-prioridad-lista': 'directo: sale el inicio', 'cola-prioridad-array': 'busca la primera cola no vacía desde la 0' } },
+  { familia: 'Cola con prioridad', pregunta: 'Empates', r: { 'cola-prioridad-lista': 'el <= lo pone detrás de sus iguales', 'cola-prioridad-array': 'cada cola ya es FIFO' } },
 ];
 
 const leerNumeros = (s: string) =>
@@ -31,27 +35,28 @@ const leerNumeros = (s: string) =>
     .map((x) => x.split(':'));
 
 /** «4:0, 8:1» → values and priorities (without a priority, 0). */
-function leerCola(s: string, max: number, conPrio: boolean): { valores: number[]; prios: number[] } {
+function leerCola(s: string, max: number, conPrioridad: boolean): { valores: number[]; prioridades: number[] } {
   const valores: number[] = [];
-  const prios: number[] = [];
+  const prioridades: number[] = [];
   for (const [v, p] of leerNumeros(s)) {
     const n = Number(v);
     if (!Number.isInteger(n) || valores.length >= max) continue;
     valores.push(n);
     const q = Number(p);
-    prios.push(conPrio && Number.isInteger(q) ? Math.min(NPRIO - 1, Math.max(0, q)) : 0);
+    prioridades.push(conPrioridad && Number.isInteger(q) ? Math.min(NUM_PRIORIDADES - 1, Math.max(0, q)) : 0);
   }
-  return { valores, prios };
+  return { valores, prioridades };
 }
 
 const textoInicial = (t: QueueType) => t.ejemplo.map((v, i) => (t.prioridades ? `${v}:${t.prioridades[i]}` : String(v))).join(', ');
-const ejemploDe = (t: QueueType) => ({ valores: t.ejemplo, prios: t.prioridades ?? [], frente: t.ejemploFrente ?? 0 });
+const ejemploDe = (t: QueueType) => ({ valores: t.ejemplo, prioridades: t.prioridades ?? [], frente: t.ejemploFrente ?? 0 });
 
 /** The queue as its mostrar prints it. */
 function mostrar(t: QueueType, m: Memoria): string {
   const xs = readQueue(t, m);
-  if (t.prioridades) return `sale primero <${xs.map((e) => ` ${e.dato}(p${e.prio})`).join('')} >`;
-  return `frente <${xs.map((e) => ' ' + e.dato).join('')} > final`;
+  if (xs === null) return 'La cola se ha liberado: ya no se puede usar.';
+  if (t.prioridades) return `sale primero <${xs.map((e) => ` ${e.valor}(p${e.prioridad})`).join('')} >`;
+  return `principio <${xs.map((e) => ' ' + e.valor).join('')} > final`;
 }
 
 export function QueuePageRoute({ id }: { id: string }) {
@@ -64,11 +69,11 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
   const [opIdx, setOpIdx] = useState(0);
   const [texto, setTexto] = useState(textoInicial(tipo));
   const [frente, setFrente] = useState(tipo.ejemploFrente ?? 0);
-  const [x, setX] = useState(tipo.prioridades ? 5 : 4);
-  const [prio, setPrio] = useState(1);
+  const [x, setX] = useState(tipo.prioridades ? 50 : 4);
+  const [prioridad, setPrioridad] = useState(1);
   const op = tipo.operaciones[opIdx];
-  const { valores, prios } = useMemo(() => leerCola(texto, tipo.max, !!tipo.prioridades), [texto, tipo]);
-  const res = useMemo(() => runQueueOp(tipo, op, { valores, prios, frente, x, prio }), [tipo, op, valores, prios, frente, x, prio]);
+  const { valores, prioridades } = useMemo(() => leerCola(texto, tipo.max, !!tipo.prioridades), [texto, tipo]);
+  const res = useMemo(() => runQueueOp(tipo, op, { valores, prioridades, frente, x, prioridad }), [tipo, op, valores, prioridades, frente, x, prioridad]);
   const rep = useReproductor(res.pasos);
   useEffect(() => {
     rep.setIdx(0);
@@ -110,9 +115,23 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
             <summary>{tipo.nodo ? 'Los structs' : 'El struct'}</summary>
             <EditorCodigo valor={structsOf(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la cola" />
           </details>
+          {tipo.nota && (
+            <p className="nota">
+              <Rico texto={tipo.nota} />
+            </p>
+          )}
           {hermanas.length > 1 && (
             <p className="nota">
-              La otra forma: {hermanas.filter((t) => t.id !== tipo.id).map((t) => <a key={t.id} href={`#/ver/${t.id}`}>{t.nombre.toLowerCase()}</a>)}. Las dos tienen las mismas operaciones con los mismos nombres.
+              {hermanas.length > 2 ? 'Las otras formas: ' : 'La otra forma: '}
+              {hermanas
+                .filter((t) => t.id !== tipo.id)
+                .map((t, i) => (
+                  <span key={t.id}>
+                    {i > 0 && ', '}
+                    <a href={`#/ver/${t.id}`}>{t.nombre.toLowerCase()}</a>
+                  </span>
+                ))}
+              .
             </p>
           )}
         </div>
@@ -144,7 +163,7 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
             {tipo.familia === 'Bicola' ? 'Bicola de partida' : 'Cola de partida'}
             <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-cola" />
             <span id="ayuda-cola" className="ayuda">
-              {tipo.prioridades ? `dato:prioridad (0 a ${NPRIO - 1}), hasta ${tipo.max}` : `Del frente al final, hasta ${tipo.max}`}; en blanco, vacía
+              {tipo.prioridades ? `valor:prioridad (0 a ${NUM_PRIORIDADES - 1}), hasta ${tipo.max}` : `Del principio al final, hasta ${tipo.max}`}; en blanco, vacía
             </span>
           </label>
         )}
@@ -152,7 +171,7 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
           <label>
             Frente en la casilla
             <select value={frente} onChange={(e) => setFrente(Number(e.target.value))}>
-              {Array.from({ length: MAX }, (_, i) => (
+              {Array.from({ length: tipo.max }, (_, i) => (
                 <option key={i} value={i}>
                   {i}
                 </option>
@@ -166,10 +185,10 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
             <input type="number" value={x} onChange={(e) => setX(Number(e.target.value) || 0)} />
           </label>
         )}
-        {op.args.includes('prio') && (
+        {op.args.includes('prioridad') && (
           <label>
             Prioridad
-            <input type="number" value={prio} onChange={(e) => setPrio(Number(e.target.value) || 0)} />
+            <input type="number" value={prioridad} onChange={(e) => setPrioridad(Number(e.target.value) || 0)} />
           </label>
         )}
         <p className="llamada-op">
@@ -185,7 +204,7 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
             <span className="nota">de {tipo.archivo}</span>
           </div>
           <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
-          <p className="nota">Las demás funciones del archivo (esVacia, avanza…) se ejecutan de un solo paso.</p>
+          <p className="nota">Las demás funciones del archivo y las del TAD del nodo se ejecutan de un solo paso.</p>
         </section>
         <section className="panel panel-memoria">
           <div className="panel-cab">
@@ -206,7 +225,7 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
           )}
           {!res.error && final && (
             <div className="caja-bien">
-              {res.devuelve && res.devuelve.k !== 'nulo' && (
+              {res.devuelve && res.devuelve.k !== 'nulo' && !op.crea && (
                 <>
                   Devuelve <strong>{verValor(res.devuelve)}</strong>.{' '}
                 </>

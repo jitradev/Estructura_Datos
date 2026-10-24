@@ -31,12 +31,6 @@ int tamanoColaEnlazada(ColaEnlazada *cola) {
     if (cola == NULL) return -1;
     return cola->tamano;
 }
-
-int frenteColaEnlazada(ColaEnlazada *cola, int *x) {
-    if (estaVaciaColaEnlazada(cola) == 1) return 0;
-    *x = obtenerValorNodoSimple(cola->inicio);
-    return 1;
-}
 int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
     if (estaVaciaColaEnlazada(cola) == 1) return 0;
     *x = obtenerValorNodoSimple(cola->inicio);
@@ -61,6 +55,11 @@ int encolarColaEnlazada(ColaEnlazada *cola, int x) {
     }
     cola->final = aux;
     cola->tamano++;
+    return 1;
+}
+int frenteColaEnlazada(ColaEnlazada *cola, int *x) {
+    if (estaVaciaColaEnlazada(cola) == 1) return 0;
+    *x = obtenerValorNodoSimple(cola->inicio);
     return 1;
 }
 int vaciarColaEnlazada(ColaEnlazada *cola) {

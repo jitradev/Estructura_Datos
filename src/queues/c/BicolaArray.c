@@ -20,7 +20,7 @@ BicolaArray *crearBicolaArray() {
 }
 
 int estaVaciaBicolaArray(BicolaArray *cola) {
-    if(cola->numElementos == 0) {
+    if(cola == NULL || cola->numElementos == 0) {
         return 1;
     }
     return 0;
@@ -28,26 +28,14 @@ int estaVaciaBicolaArray(BicolaArray *cola) {
 }
 
 int estaLLenaBicolaArray(BicolaArray *cola) {
-    if(cola->numElementos == TAM_BICOLA_ARRAY) {
+    if(cola == NULL || cola->numElementos == TAM_BICOLA_ARRAY) {
         return 1;
     }
     return 0;
 }
 int tamanoBicolaArray(BicolaArray *cola) {
+    if (cola == NULL) return -1;
     return cola->numElementos;
-}
-
-int principioBicolaArray(BicolaArray *cola, int *x) {
-    if(estaVaciaBicolaArray(cola) == 1) return 0;
-    *x = cola->array[cola->frente];
-    return 1;
-}
-
-int finalBicolaArray(BicolaArray *cola, int *x) {
-    if(estaVaciaBicolaArray(cola) == 1) return 0;
-    // final es el primer hueco libre: el último está justo antes
-    *x = cola->array[(cola->final - 1 + TAM_BICOLA_ARRAY) % TAM_BICOLA_ARRAY];
-    return 1;
 }
 
 int eliminarPrincipioBicolaArray(BicolaArray *cola, int *x) {
@@ -84,7 +72,20 @@ int insertarPrincipioBicolaArray(BicolaArray *cola, int x) {
     return 1;
 }
 
+int principioBicolaArray(BicolaArray *cola, int *x) {
+    if(estaVaciaBicolaArray(cola) == 1) return 0;
+    *x = cola->array[cola->frente];
+    return 1;
+}
+
+int finalBicolaArray(BicolaArray *cola, int *x) {
+    if(estaVaciaBicolaArray(cola) == 1) return 0;
+    *x = cola->array[(cola->final - 1 + TAM_BICOLA_ARRAY) % TAM_BICOLA_ARRAY];
+    return 1;
+}
+
 int vaciarBicolaArray(BicolaArray *cola) {
+    if (cola == NULL) return 0;
     cola->frente = 0;
     cola->final = 0;
     cola->numElementos = 0;
@@ -92,6 +93,7 @@ int vaciarBicolaArray(BicolaArray *cola) {
 }
 
 void mostrarBicolaArray(BicolaArray *cola) {
+    if (cola == NULL) return;
     for (int i = 0; i < cola->numElementos; i++) {
         printf("%d ", cola->array[(i+ cola->frente) % TAM_BICOLA_ARRAY]);
     }

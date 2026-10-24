@@ -1,5 +1,6 @@
 // Builds an example queue in memory and runs one operation of the Colas project on it.
-// main has `cola` (the pointer that crear returns) and `x`, as in the project's main.c.
+// main has `cola` (the pointer that crear returns) and `x` (and `prioridad` in the priority
+// queues), as in the project's main.c.
 // Only the chosen function is shown step by step; every other function of its file and of
 // the files it uses (the node TAD, ColaEnlazada for the priority array) runs as a single
 // step. The mostrar functions are left out: the students do not print.
@@ -82,6 +83,7 @@ export function buildQueue(t: QueueType, p: Pick<QueueParams, 'valores' | 'prior
   }
   m.marcos[0].vars.push({ nombre: 'cola', tipo: { base: t.struct, ptr: 1 }, valor: cola });
   m.marcos[0].vars.push({ nombre: 'x', tipo: { base: 'int', ptr: 0 }, valor: int(0) });
+  if (t.prioridades) m.marcos[0].vars.push({ nombre: 'prioridad', tipo: { base: 'int', ptr: 0 }, valor: int(0) });
   return m;
 }
 

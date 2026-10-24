@@ -35,16 +35,6 @@ int tamanoColaPrioridadArray(ColaPrioridadArray *cola) {
     if (cola == NULL) return -1;
     return cola->tamano;
 }
-int frenteColaPrioridadArray(ColaPrioridadArray *cola, int *x) {
-    if (estaVaciaColaPrioridadArray(cola) == 1) return 0;
-    // Como desencolar, pero sin sacarlo
-    for (int i = 0; i < NUM_PRIORIDADES; i++) {
-        if (estaVaciaColaEnlazada(cola->colas[i]) == 0) {
-            return frenteColaEnlazada(cola->colas[i], x);
-        }
-    }
-    return 0;
-}
 int desencolarColaPrioridadArray(ColaPrioridadArray *cola, int *x) {
     if (estaVaciaColaPrioridadArray(cola) == 1) return 0;
     // Primera cola no vacía desde la prioridad 0
@@ -63,6 +53,18 @@ int encolarColaPrioridadArray(ColaPrioridadArray *cola, int x, int prioridad) {
     if (encolarColaEnlazada(cola->colas[prioridad], x) == 0) return 0;
     cola->tamano++;
     return 1;
+}
+int frenteColaPrioridadArray(ColaPrioridadArray *cola, int *x, int *prioridad) {
+    if (estaVaciaColaPrioridadArray(cola) == 1) return 0;
+    for (int i = 0; i < NUM_PRIORIDADES; i++) {
+        if (frenteColaEnlazada(cola->colas[i], x) == 1) {
+            if (prioridad != NULL) {
+                *prioridad = i;
+            }
+            return 1;
+        }
+    }
+    return 0;
 }
 int vaciarColaPrioridadArray(ColaPrioridadArray *cola) {
     if (cola == NULL) return 0;

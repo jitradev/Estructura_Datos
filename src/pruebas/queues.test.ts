@@ -122,8 +122,9 @@ describe('the queues do what main.c says', () => {
         { valor: 20, prioridad: 3 },
       ]);
       expect(call(t, m, `encolar${s}(cola, 99, 7)`).devuelve).toEqual(int(0));
-      m = call(t, m, `frente${s}(cola, &x)`).memFinal;
+      m = call(t, m, `frente${s}(cola, &x, &prioridad)`).memFinal;
       expect(x(m)).toEqual(int(30));
+      expect(m.marcos[0].vars.find((v) => v.nombre === 'prioridad')!.valor).toEqual(int(0));
       const sacados: number[] = [];
       for (;;) {
         const r = call(t, m, `desencolar${s}(cola, &x)`);

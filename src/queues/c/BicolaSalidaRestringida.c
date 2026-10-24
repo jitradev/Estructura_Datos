@@ -28,11 +28,6 @@ int tamanoBicolaSalidaRestringida(BicolaSalidaRestringida *cola) {
     if (cola == NULL) return -1;
     return cola->tamano;
 }
-int principioBicolaSalidaRestringida(BicolaSalidaRestringida *cola, int *x) {
-    if (estaVaciaBicolaSalidaRestringida(cola) == 1) return 0;
-    *x = obtenerValorNodoSimple(cola->inicio);
-    return 1;
-}
 int eliminarPrincipioBicolaSalidaRestringida(BicolaSalidaRestringida *cola, int *x) {
     if (estaVaciaBicolaSalidaRestringida(cola) == 1) return 0;
     NodoSimple *aux = cola->inicio;
@@ -68,6 +63,11 @@ int insertarPrincipioBicolaSalidaRestringida(BicolaSalidaRestringida *cola, int 
     }
     cola->inicio = aux;
     cola->tamano++;
+    return 1;
+}
+int principioBicolaSalidaRestringida(BicolaSalidaRestringida *cola, int *x) {
+    if (estaVaciaBicolaSalidaRestringida(cola) == 1) return 0;
+    *x = obtenerValorNodoSimple(cola->inicio);
     return 1;
 }
 int vaciarBicolaSalidaRestringida(BicolaSalidaRestringida *cola) {

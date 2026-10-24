@@ -20,7 +20,7 @@ ColaArray *crearColaArray() {
 }
 
 int estaVaciaColaArray(ColaArray *cola) {
-    if(cola->numElementos == 0) {
+    if(cola == NULL || cola->numElementos == 0) {
         return 1;
     }
     return 0;
@@ -28,19 +28,14 @@ int estaVaciaColaArray(ColaArray *cola) {
 }
 
 int estaLLenaColaArray(ColaArray *cola) {
-    if(cola->numElementos == TAM_COLA_ARRAY) {
+    if(cola == NULL || cola->numElementos == TAM_COLA_ARRAY) {
         return 1;
     }
     return 0;
 }
 int tamanoColaArray(ColaArray *cola) {
+    if (cola == NULL) return -1;
     return cola->numElementos;
-}
-
-int frenteColaArray(ColaArray *cola, int *x) {
-    if(estaVaciaColaArray(cola) == 1) return 0;
-    *x = cola->array[cola->frente];
-    return 1;
 }
 
 int desencolarColaArray(ColaArray *cola, int *x) {
@@ -59,7 +54,14 @@ int encolarColaArray(ColaArray *cola, int x) {
     return 1;
 }
 
+int frenteColaArray(ColaArray *cola, int *x) {
+    if(estaVaciaColaArray(cola) == 1) return 0;
+    *x = cola->array[cola->frente];
+    return 1;
+}
+
 int vaciarColaArray(ColaArray *cola) {
+    if (cola == NULL) return 0;
     cola->frente = 0;
     cola->final = 0;
     cola->numElementos = 0;
@@ -67,6 +69,7 @@ int vaciarColaArray(ColaArray *cola) {
 }
 
 void mostrarColaArray(ColaArray *cola) {
+    if (cola == NULL) return;
     for (int i = 0; i < cola->numElementos; i++) {
         printf("%d ", cola->array[(i+ cola->frente) % TAM_COLA_ARRAY]);
     }

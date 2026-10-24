@@ -28,16 +28,6 @@ int tamanoBicolaEnlazada(BicolaEnlazada *cola) {
     if (cola == NULL) return -1;
     return cola->tamano;
 }
-int principioBicolaEnlazada(BicolaEnlazada *cola, int *x) {
-    if (estaVaciaBicolaEnlazada(cola) == 1) return 0;
-    *x = obtenerValorNodoDoble(cola->inicio);
-    return 1;
-}
-int finalBicolaEnlazada(BicolaEnlazada *cola, int *x) {
-    if (estaVaciaBicolaEnlazada(cola) == 1) return 0;
-    *x = obtenerValorNodoDoble(cola->final);
-    return 1;
-}
 int eliminarPrincipioBicolaEnlazada(BicolaEnlazada *cola, int *x) {
     if (estaVaciaBicolaEnlazada(cola) == 1) return 0;
     NodoDoble *aux = cola->inicio;
@@ -91,6 +81,16 @@ int insertarPrincipioBicolaEnlazada(BicolaEnlazada *cola, int x) {
     }
     cola->inicio = aux;
     cola->tamano++;
+    return 1;
+}
+int principioBicolaEnlazada(BicolaEnlazada *cola, int *x) {
+    if (estaVaciaBicolaEnlazada(cola) == 1) return 0;
+    *x = obtenerValorNodoDoble(cola->inicio);
+    return 1;
+}
+int finalBicolaEnlazada(BicolaEnlazada *cola, int *x) {
+    if (estaVaciaBicolaEnlazada(cola) == 1) return 0;
+    *x = obtenerValorNodoDoble(cola->final);
     return 1;
 }
 int vaciarBicolaEnlazada(BicolaEnlazada *cola) {

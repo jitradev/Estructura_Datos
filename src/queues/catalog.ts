@@ -26,7 +26,8 @@ export type QueueFamily = 'Cola' | 'Bicola' | 'Cola con prioridad';
 export type QueueArg =
   | 'x' // a number typed by the user (encolar, insertar...)
   | 'prioridad' // a priority typed by the user
-  | '&x'; // the address of main's `x`
+  | '&x' // the address of main's `x`
+  | '&prioridad'; // the address of main's `prioridad` (the priority queues)
 
 export interface QueueOp {
   fn: string; // real function name in the .c
@@ -284,7 +285,7 @@ export const COLAS: QueueType[] = [
     operaciones: [
       op('encolarColaPrioridadLista', 'Encolar con prioridad', 'Avanza anterior y actual mientras la prioridad sea <= que la suya y engancha el nodo nuevo entre los dos.', ['x', 'prioridad'], 'Insertar y extraer'),
       op('desencolarColaPrioridadLista', 'Desencolar', 'Sale siempre el inicio: copia su valor en *x, avanza el inicio y elimina el nodo.', ['&x'], 'Insertar y extraer'),
-      op('frenteColaPrioridadLista', 'Consultar el frente', 'Copia en *x el valor del inicio: la lista está ordenada, así que es el más prioritario.', ['&x'], 'Consultar'),
+      op('frenteColaPrioridadLista', 'Consultar el frente', 'Copia en *x el valor del inicio y en *prioridad su prioridad: la lista está ordenada, así que es el más prioritario.', ['&x', '&prioridad'], 'Consultar'),
       op('tamanoColaPrioridadLista', 'Tamaño', 'Devuelve el contador tamano.', [], 'Consultar'),
       op('estaVaciaColaPrioridadLista', '¿Está vacía?', 'Devuelve 1 si el inicio es NULL.', [], 'Consultar'),
       op('vaciarColaPrioridadLista', 'Vaciar', 'Desencola hasta vaciarla: cada desencolar elimina un nodo.', [], 'Insertar y extraer'),
@@ -323,7 +324,7 @@ export const COLAS: QueueType[] = [
     operaciones: [
       op('encolarColaPrioridadArray', 'Encolar con prioridad', 'Encola x al final de la cola de su prioridad, colas[prioridad], y suma 1 al tamaño.', ['x', 'prioridad'], 'Insertar y extraer'),
       op('desencolarColaPrioridadArray', 'Desencolar', 'Busca desde la prioridad 0 la primera cola que no esté vacía y desencola de ella.', ['&x'], 'Insertar y extraer'),
-      op('frenteColaPrioridadArray', 'Consultar el frente', 'Como desencolar, pero consulta el frente de esa cola sin sacarlo.', ['&x'], 'Consultar'),
+      op('frenteColaPrioridadArray', 'Consultar el frente', 'Pide el frente a cada cola desde la prioridad 0; la primera que lo da es la buena, y su índice es la prioridad.', ['&x', '&prioridad'], 'Consultar'),
       op('tamanoColaPrioridadArray', 'Tamaño', 'Devuelve el contador tamano: la suma de todas las colas.', [], 'Consultar'),
       op('estaVaciaColaPrioridadArray', '¿Está vacía?', 'Devuelve 1 si tamano vale 0.', [], 'Consultar'),
       op('vaciarColaPrioridadArray', 'Vaciar', 'Vacía cada una de las colas y pone tamano a 0. Las colas siguen existiendo.', [], 'Insertar y extraer'),

@@ -26,12 +26,6 @@ int tamanoColaPrioridadLista(ColaPrioridadLista *cola) {
     if (cola == NULL) return -1;
     return cola->tamano;
 }
-int frenteColaPrioridadLista(ColaPrioridadLista *cola, int *x) {
-    if (estaVaciaColaPrioridadLista(cola) == 1) return 0;
-    // La lista está ordenada: el más prioritario es siempre el primero
-    *x = obtenerValorNodoPrioridad(cola->inicio);
-    return 1;
-}
 int desencolarColaPrioridadLista(ColaPrioridadLista *cola, int *x) {
     if (estaVaciaColaPrioridadLista(cola) == 1) return 0;
     NodoPrioridad *aux = cola->inicio;
@@ -39,6 +33,14 @@ int desencolarColaPrioridadLista(ColaPrioridadLista *cola, int *x) {
     cola->inicio = obtenerSiguienteNodoPrioridad(aux);
     cola->tamano--;
     return eliminarNodoPrioridad(aux);
+}
+int frenteColaPrioridadLista(ColaPrioridadLista *cola, int *x, int *prioridad) {
+    if (estaVaciaColaPrioridadLista(cola) == 1) return 0;
+    *x = obtenerValorNodoPrioridad(cola->inicio);
+    if (prioridad != NULL) {
+        *prioridad = obtenerPrioridadNodoPrioridad(cola->inicio);
+    }
+    return 1;
 }
 int encolarColaPrioridadLista(ColaPrioridadLista *cola, int x, int prioridad) {
     if (cola == NULL) return 0;

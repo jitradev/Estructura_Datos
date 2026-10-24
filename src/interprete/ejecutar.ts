@@ -51,6 +51,15 @@ export interface OpcionesEj {
   maxPasos?: number;
 }
 
+/** What went wrong inside a single-step function (the node TAD...), told from the call. */
+const DENTRO: Partial<Record<TipoError, string>> = {
+  nulo: 'recibe NULL donde necesita un nodo.',
+  liberado: 'usa un nodo que ya se ha liberado.',
+  basura: 'usa algo que no está inicializado.',
+  free: 'libera algo que ya estaba liberado o que no se reservó con malloc.',
+  array: 'se sale del array.',
+};
+
 class Fallo extends Error {
   constructor(public err: ErrorEj) {
     super(err.mensaje);
@@ -92,10 +101,17 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
   // Comprobación estática: campos prohibidos
   if (op.prohibidos?.length) {
     const p = buscarProhibido(prog, op.prohibidos);
-    if (p) return { pasos, error: { linea: p.linea, mensaje: `En este ejercicio no se puede cambiar el campo «${p.campo}»: hay que mover nodos, no datos.`, tipo: 'prohibido' }, memFinal: m, fugas: [] };
+    if (p) {
+      const mensaje = p.campo.endsWith('()')
+        ? `En este ejercicio no se puede usar «${p.campo.slice(0, -2)}»: hay que mover nodos, no crearlos ni cambiar sus datos.`
+        : `En este ejercicio no se puede cambiar el campo «${p.campo}»: hay que mover nodos, no datos.`;
+      return { pasos, error: { linea: p.linea, mensaje, tipo: 'prohibido' }, memFinal: m, fugas: [] };
+    }
   }
 
   let silencio = 0;
+  /** The call in the student's code that went into the single-step functions. */
+  let llamadaVisible = '';
   let cuenta = 0;
   let lineaVisible = 0;
   const fuentes: string[] = [src];
@@ -103,6 +119,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
   const marco = () => m.marcos.length - 1;
 
   const fallar = (linea: number, tipo: TipoError, mensaje: string): never => {
+    // inside a single-step function its variables mean nothing to the student: talk about the call
+    if (silencio > 0 && DENTRO[tipo]) mensaje = `«${llamadaVisible}» ${DENTRO[tipo]}`;
     throw new Fallo({ linea: silencio > 0 ? lineaVisible : linea, tipo, mensaje });
   };
   const paso = (linea: number, nota?: string) => {
@@ -355,7 +373,7 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
       if (!o.heap) return fallar(e.linea, 'free', `Solo se puede liberar lo que se reservó con malloc, y «${txt(e.args[0])}» no lo es.`);
       if (o.liberado) return fallar(e.linea, 'free', `Doble free: el nodo al que apunta «${txt(e.args[0])}» ya se liberó en la línea ${o.liberadoEn}.`);
       o.liberado = true;
-      o.liberadoEn = e.linea;
+      o.liberadoEn = silencio > 0 ? lineaVisible : e.linea;
       return NULO;
     }
     if (e.f === 'printf' || e.f === 'puts') return int(0);
@@ -366,7 +384,7 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
     const args = e.args.map((a) => valor(a));
     // Los punteros a variables del marco de quien llama siguen apuntando allí
     m.marcos.push({ funcion: f.nombre, vars: f.params.map((p, i) => ({ nombre: p.nombre, tipo: p.tipo, valor: args[i] })) });
-    if (f.silenciosa) silencio++;
+    if (f.silenciosa && silencio++ === 0) llamadaVisible = txt(e);
     fuentes.push(f.src);
     paso(f.linea, `Entra en ${f.nombre}`);
     let r: Valor | undefined;
@@ -528,6 +546,7 @@ function buscarProhibido(p: Programa, campos: string[]): { linea: number; campo:
   const verE = (e: Expr | undefined): void => {
     if (!e || hallado) return;
     if (e.k === 'asig' && e.a.k === 'campo' && campos.includes(e.a.f)) hallado = { linea: e.linea, campo: e.a.f };
+    if (e.k === 'llamada' && campos.includes(e.f + '()')) hallado = { linea: e.linea, campo: e.f + '()' };
     for (const v of Object.values(e)) {
       if (v && typeof v === 'object' && 'k' in (v as object) && 'ini' in (v as object)) verE(v as Expr);
       if (Array.isArray(v)) v.forEach((x) => x && typeof x === 'object' && 'ini' in x && verE(x as Expr));

@@ -16,7 +16,7 @@ Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de
 - **Laboratorio**: lista, pila o cola de partida y código libre, sin corrección.
 - **Visualizar** (`#/ver`): las dos pilas del proyecto Pilas (`PilaArray` y `PilaEnlazada`, en `src/stacks/`), las del proyecto Colas (cola con array y enlazada; bicola con array, enlazada y de salida restringida; cola con prioridad con lista ordenada y con array de colas, en `src/queues/`) y las cuatro listas del TAD (simple, doble, circular y circular doble) dibujadas con sus structs, una tabla que las compara y, para cada una, sus operaciones paso a paso (insertar, eliminar, consultar) con la lista de partida y los parámetros que se quieran. Se ejecuta el código de `src/listas/c/*.c` tal cual: las funciones del TAD Nodo y las de consulta van de un solo paso y el resto se ve línea a línea.
 
-Los structs son los de `soluciones-codigo` con los nombres de campo del TAD Lista (`Nodo` con `valor` y `siguiente`, y `anterior` en el nodo doble; `MAX` 6 en la pila y 5 en la cola circular con contador).
+Las listas usan los structs de `soluciones-codigo` con los nombres de campo del TAD Lista (`Nodo` con `valor` y `siguiente`, y `anterior` en el nodo doble). Las pilas y las colas usan los de los proyectos `Pilas` y `Colas`, los mismos que se ejecutan en Visualizar: `PilaArray` (`TAM` vale 8 en los ejercicios) y `PilaEnlazada`; `ColaArray` (`TAM_COLA_ARRAY` 10) y `ColaEnlazada` sobre el TAD `NodoSimple`. En cada ejercicio están disponibles todas las funciones del proyecto; en los de «a mano», `prohibidos` veta la que se pide escribir (una entrada que acaba en `()` es una función).
 
 ## Cómo se corrige
 

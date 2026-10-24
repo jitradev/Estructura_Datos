@@ -28,7 +28,7 @@ interface Base {
 export interface EjProgramar extends Base {
   tipo: 'programar';
   codigoInicial?: string;
-  /** Campos que no se pueden asignar (para obligar a mover nodos). */
+  /** Campos que no se pueden asignar, y funciones que no se pueden llamar si acaban en «()» (para obligar a mover nodos). */
   prohibidos?: string[];
 }
 

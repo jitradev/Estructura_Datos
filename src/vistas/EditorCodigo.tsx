@@ -6,7 +6,7 @@ import React, { useRef } from 'react';
 
 export type EstadoLinea = 'hecha' | 'actual' | 'error' | 'marcada' | 'bien';
 
-const RE = /(\/\/.*$|\/\*.*?\*\/|\b(?:while|do|if|else|for|return|break|continue|sizeof|struct|const)\b|\b(?:int|void|char|Nodo|NodoDoble|Pila|Cola|ColaCircular|Lista|ListaDoble|ListaCircular|ListaCircularDoble)\b|\b(?:NULL|MAX)\b|\b(?:malloc|free)\b|\b\d+\b)/g;
+const RE = /(\/\/.*$|\/\*.*?\*\/|\b(?:while|do|if|else|for|return|break|continue|sizeof|struct|const)\b|\b(?:int|void|char|Nodo|NodoDoble|NodoSimple|NodoPrioridad|PilaArray|PilaEnlazada|ColaArray|ColaEnlazada|BicolaArray|BicolaEnlazada|BicolaSalidaRestringida|ColaPrioridadLista|ColaPrioridadArray|Lista|ListaDoble|ListaCircular|ListaCircularDoble)\b|\b(?:NULL|MAX|TAM|TAM_COLA_ARRAY|TAM_BICOLA_ARRAY|NUM_PRIORIDADES)\b|\b(?:malloc|free)\b|\b\d+\b)/g;
 
 function colorear(linea: string): React.ReactNode[] {
   const out: React.ReactNode[] = [];
@@ -16,7 +16,7 @@ function colorear(linea: string): React.ReactNode[] {
   while ((m = RE.exec(linea))) {
     if (m.index > ult) out.push(linea.slice(ult, m.index));
     const t = m[0];
-    const cls = t.startsWith('//') || t.startsWith('/*') ? 'cm' : /^\d/.test(t) ? 'nu' : /^(int|void|char|Nodo|NodoDoble|Pila|Cola|ColaCircular|Lista|ListaDoble|ListaCircular|ListaCircularDoble)$/.test(t) ? 'ty' : /^(NULL|MAX)$/.test(t) ? 'ct' : /^(malloc|free)$/.test(t) ? 'fn' : 'kw';
+    const cls = t.startsWith('//') || t.startsWith('/*') ? 'cm' : /^\d/.test(t) ? 'nu' : /^(int|void|char|Nodo|NodoDoble|NodoSimple|NodoPrioridad|PilaArray|PilaEnlazada|ColaArray|ColaEnlazada|BicolaArray|BicolaEnlazada|BicolaSalidaRestringida|ColaPrioridadLista|ColaPrioridadArray|Lista|ListaDoble|ListaCircular|ListaCircularDoble)$/.test(t) ? 'ty' : /^(NULL|MAX|TAM|TAM_COLA_ARRAY|TAM_BICOLA_ARRAY|NUM_PRIORIDADES)$/.test(t) ? 'ct' : /^(malloc|free)$/.test(t) ? 'fn' : 'kw';
     out.push(
       <span key={m.index} className={cls}>
         {t}

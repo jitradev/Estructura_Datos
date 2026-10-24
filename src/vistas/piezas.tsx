@@ -29,13 +29,23 @@ export function Chuleta({ ctx }: { ctx: Contexto }) {
       ['Puntero doble', 'Nodo **p = &cab;  p = &(*p)->siguiente;'],
     );
   }
-  if (nombres.includes('Pila') && ctx.structs.find((s) => s.nombre === 'Pila')!.campos.some((c) => c.arr))
-    filas.push(['Cima', 'p->datos[p->cima]'], ['Subir la cima', 'p->cima++;'], ['¿Vacía? ¿Llena?', 'esVacia(p)  esLlena(p)']);
-  if (nombres.includes('Pila') && !ctx.structs.find((s) => s.nombre === 'Pila')!.campos.some((c) => c.arr))
-    filas.push(['Nodo de la cima', 'p->cima'], ['Contador', 'p->n++;'], ['¿Vacía?', 'esVacia(p)']);
-  if (nombres.includes('ColaCircular'))
-    filas.push(['Escribir al final', 'c->datos[c->final] = x;'], ['Avanzar con vuelta', 'c->final = (c->final + 1) % MAX;'], ['¿Vacía? ¿Llena?', 'estaVacia(c)  estaLlena(c)']);
-  if (nombres.includes('Cola')) filas.push(['Primero y último', 'c->frente  c->final'], ['¿Vacía?', 'esVacia(c)']);
+  if (nombres.includes('PilaArray')) filas.push(['Cima', 'pila->array[pila->cima]'], ['Subir la cima', 'pila->cima++;'], ['¿Vacía? ¿Llena?', 'esVaciaArray(pila)  esLLenaArray(pila)']);
+  if (nombres.includes('PilaEnlazada')) filas.push(['Nodo de la cima', 'pila->cima'], ['Contador', 'pila->tamano++;'], ['¿Vacía?', 'esVaciaEnlazada(pila)']);
+  if (nombres.includes('ColaArray'))
+    filas.push(
+      ['Escribir al final', 'cola->array[cola->final] = x;'],
+      ['Avanzar con vuelta', 'cola->final = (cola->final + 1) % TAM_COLA_ARRAY;'],
+      ['¿Vacía? ¿Llena?', 'estaVaciaColaArray(cola)  estaLLenaColaArray(cola)'],
+    );
+  if (nombres.includes('ColaEnlazada'))
+    filas.push(
+      ['Primero y último', 'cola->inicio  cola->final'],
+      ['Crear un nodo', 'NodoSimple *aux = crearNodoSimple(5);'],
+      ['Enlazar', 'establecerSiguienteNodoSimple(a, b);'],
+      ['Leer', 'obtenerValorNodoSimple(a)  obtenerSiguienteNodoSimple(a)'],
+      ['Liberar', 'eliminarNodoSimple(a);'],
+      ['¿Vacía?', 'estaVaciaColaEnlazada(cola)'],
+    );
   filas.push(['Bucles y condiciones', 'while (…) { … }   if (…) … else …']);
   return (
     <details className="chuleta">

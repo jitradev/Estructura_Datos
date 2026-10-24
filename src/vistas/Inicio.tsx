@@ -51,7 +51,7 @@ const DIBUJOS: Record<string, JSX.Element> = {
         </g>
       ))}
       <text x="232" y="27" className="mini-n">
-        % MAX
+        % TAM
       </text>
     </svg>
   ),

@@ -13,7 +13,7 @@ interface Registro {
 
 function leer(): Record<string, Registro> {
   try {
-    return migrar(JSON.parse(localStorage.getItem(CLAVE) || '{}'));
+    return migrarPilasColas(migrar(JSON.parse(localStorage.getItem(CLAVE) || '{}')));
   } catch {
     return {};
   }
@@ -34,6 +34,22 @@ function migrar(todo: Record<string, Registro>): Record<string, Registro> {
           : x;
   for (const r of Object.values(todo)) if (r?.datos) r.datos = traducir(r.datos) as Record<string, unknown>;
   (todo as Record<string, unknown>)[MIGRADO] = { resuelto: false };
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(todo));
+  } catch {
+    /* sin almacenamiento: no pasa nada */
+  }
+  return todo;
+}
+
+// Stacks and queues moved to the Pilas and Colas projects (PilaArray, pila->array,
+// pushArray...): drafts written with the old names no longer run and cannot be translated
+// line by line, so they are dropped once. What was solved stays solved.
+const MIGRADO_PILAS_COLAS = '__pilas-colas-v3';
+function migrarPilasColas(todo: Record<string, Registro>): Record<string, Registro> {
+  if ((todo as Record<string, unknown>)[MIGRADO_PILAS_COLAS]) return todo;
+  for (const [id, r] of Object.entries(todo)) if (/^[34]-/.test(id) && r?.datos) delete r.datos;
+  (todo as Record<string, unknown>)[MIGRADO_PILAS_COLAS] = { resuelto: false };
   try {
     localStorage.setItem(CLAVE, JSON.stringify(todo));
   } catch {

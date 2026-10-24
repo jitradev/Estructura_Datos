@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ejecutar } from '../interprete/ejecutar';
-import { construir, CTX_LISTA, CTX_PILA_ARRAY, CTX_COLA_CIRCULAR, CTX_COLA_ENLAZADA, lista, pilaArray, colaCircular, colaEnlazada, entero } from '../memoria/construir';
+import { construir, CTX_LISTA, CTX_PILA_ARRAY, CTX_COLA_ARRAY, CTX_COLA_ENLAZADA, lista, pilaArray, colaArray, colaEnlazada, entero } from '../memoria/construir';
 import { describir, huella } from '../memoria/comparar';
 
 describe('intérprete', () => {
@@ -41,23 +41,35 @@ describe('intérprete', () => {
     const r = ejecutar('cab = cab->siguiente;', CTX_LISTA, m);
     expect(r.fugas.length).toBe(1);
   });
-  it('pila con array y cola circular', () => {
-    const m = construir(CTX_PILA_ARRAY, [pilaArray('p', [4, 1]), entero('x')]);
-    const r = ejecutar(`int pop(Pila *p, int *x) { if (esVacia(p)) return 0; *x = p->datos[p->cima--]; return 1; }`, CTX_PILA_ARRAY, m, { llamada: 'pop(p, &x)' });
+  it('pila con array y cola con array', () => {
+    const m = construir(CTX_PILA_ARRAY, [pilaArray('pila', [4, 1]), entero('valor')]);
+    const r = ejecutar(`int quitar(PilaArray *pila, int *valor) { if (esVaciaArray(pila)) { return 0; } *valor = pila->array[pila->cima--]; return 1; }`, CTX_PILA_ARRAY, m, {
+      llamada: 'quitar(pila, &valor)',
+    });
     expect(r.error).toBeUndefined();
-    expect(describir(r.memFinal, CTX_PILA_ARRAY, 'x')).toBe('x = 1');
+    expect(describir(r.memFinal, CTX_PILA_ARRAY, 'valor')).toBe('valor = 1');
     expect(r.devuelve).toEqual({ k: 'int', v: 1 });
-    const c = construir(CTX_COLA_CIRCULAR, [colaCircular('c', [8, 4, 9], 1)]);
-    const r2 = ejecutar(`c->datos[c->final] = 2; c->final = c->final + 1; c->n++;`, CTX_COLA_CIRCULAR, c);
+    const c = construir(CTX_COLA_ARRAY, [colaArray('cola', [8, 4, 9], 6)]);
+    const r2 = ejecutar(`cola->array[cola->final] = 2; cola->final = cola->final + 1; cola->numElementos++;`, CTX_COLA_ARRAY, c);
     expect(r2.error?.tipo).toBeUndefined();
-    const r3 = ejecutar(`c->datos[c->final] = 2; c->final = c->final + 1; c->n++; c->datos[c->final] = 3;`, CTX_COLA_CIRCULAR, c);
+    const r3 = ejecutar(`cola->array[cola->final] = 2; cola->final = cola->final + 1; cola->numElementos++; cola->array[cola->final] = 3;`, CTX_COLA_ARRAY, c);
     expect(r3.error?.tipo).toBe('array');
   });
   it('huella iguala formas', () => {
-    const a = construir(CTX_COLA_ENLAZADA, [colaEnlazada('c', [1, 2])]);
-    const b = construir(CTX_COLA_ENLAZADA, [colaEnlazada('c', [1, 2])]);
-    expect(huella(a, ['c'])).toBe(huella(b, ['c']));
-    expect(describir(a, CTX_COLA_ENLAZADA, 'c')).toContain('c->frente -> 1 -> 2 -> NULL');
+    const a = construir(CTX_COLA_ENLAZADA, [colaEnlazada('cola', [1, 2])]);
+    const b = construir(CTX_COLA_ENLAZADA, [colaEnlazada('cola', [1, 2])]);
+    expect(huella(a, ['cola'])).toBe(huella(b, ['cola']));
+    expect(describir(a, CTX_COLA_ENLAZADA, 'cola')).toContain('cola->inicio -> 1 -> 2 -> NULL');
+  });
+  it('un error dentro de una función del TAD se cuenta desde la llamada', () => {
+    const m = construir(CTX_COLA_ENLAZADA, [colaEnlazada('cola', [1, 2]), entero('x', 0)]);
+    const r = ejecutar('NodoSimple *aux = cola->inicio;\neliminarNodoSimple(aux);\nx = obtenerValorNodoSimple(aux);', CTX_COLA_ENLAZADA, m);
+    expect(r.error).toMatchObject({ linea: 3, tipo: 'liberado', mensaje: '«obtenerValorNodoSimple(aux)» usa un nodo que ya se ha liberado.' });
+  });
+  it('prohibidos también veta funciones', () => {
+    const m = construir(CTX_COLA_ENLAZADA, [colaEnlazada('cola', [1, 2])]);
+    const r = ejecutar('encolarColaEnlazada(cola, 3);', CTX_COLA_ENLAZADA, m, { prohibidos: ['encolarColaEnlazada()'] });
+    expect(r.error?.tipo).toBe('prohibido');
   });
   it('bucle infinito', () => {
     const m = construir(CTX_LISTA, [lista('cab', [9])]);

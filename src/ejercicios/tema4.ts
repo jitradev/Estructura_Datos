@@ -1,92 +1,94 @@
-import { colaCircular, colaEnlazada, CTX_COLA_CIRCULAR, CTX_COLA_ENLAZADA, entero } from '../memoria/construir';
+import { colaArray, colaEnlazada, CTX_COLA_ARRAY, CTX_COLA_ENLAZADA, entero } from '../memoria/construir';
 import { c } from './tema2';
 import { Tema } from './tipos';
 
-const CC = CTX_COLA_CIRCULAR;
+// Los structs y las funciones son los del proyecto Colas: ColaArray.c y ColaEnlazada.c,
+// que trabaja con el TAD NodoSimple. En cada ejercicio están todas disponibles, salvo la
+// que se pide escribir (la del alumno la sustituye).
+const CA = CTX_COLA_ARRAY;
 const CE = CTX_COLA_ENLAZADA;
+const LLENA = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const tema4: Tema = {
   id: '4',
   titulo: 'Colas',
-  resumen: 'El array circular con contador (MAX 5, el % que da la vuelta) y la cola enlazada con dos punteros.',
+  resumen: 'La cola con array circular y contador (TAM_COLA_ARRAY 10, el % que da la vuelta) y la cola enlazada con inicio y final sobre el TAD NodoSimple. Los structs y las funciones de ColaArray.c y ColaEnlazada.c.',
   ejercicios: [
     {
       id: '4-01',
       tipo: 'programar',
       titulo: 'Encolar el 9, a mano, dando la vuelta',
-      enunciado: 'La cola `c` tiene 8 y 4, con `frente = 3`. Encola el **9** a mano. Fíjate en dónde queda `final`.',
-      pistas: ['Primero se escribe en `c->datos[c->final]` y después se avanza `final`.', 'Para que después del 4 venga el 0: `(c->final + 1) % MAX`.'],
-      ctx: CC,
-      casos: [{ nombre: 'Cola 8 4', inicial: [colaCircular('c', [8, 4], 3, { 0: 6, 1: 1, 2: 5 })] }],
-      observar: ['c'],
+      enunciado: 'La cola `cola` tiene 8 y 4, con `frente = 7`. Encola el **9** sin llamar a `encolarColaArray`. Fíjate en dónde queda `final`.',
+      pistas: ['Primero se escribe en `cola->array[cola->final]` y después se avanza `final`.', 'Para que después del 9 venga el 0: `(cola->final + 1) % TAM_COLA_ARRAY`.'],
+      ctx: CA,
+      casos: [{ nombre: 'Cola 8 4', inicial: [colaArray('cola', [8, 4], 7, { 0: 6, 1: 1, 2: 5 })] }],
+      observar: ['cola'],
+      prohibidos: ['encolarColaArray()'],
       solucion: c(`
-        c->datos[c->final] = 9;
-        c->final = (c->final + 1) % MAX;
-        c->n++;`),
+        cola->array[cola->final] = 9;
+        cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+        cola->numElementos++;`),
     },
     {
       id: '4-02',
       tipo: 'programar',
       titulo: 'Desencolar a mano',
-      enunciado: 'Saca el elemento del frente de `c` y guárdalo en `x`, a mano. El frente está en la última casilla.',
-      ctx: CC,
-      casos: [{ nombre: 'Cola 9 2', inicial: [colaCircular('c', [9, 2], 4, { 1: 1, 2: 8, 3: 4 }), entero('x')] }],
-      observar: ['c', 'x'],
+      enunciado: 'Saca el elemento del frente de `cola` y guárdalo en `x`, sin llamar a `desencolarColaArray`. El frente está en la última casilla.',
+      ctx: CA,
+      casos: [{ nombre: 'Cola 9 2', inicial: [colaArray('cola', [9, 2], 9, { 1: 1, 2: 8, 3: 4 }), entero('x')] }],
+      observar: ['cola', 'x'],
+      prohibidos: ['desencolarColaArray()'],
       solucion: c(`
-        x = c->datos[c->frente];
-        c->frente = (c->frente + 1) % MAX;
-        c->n--;`),
+        x = cola->array[cola->frente];
+        cola->frente = (cola->frente + 1) % TAM_COLA_ARRAY;
+        cola->numElementos--;`),
     },
     {
       id: '4-03',
       tipo: 'programar',
-      titulo: 'Escribe encolar (circular)',
-      enunciado: 'Completa `encolar`: devuelve 0 si la cola está llena y 1 si ha encolado. Tienes `estaLlena(c)`.',
-      ctx: CC,
+      titulo: 'Escribe encolarColaArray',
+      enunciado: 'Completa `encolarColaArray`: devuelve 0 si la cola está llena y 1 si ha encolado. Tienes `estaLLenaColaArray(cola)`.',
+      ctx: CA,
       casos: [
-        { nombre: 'Vacía', inicial: [colaCircular('c', [])], llamada: 'encolar(c, 7)' },
-        { nombre: 'Da la vuelta', inicial: [colaCircular('c', [8, 4], 3)], llamada: 'encolar(c, 9)' },
-        { nombre: 'Llena', inicial: [colaCircular('c', [1, 2, 3, 4, 5], 2)], llamada: 'encolar(c, 9)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [])], llamada: 'encolarColaArray(cola, 7)' },
+        { nombre: 'Da la vuelta', inicial: [colaArray('cola', [8, 4], 8)], llamada: 'encolarColaArray(cola, 9)' },
+        { nombre: 'Llena', inicial: [colaArray('cola', LLENA, 2)], llamada: 'encolarColaArray(cola, 99)' },
       ],
-      observar: ['c'],
+      observar: ['cola'],
       codigoInicial: c(`
-        int encolar(ColaCircular *c, int x)
-        {
+        int encolarColaArray(ColaArray *cola, int x) {
 
         }`),
       solucion: c(`
-        int encolar(ColaCircular *c, int x)
-        {
-            if (estaLlena(c)) return 0;
-            c->datos[c->final] = x;
-            c->final = (c->final + 1) % MAX;
-            c->n++;
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
             return 1;
         }`),
     },
     {
       id: '4-04',
       tipo: 'programar',
-      titulo: 'Escribe desencolar (circular)',
-      enunciado: 'Completa `desencolar`: deja el frente en `*x`, lo quita y devuelve 1; si está vacía, devuelve 0 sin tocar `*x`.',
-      ctx: CC,
+      titulo: 'Escribe desencolarColaArray',
+      enunciado: 'Completa `desencolarColaArray`: deja el frente en `*x`, lo quita y devuelve 1; si está vacía, devuelve 0 sin tocar `*x`. Tienes `estaVaciaColaArray(cola)`.',
+      ctx: CA,
       casos: [
-        { nombre: 'Frente al final', inicial: [colaCircular('c', [9, 2], 4), entero('x', 0)], llamada: 'desencolar(c, &x)' },
-        { nombre: 'Vacía', inicial: [colaCircular('c', [], 2), entero('x', 0)], llamada: 'desencolar(c, &x)' },
+        { nombre: 'Frente al final', inicial: [colaArray('cola', [9, 2], 9), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [], 2), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x)' },
       ],
-      observar: ['c', 'x'],
+      observar: ['cola', 'x'],
       codigoInicial: c(`
-        int desencolar(ColaCircular *c, int *x)
-        {
+        int desencolarColaArray(ColaArray *cola, int *x) {
 
         }`),
       solucion: c(`
-        int desencolar(ColaCircular *c, int *x)
-        {
-            if (estaVacia(c)) return 0;
-            *x = c->datos[c->frente];
-            c->frente = (c->frente + 1) % MAX;
-            c->n--;
+        int desencolarColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            cola->frente = (cola->frente + 1) % TAM_COLA_ARRAY;
+            cola->numElementos--;
             return 1;
         }`),
     },
@@ -94,322 +96,323 @@ export const tema4: Tema = {
       id: '4-05',
       tipo: 'programar',
       titulo: 'Encolar el 3, a mano, enlazada',
-      enunciado: 'La cola enlazada `c` tiene 1 y 2. Encola el **3** a mano.',
-      pistas: ['El nuevo va detrás del último: `c->final->siguiente`.', 'Y después el nuevo pasa a ser el final.'],
+      enunciado: 'La cola enlazada `cola` tiene 1 y 2. Encola el **3** sin llamar a `encolarColaEnlazada`. Los nodos se manejan con el TAD: `crearNodoSimple`, `establecerSiguienteNodoSimple`...',
+      pistas: ['El nuevo va detrás del último: el siguiente de `cola->final`.', 'Y después el nuevo pasa a ser el final.'],
       ctx: CE,
-      casos: [{ nombre: 'Cola 1 2', inicial: [colaEnlazada('c', [1, 2])] }],
-      observar: ['c'],
+      casos: [{ nombre: 'Cola 1 2', inicial: [colaEnlazada('cola', [1, 2])] }],
+      observar: ['cola'],
+      prohibidos: ['encolarColaEnlazada()'],
       solucion: c(`
-        Nodo *nuevo = malloc(sizeof(Nodo));
-        nuevo->valor = 3;
-        nuevo->siguiente = NULL;
-        c->final->siguiente = nuevo;
-        c->final = nuevo;
-        c->n++;`),
+        NodoSimple *aux = crearNodoSimple(3);
+        establecerSiguienteNodoSimple(cola->final, aux);
+        cola->final = aux;
+        cola->tamano++;`),
     },
     {
       id: '4-06',
       tipo: 'programar',
-      titulo: 'Escribe encolar (enlazada)',
-      enunciado: 'Completa `encolar` para la cola enlazada. La cola vacía es un caso aparte.',
-      pistas: ['Si la cola está vacía, el nuevo es a la vez frente y final.'],
+      titulo: 'Escribe encolarColaEnlazada',
+      enunciado: 'Completa `encolarColaEnlazada`: devuelve 0 si la cola no existe o no hay memoria, y 1 si ha encolado. La cola vacía es un caso aparte.',
+      pistas: ['Si la cola está vacía, el nuevo es a la vez inicio y final.'],
       ctx: CE,
       casos: [
-        { nombre: 'Vacía', inicial: [colaEnlazada('c', [])], llamada: 'encolar(c, 7)' },
-        { nombre: 'Cola 1 2', inicial: [colaEnlazada('c', [1, 2])], llamada: 'encolar(c, 7)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', [])], llamada: 'encolarColaEnlazada(cola, 7)' },
+        { nombre: 'Cola 1 2', inicial: [colaEnlazada('cola', [1, 2])], llamada: 'encolarColaEnlazada(cola, 7)' },
       ],
-      observar: ['c'],
+      observar: ['cola'],
       codigoInicial: c(`
-        int encolar(Cola *c, int x)
-        {
+        int encolarColaEnlazada(ColaEnlazada *cola, int x) {
 
         }`),
       solucion: c(`
-        int encolar(Cola *c, int x)
-        {
-            Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->valor = x;
-            nuevo->siguiente = NULL;
-            if (esVacia(c)) c->frente = nuevo;
-            else c->final->siguiente = nuevo;
-            c->final = nuevo;
-            c->n++;
+        int encolarColaEnlazada(ColaEnlazada *cola, int x) {
+            if (cola == NULL) return 0;
+            NodoSimple *aux = crearNodoSimple(x);
+            if (aux == NULL) return 0;
+            if (estaVaciaColaEnlazada(cola) == 1) {
+                cola->inicio = aux;
+            }else {
+                establecerSiguienteNodoSimple(cola->final, aux);
+            }
+            cola->final = aux;
+            cola->tamano++;
             return 1;
         }`),
     },
     {
       id: '4-07',
       tipo: 'programar',
-      titulo: 'Escribe desencolar (enlazada)',
-      enunciado: 'Completa `desencolar` para la cola enlazada: guarda el frente en `*x`, quita el nodo, libéralo y devuelve 1. Cuidado cuando la cola se queda vacía.',
-      pistas: ['Si al quitar el nodo el frente pasa a ser NULL, el final también tiene que valer NULL.'],
+      titulo: 'Escribe desencolarColaEnlazada',
+      enunciado: 'Completa `desencolarColaEnlazada`: guarda el valor del inicio en `*x`, quita el nodo, elimínalo y devuelve 1; con la cola vacía, devuelve 0. Cuidado cuando la cola se queda vacía.',
+      pistas: ['Si al quitar el nodo el inicio pasa a ser NULL, el final también tiene que valer NULL.', '`eliminarNodoSimple` hace el free: después ya no se puede usar el nodo.'],
       ctx: CE,
       casos: [
-        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('c', [1, 2, 3]), entero('x', 0)], llamada: 'desencolar(c, &x)' },
-        { nombre: 'Un elemento', inicial: [colaEnlazada('c', [1]), entero('x', 0)], llamada: 'desencolar(c, &x)' },
-        { nombre: 'Vacía', inicial: [colaEnlazada('c', []), entero('x', 0)], llamada: 'desencolar(c, &x)' },
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3]), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' },
+        { nombre: 'Un elemento', inicial: [colaEnlazada('cola', [1]), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', []), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' },
       ],
-      observar: ['c', 'x'],
+      observar: ['cola', 'x'],
       codigoInicial: c(`
-        int desencolar(Cola *c, int *x)
-        {
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
 
         }`),
       solucion: c(`
-        int desencolar(Cola *c, int *x)
-        {
-            if (esVacia(c)) return 0;
-            Nodo *viejo = c->frente;
-            *x = viejo->valor;
-            c->frente = viejo->siguiente;
-            if (c->frente == NULL)
-                c->final = NULL;
-            free(viejo);
-            c->n--;
-            return 1;
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            *x = obtenerValorNodoSimple(cola->inicio);
+            NodoSimple *aux = cola->inicio;
+            cola->inicio = obtenerSiguienteNodoSimple(cola->inicio);
+            if (cola->inicio == NULL) {
+                cola->final = NULL;
+            }
+            cola->tamano--;
+            if (eliminarNodoSimple(aux) == 1) return 1;
+
+            return 0;
         }`),
     },
     {
       id: '4-08',
       tipo: 'programar',
       titulo: 'Rotar la cola',
-      enunciado: 'Pasa el nodo del frente al final: `1 2 3` queda `2 3 1`. Sin `malloc`, sin `free` y sin tocar `valor`.',
+      enunciado: 'Pasa el nodo del inicio al final: `1 2 3` queda `2 3 1`. Sin crear ni eliminar nodos y sin cambiar ningún valor: solo moviendo enlaces.',
       ctx: CE,
-      casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('c', [1, 2, 3])] }],
-      observar: ['c'],
-      prohibidos: ['valor'],
+      casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3])] }],
+      observar: ['cola'],
+      prohibidos: ['valor', 'crearNodoSimple()', 'eliminarNodoSimple()', 'establecerValorNodoSimple()', 'encolarColaEnlazada()', 'desencolarColaEnlazada()'],
       solucion: c(`
-        Nodo *primero = c->frente;
-        c->frente = primero->siguiente;
-        primero->siguiente = NULL;
-        c->final->siguiente = primero;
-        c->final = primero;`),
+        NodoSimple *primero = cola->inicio;
+        cola->inicio = obtenerSiguienteNodoSimple(primero);
+        establecerSiguienteNodoSimple(primero, NULL);
+        establecerSiguienteNodoSimple(cola->final, primero);
+        cola->final = primero;`),
     },
     // ------------------------------------------------------------ fallos
     {
       id: '4-F1',
       tipo: 'fallo',
-      titulo: 'encolar que no da la vuelta',
-      enunciado: 'Este `encolar` va bien durante un rato. Prueba a encolar dos veces cuando `final` está al fondo del array.',
-      ctx: CC,
+      titulo: 'encolarColaArray que no da la vuelta',
+      enunciado: 'Este `encolarColaArray` va bien durante un rato. Prueba a encolar dos veces cuando `final` está en la última casilla.',
+      ctx: CA,
       casos: [
-        { nombre: 'Vacía', inicial: [colaCircular('c', [])], llamada: 'encolar(c, 7)' },
-        { nombre: 'Dos al fondo', inicial: [colaCircular('c', [8, 4], 2)], llamada: 'encolar(c, 9); encolar(c, 2)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [])], llamada: 'encolarColaArray(cola, 7)' },
+        { nombre: 'Dos al fondo', inicial: [colaArray('cola', [8, 4], 7)], llamada: 'encolarColaArray(cola, 9); encolarColaArray(cola, 2)' },
       ],
-      observar: ['c'],
+      observar: ['cola'],
       codigo: c(`
-        int encolar(ColaCircular *c, int x)
-        {
-            if (estaLlena(c)) return 0;
-            c->datos[c->final] = x;
-            c->final = c->final + 1;
-            c->n++;
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = cola->final + 1;
+            cola->numElementos++;
             return 1;
         }`),
-      lineasFallo: [5],
+      lineasFallo: [4],
       tiposFallo: ['array'],
-      explicacion: 'Sin `% MAX`, `final` sigue creciendo: 5, 6... y el siguiente encolar escribe fuera del array. Con `(c->final + 1) % MAX` después del 4 viene el 0.',
+      explicacion: 'Sin `% TAM_COLA_ARRAY`, `final` sigue creciendo: 10, 11... y el siguiente encolar escribe fuera del array. Con `(cola->final + 1) % TAM_COLA_ARRAY` después del 9 viene el 0.',
       solucion: c(`
-        int encolar(ColaCircular *c, int x)
-        {
-            if (estaLlena(c)) return 0;
-            c->datos[c->final] = x;
-            c->final = (c->final + 1) % MAX;
-            c->n++;
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
             return 1;
         }`),
     },
     {
       id: '4-F2',
       tipo: 'fallo',
-      titulo: 'estaLlena sin contador',
-      enunciado: 'Alguien ha escrito su propio `estaLlena` mirando solo los índices.',
-      ctx: CC,
+      titulo: 'estaLLenaColaArray sin contador',
+      enunciado: 'Alguien ha reescrito `estaLLenaColaArray` mirando solo los índices.',
+      ctx: CA,
       casos: [
-        { nombre: 'Cola 8 4', inicial: [colaCircular('c', [8, 4], 1)], llamada: 'encolar(c, 9)' },
-        { nombre: 'Vacía', inicial: [colaCircular('c', [], 3)], llamada: 'encolar(c, 9)' },
+        { nombre: 'Cola 8 4', inicial: [colaArray('cola', [8, 4], 1)], llamada: 'encolarColaArray(cola, 9)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [], 3)], llamada: 'encolarColaArray(cola, 9)' },
       ],
-      observar: ['c'],
+      observar: ['cola'],
       codigo: c(`
-        int estaLlena(ColaCircular *c)
-        {
-            return c->frente == c->final;
+        int estaLLenaColaArray(ColaArray *cola) {
+            if(cola->frente == cola->final) {
+                return 1;
+            }
+            return 0;
         }
 
-        int encolar(ColaCircular *c, int x)
-        {
-            if (estaLlena(c)) return 0;
-            c->datos[c->final] = x;
-            c->final = (c->final + 1) % MAX;
-            c->n++;
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
             return 1;
         }`),
-      lineasFallo: [3],
+      lineasFallo: [2],
       tiposFallo: ['caso'],
-      explicacion: '`frente == final` pasa tanto con la cola llena como con la vacía: es el dilema de las diapositivas. Con el contador se sale de dudas: llena es `c->n == MAX`.',
+      explicacion: '`frente == final` pasa tanto con la cola llena como con la vacía: es el dilema de las diapositivas. Con el contador se sale de dudas: llena es `cola->numElementos == TAM_COLA_ARRAY`.',
       solucion: c(`
-        int estaLlena(ColaCircular *c)
-        {
-            return c->n == MAX;
+        int estaLLenaColaArray(ColaArray *cola) {
+            if(cola->numElementos == TAM_COLA_ARRAY) {
+                return 1;
+            }
+            return 0;
         }
 
-        int encolar(ColaCircular *c, int x)
-        {
-            if (estaLlena(c)) return 0;
-            c->datos[c->final] = x;
-            c->final = (c->final + 1) % MAX;
-            c->n++;
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
             return 1;
         }`),
     },
     {
       id: '4-F3',
       tipo: 'fallo',
-      titulo: 'desencolar que se olvida del final',
-      enunciado: 'Este `desencolar` funciona con colas largas. Prueba a vaciarla.',
+      titulo: 'desencolarColaEnlazada que se olvida del final',
+      enunciado: 'Este `desencolarColaEnlazada` funciona con colas largas. Prueba a vaciarla.',
       ctx: CE,
       casos: [
-        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('c', [1, 2, 3]), entero('x', 0)], llamada: 'desencolar(c, &x)' },
-        { nombre: 'Un elemento', inicial: [colaEnlazada('c', [1]), entero('x', 0)], llamada: 'desencolar(c, &x)' },
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3]), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' },
+        { nombre: 'Un elemento', inicial: [colaEnlazada('cola', [1]), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' },
       ],
-      observar: ['c', 'x'],
+      observar: ['cola', 'x'],
       codigo: c(`
-        int desencolar(Cola *c, int *x)
-        {
-            if (esVacia(c)) return 0;
-            Nodo *viejo = c->frente;
-            *x = viejo->valor;
-            c->frente = viejo->siguiente;
-            free(viejo);
-            c->n--;
-            return 1;
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            *x = obtenerValorNodoSimple(cola->inicio);
+            NodoSimple *aux = cola->inicio;
+            cola->inicio = obtenerSiguienteNodoSimple(cola->inicio);
+            cola->tamano--;
+            if (eliminarNodoSimple(aux) == 1) return 1;
+
+            return 0;
         }`),
-      lineasFallo: [6, 7],
+      lineasFallo: [5, 6],
       preguntaLinea: 'Marca la línea después de la que falta algo',
       tiposFallo: ['colgante', 'caso'],
-      explicacion: 'Al sacar el último, `frente` queda a NULL pero `final` sigue apuntando al nodo liberado. El siguiente `encolar` escribiría en `c->final->siguiente`: memoria liberada.',
+      explicacion: 'Al sacar el último, `inicio` queda a NULL pero `final` sigue apuntando al nodo eliminado. El siguiente `encolarColaEnlazada` engancharía el nodo nuevo detrás de memoria liberada.',
       solucion: c(`
-        int desencolar(Cola *c, int *x)
-        {
-            if (esVacia(c)) return 0;
-            Nodo *viejo = c->frente;
-            *x = viejo->valor;
-            c->frente = viejo->siguiente;
-            if (c->frente == NULL)
-                c->final = NULL;
-            free(viejo);
-            c->n--;
-            return 1;
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            *x = obtenerValorNodoSimple(cola->inicio);
+            NodoSimple *aux = cola->inicio;
+            cola->inicio = obtenerSiguienteNodoSimple(cola->inicio);
+            if (cola->inicio == NULL) {
+                cola->final = NULL;
+            }
+            cola->tamano--;
+            if (eliminarNodoSimple(aux) == 1) return 1;
+
+            return 0;
         }`),
     },
     {
       id: '4-F4',
       tipo: 'fallo',
-      titulo: 'encolar enlazada sin caso vacío',
-      enunciado: 'Este `encolar` no distingue casos. ¿Hace falta?',
+      titulo: 'encolarColaEnlazada sin caso vacío',
+      enunciado: 'Este `encolarColaEnlazada` no distingue casos. No se rompe nunca. ¿Funciona siempre?',
       ctx: CE,
       casos: [
-        { nombre: 'Cola 1 2', inicial: [colaEnlazada('c', [1, 2])], llamada: 'encolar(c, 7)' },
-        { nombre: 'Vacía', inicial: [colaEnlazada('c', [])], llamada: 'encolar(c, 7)' },
+        { nombre: 'Cola 1 2', inicial: [colaEnlazada('cola', [1, 2])], llamada: 'encolarColaEnlazada(cola, 7)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', [])], llamada: 'encolarColaEnlazada(cola, 7)' },
       ],
-      observar: ['c'],
+      observar: ['cola'],
       codigo: c(`
-        int encolar(Cola *c, int x)
-        {
-            Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->valor = x;
-            nuevo->siguiente = NULL;
-            c->final->siguiente = nuevo;
-            c->final = nuevo;
-            c->n++;
+        int encolarColaEnlazada(ColaEnlazada *cola, int x) {
+            if (cola == NULL) return 0;
+            NodoSimple *aux = crearNodoSimple(x);
+            if (aux == NULL) return 0;
+            establecerSiguienteNodoSimple(cola->final, aux);
+            cola->final = aux;
+            cola->tamano++;
             return 1;
         }`),
-      lineasFallo: [6],
-      preguntaLinea: 'Marca la línea donde se rompe',
-      tiposFallo: ['nulo', 'caso'],
-      explicacion: 'Con la cola vacía `c->final` es NULL y `c->final->siguiente` no existe. En ese caso el nuevo es también el frente.',
+      lineasFallo: [5],
+      preguntaLinea: 'Marca la línea que no hace lo que parece',
+      tiposFallo: ['caso'],
+      explicacion: 'Con la cola vacía `cola->final` es NULL: `establecerSiguienteNodoSimple` no hace nada (devuelve 0) y `inicio` se queda a NULL. La cola tiene un nodo, pero `estaVaciaColaEnlazada` dice que está vacía. En ese caso el nuevo es también el inicio.',
       solucion: c(`
-        int encolar(Cola *c, int x)
-        {
-            Nodo *nuevo = malloc(sizeof(Nodo));
-            nuevo->valor = x;
-            nuevo->siguiente = NULL;
-            if (esVacia(c)) c->frente = nuevo;
-            else c->final->siguiente = nuevo;
-            c->final = nuevo;
-            c->n++;
+        int encolarColaEnlazada(ColaEnlazada *cola, int x) {
+            if (cola == NULL) return 0;
+            NodoSimple *aux = crearNodoSimple(x);
+            if (aux == NULL) return 0;
+            if (estaVaciaColaEnlazada(cola) == 1) {
+                cola->inicio = aux;
+            }else {
+                establecerSiguienteNodoSimple(cola->final, aux);
+            }
+            cola->final = aux;
+            cola->tamano++;
             return 1;
         }`),
     },
     {
       id: '4-F5',
       tipo: 'fallo',
-      titulo: 'desencolar circular sin vuelta',
-      enunciado: 'Saca dos elementos seguidos cuando el frente está al fondo del array.',
-      ctx: CC,
+      titulo: 'desencolarColaArray sin vuelta',
+      enunciado: 'Saca dos elementos seguidos cuando el frente está en la última casilla.',
+      ctx: CA,
       casos: [
-        { nombre: 'Cola 1 2 3', inicial: [colaCircular('c', [1, 2, 3], 0), entero('x', 0)], llamada: 'desencolar(c, &x)' },
-        { nombre: 'Dos al fondo', inicial: [colaCircular('c', [9, 2], 4), entero('x', 0)], llamada: 'desencolar(c, &x); desencolar(c, &x)' },
+        { nombre: 'Cola 1 2 3', inicial: [colaArray('cola', [1, 2, 3], 0), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x)' },
+        { nombre: 'Dos al fondo', inicial: [colaArray('cola', [9, 2], 9), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x); desencolarColaArray(cola, &x)' },
       ],
-      observar: ['c', 'x'],
+      observar: ['cola', 'x'],
       codigo: c(`
-        int desencolar(ColaCircular *c, int *x)
-        {
-            if (estaVacia(c)) return 0;
-            *x = c->datos[c->frente];
-            c->frente = c->frente + 1;
-            c->n--;
+        int desencolarColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            cola->frente = cola->frente + 1;
+            cola->numElementos--;
             return 1;
         }`),
-      lineasFallo: [5],
+      lineasFallo: [4],
       tiposFallo: ['array'],
-      explicacion: 'El frente también tiene que dar la vuelta: `(c->frente + 1) % MAX`. Sin eso, el siguiente desencolar lee `datos[5]`.',
+      explicacion: 'El frente también tiene que dar la vuelta: `(cola->frente + 1) % TAM_COLA_ARRAY`. Sin eso, el siguiente desencolar lee `array[10]`.',
       solucion: c(`
-        int desencolar(ColaCircular *c, int *x)
-        {
-            if (estaVacia(c)) return 0;
-            *x = c->datos[c->frente];
-            c->frente = (c->frente + 1) % MAX;
-            c->n--;
+        int desencolarColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            cola->frente = (cola->frente + 1) % TAM_COLA_ARRAY;
+            cola->numElementos--;
             return 1;
         }`),
     },
     {
       id: '4-F6',
       tipo: 'fallo',
-      titulo: 'desencolar enlazada que lee tarde',
-      enunciado: 'Las mismas líneas que la versión buena, en otro orden.',
+      titulo: 'desencolarColaEnlazada que lee tarde',
+      enunciado: 'Las mismas cosas que la versión buena, en otro orden.',
       ctx: CE,
-      casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('c', [1, 2, 3]), entero('x', 0)], llamada: 'desencolar(c, &x)' }],
-      observar: ['c', 'x'],
+      casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3]), entero('x', 0)], llamada: 'desencolarColaEnlazada(cola, &x)' }],
+      observar: ['cola', 'x'],
       codigo: c(`
-        int desencolar(Cola *c, int *x)
-        {
-            if (esVacia(c)) return 0;
-            Nodo *viejo = c->frente;
-            free(viejo);
-            *x = viejo->valor;
-            c->frente = viejo->siguiente;
-            if (c->frente == NULL)
-                c->final = NULL;
-            c->n--;
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            NodoSimple *aux = cola->inicio;
+            eliminarNodoSimple(aux);
+            *x = obtenerValorNodoSimple(aux);
+            cola->inicio = obtenerSiguienteNodoSimple(aux);
+            if (cola->inicio == NULL) {
+                cola->final = NULL;
+            }
+            cola->tamano--;
             return 1;
         }`),
-      lineasFallo: [5, 6],
+      lineasFallo: [4, 5],
       tiposFallo: ['liberado'],
-      explicacion: 'El free tiene que ser lo último que se hace con el nodo: después ya no se puede leer ni su dato ni su siguiente.',
+      explicacion: '`eliminarNodoSimple` hace el free: tiene que ser lo último que se hace con el nodo. Después ya no se puede leer ni su valor ni su siguiente, aunque sea a través de las funciones del TAD.',
       solucion: c(`
-        int desencolar(Cola *c, int *x)
-        {
-            if (esVacia(c)) return 0;
-            Nodo *viejo = c->frente;
-            *x = viejo->valor;
-            c->frente = viejo->siguiente;
-            if (c->frente == NULL)
-                c->final = NULL;
-            free(viejo);
-            c->n--;
-            return 1;
+        int desencolarColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            *x = obtenerValorNodoSimple(cola->inicio);
+            NodoSimple *aux = cola->inicio;
+            cola->inicio = obtenerSiguienteNodoSimple(cola->inicio);
+            if (cola->inicio == NULL) {
+                cola->final = NULL;
+            }
+            cola->tamano--;
+            if (eliminarNodoSimple(aux) == 1) return 1;
+
+            return 0;
         }`),
     },
   ],

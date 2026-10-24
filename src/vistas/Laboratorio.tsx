@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { ejecutar, Resultado } from '../interprete/ejecutar';
 import {
-  colaCircular,
+  colaArray,
   colaEnlazada,
   Constructor,
   construir,
-  CTX_COLA_CIRCULAR,
+  CTX_COLA_ARRAY,
   CTX_COLA_ENLAZADA,
   CTX_LISTA,
   CTX_PILA_ARRAY,
@@ -29,21 +29,33 @@ const TODAS_LAS_MESAS: { tema: string; nombre: string; ctx: Contexto; inicial: C
     inicial: [lista('cab', [9, 3, 7])],
     ejemplo: 'Nodo *p = cab;\nwhile (p != NULL) {\n    p->valor = p->valor * 2;\n    p = p->siguiente;\n}\n',
   },
-  { tema: '3', nombre: 'Pila con array (MAX 6)', ctx: CTX_PILA_ARRAY, inicial: [pilaArray('p', [4, 1]), entero('x', 0)], ejemplo: 'p->datos[++p->cima] = 8;\nx = p->datos[p->cima--];\n' },
-  { tema: '3', nombre: 'Pila enlazada', ctx: CTX_PILA_ENLAZADA, inicial: [pilaEnlazada('p', [4, 1]), entero('x', 0)], ejemplo: 'Nodo *v = p->cima;\nx = v->valor;\np->cima = v->siguiente;\nfree(v);\np->n--;\n' },
+  {
+    tema: '3',
+    nombre: 'Pila con array (TAM 8)',
+    ctx: CTX_PILA_ARRAY,
+    inicial: [pilaArray('pila', [4, 1]), entero('valor', 0)],
+    ejemplo: 'pushArray(pila, 8);\npila->cima++;\npila->array[pila->cima] = 3;\npopArray(pila, &valor);\n',
+  },
+  {
+    tema: '3',
+    nombre: 'Pila enlazada',
+    ctx: CTX_PILA_ENLAZADA,
+    inicial: [pilaEnlazada('pila', [4, 1]), entero('valor', 0)],
+    ejemplo: 'Nodo *borrar = pila->cima;\nvalor = borrar->valor;\npila->cima = borrar->siguiente;\nfree(borrar);\npila->tamano--;\n',
+  },
   {
     tema: '4',
-    nombre: 'Cola circular (MAX 5)',
-    ctx: CTX_COLA_CIRCULAR,
-    inicial: [colaCircular('c', [8, 4], 3), entero('x', 0)],
-    ejemplo: 'c->datos[c->final] = 9;\nc->final = (c->final + 1) % MAX;\nc->n++;\n',
+    nombre: 'Cola con array (TAM_COLA_ARRAY 10)',
+    ctx: CTX_COLA_ARRAY,
+    inicial: [colaArray('cola', [8, 4], 8), entero('x', 0)],
+    ejemplo: 'cola->array[cola->final] = 9;\ncola->final = (cola->final + 1) % TAM_COLA_ARRAY;\ncola->numElementos++;\ndesencolarColaArray(cola, &x);\n',
   },
   {
     tema: '4',
     nombre: 'Cola enlazada',
     ctx: CTX_COLA_ENLAZADA,
-    inicial: [colaEnlazada('c', [1, 2]), entero('x', 0)],
-    ejemplo: 'Nodo *nuevo = malloc(sizeof(Nodo));\nnuevo->valor = 3;\nnuevo->siguiente = NULL;\nc->final->siguiente = nuevo;\nc->final = nuevo;\nc->n++;\n',
+    inicial: [colaEnlazada('cola', [1, 2]), entero('x', 0)],
+    ejemplo: 'NodoSimple *aux = crearNodoSimple(3);\nestablecerSiguienteNodoSimple(cola->final, aux);\ncola->final = aux;\ncola->tamano++;\ndesencolarColaEnlazada(cola, &x);\n',
   },
 ];
 

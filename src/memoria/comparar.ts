@@ -30,23 +30,26 @@ export function alcanzables(m: Memoria, marcos: number[]): Set<number> {
 /** Vista lógica de un struct: en los arrays solo cuenta la parte ocupada. */
 function camposLogicos(o: Objeto): [string, Valor | Valor[]][] {
   const c = o.campos;
-  const datos = c.datos;
+  const [nombreArr, datos] = Object.entries(c).find(([, v]) => Array.isArray(v)) ?? [];
   if (Array.isArray(datos) && !Array.isArray(c.cima) && c.cima && (c.cima as Valor).k === 'int') {
     const cima = (c.cima as { v: number }).v;
     return [
       ['cima', c.cima as Valor],
-      ['datos', datos.slice(0, Math.max(0, cima + 1))],
+      [nombreArr!, datos.slice(0, Math.max(0, cima + 1))],
     ];
   }
-  if (Array.isArray(datos) && c.frente && c.final && c.n && (c.n as Valor).k === 'int' && (c.frente as Valor).k === 'int') {
-    const n = (c.n as { v: number }).v;
+  // el contador se llama n en las diapositivas y numElementos en el proyecto Colas
+  const nombreN = 'numElementos' in c ? 'numElementos' : 'n';
+  const cn = c[nombreN] as Valor | undefined;
+  if (Array.isArray(datos) && c.frente && c.final && cn && cn.k === 'int' && (c.frente as Valor).k === 'int') {
+    const n = cn.v;
     const f = (c.frente as { v: number }).v;
     const en: Valor[] = [];
     for (let i = 0; i < n && i < datos.length; i++) en.push(datos[(f + i) % datos.length]);
     return [
       ['frente', c.frente as Valor],
       ['final', c.final as Valor],
-      ['n', c.n as Valor],
+      [nombreN, cn],
       ['en orden', en],
     ];
   }

@@ -239,7 +239,13 @@ export function Dibujo({ mem, prev, ctx, titulo }: { mem: Memoria; prev?: Memori
           <g key={`r${r.id}`} className="record">
             <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={10} className="record-caja" />
             <text x={r.x + 12} y={r.y + 19} className="record-titulo">
-              {o.nombre ?? o.tipo} <tspan className="record-tipo">({o.tipo})</tspan>
+              {o.nombre ? (
+                <>
+                  {o.nombre} <tspan className="record-tipo">({o.tipo})</tspan>
+                </>
+              ) : (
+                o.tipo
+              )}
             </text>
             {r.campos.map((c) => {
               const v = o.campos[c.nombre];
@@ -388,7 +394,7 @@ function celdasLogicas(c: Campos, n: number): (i: number) => boolean {
   const cima = ent(c.cima);
   if (cima !== null) return (i) => i <= cima;
   const f = ent(c.frente);
-  const k = ent(c.n);
+  const k = ent(c.n ?? c.numElementos);
   if (f !== null && k !== null) return (i) => (((i - f) % n) + n) % n < k;
   return () => true;
 }

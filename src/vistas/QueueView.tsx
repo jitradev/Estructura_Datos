@@ -8,6 +8,7 @@ import { buscarCola, COLAS, FAMILIAS, NUM_PRIORIDADES, QueueType } from '../queu
 import { QueueDrawing } from '../queues/QueueDrawing';
 import { buildQueue, esArray, readQueue, runQueueOp, structsOf } from '../queues/prepare';
 import { Rico } from './comun';
+import { SelectorTipo } from './SelectorTipo';
 import { EditorCodigo } from './EditorCodigo';
 import { estadosLineas, Leyenda } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
@@ -88,18 +89,7 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
 
   return (
     <main className="contenido ancho">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-        <span>/</span>
-        <a href="#/ver">Visualizar</a>
-      </nav>
-      <div className="pestanas" role="tablist" aria-label="Tipo de cola">
-        {COLAS.map((t) => (
-          <a key={t.id} role="tab" aria-selected={t.id === tipo.id} className={`pestana ${t.id === tipo.id ? 'on' : ''}`} href={`#/ver/${t.id}`}>
-            {t.nombre}
-          </a>
-        ))}
-      </div>
+      <SelectorTipo grupo="colas" actual={tipo.id} opciones={COLAS} />
       <h1>{tipo.nombre}</h1>
 
       <section className="ver-intro">
@@ -278,7 +268,7 @@ export function QueueGallery() {
             </section>
             {filas.length > 0 && (
               <section className="panel compara">
-                <h3>Las dos, cara a cara</h3>
+                <h3>{tipos.length === 3 ? 'Las tres' : 'Las dos'}, cara a cara</h3>
                 <div className="tabla-scroll">
                   <table>
                     <thead>

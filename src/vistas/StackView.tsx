@@ -8,6 +8,7 @@ import { buscarPila, PILAS, StackType } from '../stacks/catalog';
 import { StackDrawing } from '../stacks/StackDrawing';
 import { buildStack, readStack, runStackOp, structsOf } from '../stacks/prepare';
 import { Rico } from './comun';
+import { SelectorTipo } from './SelectorTipo';
 import { EditorCodigo } from './EditorCodigo';
 import { estadosLineas, Leyenda } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
@@ -64,18 +65,7 @@ function StackPage({ tipo }: { tipo: StackType }) {
 
   return (
     <main className="contenido ancho">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-        <span>/</span>
-        <a href="#/ver">Visualizar</a>
-      </nav>
-      <div className="pestanas" role="tablist" aria-label="Tipo de pila">
-        {PILAS.map((t) => (
-          <a key={t.id} role="tab" aria-selected={t.id === tipo.id} className={`pestana ${t.id === tipo.id ? 'on' : ''}`} href={`#/ver/${t.id}`}>
-            {t.nombre}
-          </a>
-        ))}
-      </div>
+      <SelectorTipo grupo="pilas" actual={tipo.id} opciones={PILAS} />
       <h1>{tipo.nombre}</h1>
 
       <section className="ver-intro">

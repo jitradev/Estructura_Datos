@@ -293,10 +293,6 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 .compara thead th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--tinta); }
 .compara thead a { color: var(--carmin); text-decoration: none; }
 .compara tbody th { color: var(--grafito); font-weight: 600; white-space: nowrap; }
-.pestanas { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 4px; }
-.pestana { padding: 8px 14px; min-height: 40px; display: inline-flex; align-items: center; border-radius: 999px; border: 1.5px solid #d9c9c1; color: var(--grafito); text-decoration: none; font-weight: 600; font-size: 0.92rem; background: #fff; }
-.pestana:hover { border-color: var(--carmin); color: var(--tinta); }
-.pestana.on { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 .ver-intro { display: grid; grid-template-columns: minmax(300px, 5fr) minmax(0, 7fr); gap: 18px; align-items: start; }
 .ver-intro .chuleta { background: var(--papel); }
 .ver-intro .chuleta .editor-codigo { margin-top: 10px; }
@@ -316,9 +312,6 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 .muestra.gris { border: none; height: 0; border-top: 2px dashed var(--palo); border-radius: 0; }
 .muestra.liberado { border: 2px dashed #8a7a76; background: #f6f1ee; }
 .muestra.local { border-color: var(--quemado); }
-.indice-ver { display: flex; gap: 8px; margin: 4px 0 0; }
-.indice-ver a { padding: 6px 14px; border-radius: 999px; border: 1.5px solid #d9c9c1; color: var(--grafito); text-decoration: none; font-weight: 600; font-size: 0.9rem; background: #fff; }
-.indice-ver a:hover { border-color: var(--carmin); color: var(--tinta); }
 .compara h3 { margin: 0 0 10px; }
 .subtitulo-familia { margin: 22px 0 10px; font-size: 1.05rem; color: var(--grafito); }
 .marca-cima { font: 700 12px var(--f-txt) !important; fill: var(--carmin-osc); }
@@ -381,3 +374,25 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .galeria-mesas .mini-lienzo { min-height: 0; }
 .galeria-mesas .mini-lienzo svg { max-height: 240px; }
 .lista-funciones { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+
+/* ------------------------------------------------ visualizar: filter and subtype selector */
+.filtro-tipos { display: inline-flex; gap: 4px; padding: 4px; margin: 4px 0 18px; background: var(--arena); border-radius: 12px; flex-wrap: wrap; }
+.filtro-tipos a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 9px; text-decoration: none; color: var(--grafito); font-weight: 600; }
+.filtro-tipos a:hover { color: var(--tinta); background: rgba(255, 255, 255, 0.55); }
+.filtro-tipos a.on { background: #fff; color: var(--tinta); box-shadow: 0 1px 3px rgba(60, 30, 20, 0.12); }
+.cuenta-filtro { font-size: 0.78rem; min-width: 22px; padding: 1px 7px; border-radius: 999px; background: rgba(0, 0, 0, 0.07); text-align: center; }
+.filtro-tipos a.on .cuenta-filtro { background: var(--carmin); color: #fff; }
+
+.selector-tipo { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; padding: 12px 14px; margin: 4px 0 16px; background: var(--papel); border: 1px solid var(--linea); border-radius: 12px; }
+.selector-grupo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.selector-etiqueta { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris); }
+.segmentado { display: inline-flex; flex-wrap: wrap; border: 1.5px solid #d9c9c1; border-radius: 10px; overflow: hidden; background: #fff; }
+.segmentado a { padding: 8px 14px; text-decoration: none; color: var(--grafito); font-weight: 600; font-size: 0.92rem; border-right: 1px solid #e6d8d0; }
+.segmentado a:last-child { border-right: 0; }
+.segmentado a:hover { background: var(--hueso); color: var(--tinta); }
+.segmentado a.on { background: var(--tinta); color: #fff; }
+@media (max-width: 640px) {
+  .selector-tipo { flex-direction: column; align-items: stretch; }
+  .segmentado { display: flex; }
+  .segmentado a { flex: 1 1 auto; text-align: center; }
+}

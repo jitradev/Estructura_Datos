@@ -1,7 +1,7 @@
 // Visualizar: landing page (lists, stacks and queues) and the page of each list, with its
 // operations step by step running the .c code untouched in the interpreter.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { comentarioDe, LISTAS, buscarLista, Operacion, TipoLista } from '../listas/catalogo';
 import { DibujoLista } from '../listas/DibujoLista';
 import { construirLista, ejecutarOperacion, leerLista, memoriaDe, Parametros, structsDe } from '../listas/preparar';
@@ -9,6 +9,10 @@ import { verValor } from '../interprete/ejecutar';
 import { Memoria, Valor } from '../memoria/modelo';
 import { EditorCodigo } from './EditorCodigo';
 import { Rico } from './comun';
+import { GrupoVer, NOMBRE_GRUPO } from './SelectorTipo';
+import { PILAS } from '../stacks/catalog';
+import { COLAS } from '../queues/catalog';
+import { SelectorTipo } from './SelectorTipo';
 import { estadosLineas, Leyenda } from './piezas';
 import { temaVisible } from '../ejercicios/registro';
 import { StackGallery } from './StackView';
@@ -25,7 +29,9 @@ const COMPARA: { pregunta: string; r: Record<string, string> }[] = [
 
 // ---------------------------------------------------------------- portada de la sección
 
-export function Visualizar() {
+export function Visualizar({ grupo = 'listas' }: { grupo?: GrupoVer }) {
+  const grupos = GRUPOS.filter((g) => g.visible());
+  const actual = grupos.find((g) => g.id === grupo) ?? grupos[0];
   return (
     <main className="contenido ancho">
       <nav className="miga">
@@ -36,26 +42,33 @@ export function Visualizar() {
         Cómo se ve cada estructura en memoria, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los{' '}
         <code>.c</code> línea a línea.
       </p>
-      {(temaVisible('3') || temaVisible('4')) && (
-        <nav className="indice-ver" aria-label="Secciones">
-          <a href="#ver-listas" onClick={(e) => saltar(e, 'ver-listas')}>
-            Listas
-          </a>
-          {temaVisible('3') && (
-            <a href="#ver-pilas" onClick={(e) => saltar(e, 'ver-pilas')}>
-              Pilas
+      {grupos.length > 1 && (
+        <nav className="filtro-tipos" aria-label="Tipo de estructura">
+          {grupos.map((g) => (
+            <a key={g.id} href={`#/ver/${g.id}`} className={g.id === actual.id ? 'on' : ''} aria-current={g.id === actual.id ? 'page' : undefined}>
+              {NOMBRE_GRUPO[g.id]}
+              <span className="cuenta-filtro">{g.cuantas}</span>
             </a>
-          )}
-          {temaVisible('4') && (
-            <a href="#ver-colas" onClick={(e) => saltar(e, 'ver-colas')}>
-              Colas
-            </a>
-          )}
+          ))}
         </nav>
       )}
-      <h2 className="titulo-seccion" id="ver-listas">
-        Listas
-      </h2>
+      {actual.id === 'listas' && <ListGallery />}
+      {actual.id === 'pilas' && <StackGallery />}
+      {actual.id === 'colas' && <QueueGallery />}
+    </main>
+  );
+}
+
+const GRUPOS: { id: GrupoVer; cuantas: number; visible: () => boolean }[] = [
+  { id: 'listas', cuantas: LISTAS.length, visible: () => true },
+  { id: 'pilas', cuantas: PILAS.length, visible: () => temaVisible('3') },
+  { id: 'colas', cuantas: COLAS.length, visible: () => temaVisible('4') },
+];
+
+/** Cards and comparison table of the four lists. */
+function ListGallery() {
+  return (
+    <>
       <section className="galeria-listas">
         {LISTAS.map((t) => (
           <a key={t.id} className="tarjeta-lista" href={`#/ver/${t.id}`}>
@@ -99,30 +112,8 @@ export function Visualizar() {
           </table>
         </div>
       </section>
-      {temaVisible('3') && (
-        <>
-          <h2 className="titulo-seccion" id="ver-pilas">
-            Pilas
-          </h2>
-          <StackGallery />
-        </>
-      )}
-      {temaVisible('4') && (
-        <>
-          <h2 className="titulo-seccion" id="ver-colas">
-            Colas
-          </h2>
-          <QueueGallery />
-        </>
-      )}
-    </main>
+    </>
   );
-}
-
-/** In-page jump that does not touch the hash (the hash is the route). */
-function saltar(e: React.MouseEvent, id: string) {
-  e.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ---------------------------------------------------------------- una lista
@@ -188,18 +179,7 @@ function PaginaLista({ tipo }: { tipo: TipoLista }) {
 
   return (
     <main className="contenido ancho">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-        <span>/</span>
-        <a href="#/ver">Visualizar</a>
-      </nav>
-      <div className="pestanas" role="tablist" aria-label="Tipo de lista">
-        {LISTAS.map((t) => (
-          <a key={t.id} role="tab" aria-selected={t.id === tipo.id} className={`pestana ${t.id === tipo.id ? 'on' : ''}`} href={`#/ver/${t.id}`}>
-            {t.corto}
-          </a>
-        ))}
-      </div>
+      <SelectorTipo grupo="listas" actual={tipo.id} opciones={LISTAS} />
       <h1>{tipo.nombre}</h1>
 
       <section className="ver-intro">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { EjercicioPagina } from './vistas/EjercicioPagina';
 import { Inicio, TemaPagina } from './vistas/Inicio';
 import { Laboratorio } from './vistas/Laboratorio';
+import { GrupoVer } from './vistas/SelectorTipo';
 import { Visualizar, VisualizarLista } from './vistas/Visualizar';
 import { StackPageRoute } from './vistas/StackView';
 import { QueuePageRoute } from './vistas/QueueView';
@@ -25,6 +26,7 @@ export function App() {
   if (partes[0] === 'ej' && partes[1]) pagina = <EjercicioPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'tema' && partes[1]) pagina = <TemaPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'lab') pagina = <Laboratorio modo={partes[1] === 'coste' ? 'coste' : 'memoria'} />;
+  else if (partes[0] === 'ver' && ['listas', 'pilas', 'colas'].includes(partes[1] ?? '')) pagina = <Visualizar grupo={partes[1] as GrupoVer} />;
   else if (partes[0] === 'ver' && partes[1]?.startsWith('pila') && temaVisible('3')) pagina = <StackPageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && /^(cola|bicola)/.test(partes[1] ?? '') && temaVisible('4')) pagina = <QueuePageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && partes[1]) pagina = <VisualizarLista id={decodeURIComponent(partes[1])} />;

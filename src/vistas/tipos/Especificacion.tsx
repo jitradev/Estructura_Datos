@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { especificacionCompleta, leerFirma, mismaFirma, respuestaValida, textoFirma } from '../../ejercicios/especificacion';
+import { especificacionCompleta, leerArgs, mismosArgs, normalizarTipo, respuestaValida, textoFirma } from '../../ejercicios/especificacion';
 import { EjEspec } from '../../ejercicios/tipos';
 import { useBorrador } from '../../progreso';
 import { Rico } from '../comun';
@@ -43,6 +43,7 @@ export function Especificacion({ ej, onResuelto }: { ej: EjEspec; onResuelto: ()
   const opciones = useMemo(() => barajar([...ej.operaciones.map((o) => o.descripcion), ...ej.distractores], ej.id), [ej]);
 
   const [desc, setDesc] = useState<Record<number, string>>({});
+  const [params, setParams] = useState<Record<number, string>>({});
   const [firmas, setFirmas] = useState<Record<number, string>>({});
   const [constr, setConstr] = useState<Record<number, boolean>>({});
   const [ecs, setEcs] = useState<Record<number, string>>({});
@@ -61,20 +62,23 @@ export function Especificacion({ ej, onResuelto }: { ej: EjEspec; onResuelto: ()
 
   const comprobar = () => {
     const r: Record<string, boolean> = {};
-    if (paso === 1) ej.operaciones.forEach((o, i) => (r[`d${i}`] = desc[i] === o.descripcion));
-    if (paso === 2)
+    if (paso === 1)
       ej.operaciones.forEach((o, i) => {
-        const f = leerFirma(firmas[i] ?? '', ej.tad);
-        r[`f${i}`] = !!f && mismaFirma(o, f) && !!constr[i] === !!o.constructora;
+        const a = leerArgs(params[i] ?? '', ej.tad);
+        r[`p${i}`] = !!a && mismosArgs(o, a);
+        r[`d${i}`] = desc[i] === o.descripcion;
       });
+    if (paso === 2) ej.operaciones.forEach((o, i) => (r[`f${i}`] = normalizarTipo(firmas[i] ?? '', ej.tad) === o.devuelve && !!constr[i] === !!o.constructora));
     if (paso === 3) ej.ecuaciones.forEach((e, i) => (r[`e${i}`] = respuestaValida(e, ecs[i] ?? '')));
     setBien(r);
     if (Object.values(r).every(Boolean)) return avanzar(paso === 1 ? 'informal' : paso === 2 ? 'sintaxis' : 'semantica');
     setFallos(fallos + 1);
     const malas = Object.values(r).filter((x) => !x).length;
     setAviso(
-      paso === 2
-        ? `${malas === 1 ? 'Hay una operación' : `Hay ${malas} operaciones`} mal: revisa los tipos (entero, real, booleano, cadena o ${ej.tad}) y el asterisco de las constructoras.`
+      paso === 1
+        ? `${malas === 1 ? 'Hay una casilla' : `Hay ${malas} casillas`} mal (en rojo). Los parámetros son tipos separados por comas: entero, real, booleano, cadena o ${ej.tad}; si no tiene, déjalo vacío.`
+        : paso === 2
+        ? `${malas === 1 ? 'Hay una operación' : `Hay ${malas} operaciones`} mal: revisa el tipo del resultado (entero, real, booleano, cadena o ${ej.tad}) y el asterisco de las constructoras.`
         : `${malas === 1 ? 'Hay una' : `Hay ${malas}`} mal (en rojo).`,
     );
   };
@@ -105,15 +109,30 @@ export function Especificacion({ ej, onResuelto }: { ej: EjEspec; onResuelto: ()
       <section className="panel">
         <ol className="pasos-fallo">
           <Estado n={1} paso={paso}>
-            <strong>Especificación informal: ¿qué hace cada operación?</strong>
+            <strong>Especificación informal: los parámetros de cada operación y qué hace</strong>
             {paso === 1 ? (
               <form onSubmit={enviar}>
+                <p className="nota">
+                  Escribe los tipos de los parámetros separados por comas (por ejemplo <code>entero, entero</code>; vacío si no tiene) y elige su descripción.
+                </p>
                 <p className="mono cab-tad">{cab}</p>
                 <div className="tabla-espec">
                   {ej.operaciones.map((o, i) => (
-                    <label key={o.nombre} className="fila-espec">
-                      <code>{o.nombre}(…)</code>
-                      <select className={marca(bien[`d${i}`])} value={desc[i] ?? ''} onChange={(e) => setDesc({ ...desc, [i]: e.target.value })}>
+                    <div key={o.nombre} className="fila-espec informal">
+                      <span className="op-params">
+                        <code>{o.nombre}(</code>
+                        <input
+                          type="text"
+                          className={marca(bien[`p${i}`])}
+                          value={params[i] ?? ''}
+                          onChange={(e) => setParams({ ...params, [i]: e.target.value })}
+                          aria-label={`Parámetros de ${o.nombre}`}
+                          autoComplete="off"
+                          spellCheck={false}
+                        />
+                        <code>)</code>
+                      </span>
+                      <select className={marca(bien[`d${i}`])} value={desc[i] ?? ''} onChange={(e) => setDesc({ ...desc, [i]: e.target.value })} aria-label={`Qué hace ${o.nombre}`}>
                         <option value="">Elige…</option>
                         {opciones.map((d) => (
                           <option key={d} value={d}>
@@ -121,22 +140,22 @@ export function Especificacion({ ej, onResuelto }: { ej: EjEspec; onResuelto: ()
                           </option>
                         ))}
                       </select>
-                    </label>
+                    </div>
                   ))}
                 </div>
                 {botones}
               </form>
             ) : (
-              <p>Hecha.</p>
+              <pre className="mono resumen-espec">{ej.operaciones.map((o) => `${o.nombre}(${o.args.join(', ')})   ${o.descripcion}`).join('\n')}</pre>
             )}
           </Estado>
 
           <Estado n={2} paso={paso}>
-            <strong>Especificación formal, sintaxis: los tipos de cada operación</strong>
+            <strong>Especificación formal, sintaxis: qué devuelve cada operación</strong>
             {paso === 2 && (
               <form onSubmit={enviar}>
                 <p className="nota">
-                  Escribe los tipos de los argumentos y del resultado, por ejemplo <code>entero, entero -&gt; {ej.tad}</code> o <code>-&gt; {ej.tad}</code> si no tiene argumentos. Marca con * las constructoras: las que crean un {ej.tad} de la nada.
+                  Escribe el tipo del resultado (entero, real, booleano, cadena o {ej.tad}) y marca con * las constructoras: las que crean un {ej.tad} de la nada.
                 </p>
                 <div className="tabla-espec">
                   {ej.operaciones.map((o, i) => (
@@ -144,13 +163,15 @@ export function Especificacion({ ej, onResuelto }: { ej: EjEspec; onResuelto: ()
                       <label className="constr" title="Constructora">
                         <input type="checkbox" checked={!!constr[i]} onChange={(e) => setConstr({ ...constr, [i]: e.target.checked })} /> *
                       </label>
-                      <code>{o.nombre}</code>
+                      <code>
+                        {o.nombre}({o.args.join(', ')}) -&gt;
+                      </code>
                       <input
                         type="text"
                         className={marca(bien[`f${i}`])}
                         value={firmas[i] ?? ''}
                         onChange={(e) => setFirmas({ ...firmas, [i]: e.target.value })}
-                        placeholder={`tipos -> resultado`}
+                        placeholder="tipo del resultado"
                         aria-label={`Sintaxis de ${o.nombre}`}
                         autoComplete="off"
                         spellCheck={false}

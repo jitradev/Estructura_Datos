@@ -36,15 +36,22 @@ export function normalizarTipo(s: string, tad: string): string | null {
 export function leerFirma(s: string, tad: string): { args: string[]; devuelve: string } | null {
   const partes = s.split(/->|→|=>/);
   if (partes.length !== 2) return null;
-  let izq = partes[0].trim();
+  const args = leerArgs(partes[0], tad);
+  const devuelve = normalizarTipo(partes[1], tad);
+  return args && devuelve ? { args, devuelve } : null;
+}
+
+/** Reads the parameters of the informal specification: «entero, entero», «(int, int)» or nothing. */
+export function leerArgs(s: string, tad: string): string[] | null {
+  let izq = s.trim();
   const p = izq.indexOf('(');
   if (p >= 0) izq = izq.slice(p + 1, izq.lastIndexOf(')') > p ? izq.lastIndexOf(')') : undefined);
   const trozos = /^\s*(nada|void|vacio|vacío|ninguno)?\s*$/i.test(izq) ? [] : izq.split(/,|×|\s+x\s+/i);
   const args = trozos.map((a) => normalizarTipo(a, tad));
-  const devuelve = normalizarTipo(partes[1], tad);
-  if (args.some((a) => a === null) || !devuelve) return null;
-  return { args: args as string[], devuelve };
+  return args.some((a) => a === null) ? null : (args as string[]);
 }
+
+export const mismosArgs = (op: OpEspec, args: string[]) => args.length === op.args.length && args.every((a, i) => a === op.args[i]);
 
 export const mismaFirma = (op: OpEspec, f: { args: string[]; devuelve: string }) =>
   f.devuelve === op.devuelve && f.args.length === op.args.length && f.args.every((a, i) => a === op.args[i]);

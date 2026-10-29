@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonica, leerFirma, mismaFirma, respuestaValida } from '../ejercicios/especificacion';
+import { canonica, leerArgs, leerFirma, mismaFirma, mismosArgs, respuestaValida } from '../ejercicios/especificacion';
 import { tema1 } from '../ejercicios/tema1';
 import { EjEspec } from '../ejercicios/tipos';
 
@@ -20,6 +20,21 @@ describe('reading signatures', () => {
   it('rejects what it cannot read', () => {
     expect(leerFirma('entero, entero', 'Fraccion')).toBeNull();
     expect(leerFirma('numero -> Fraccion', 'Fraccion')).toBeNull();
+  });
+});
+
+describe('reading the parameters of the informal specification', () => {
+  it.each([
+    ['entero, entero', ['entero', 'entero']],
+    ['(int, int)', ['entero', 'entero']],
+    ['', []],
+    ['  ', []],
+    ['Conjunto, int', ['Conjunto', 'entero']],
+  ])('%j', (s, args) => {
+    expect(leerArgs(s, 'Conjunto')).toEqual(args);
+  });
+  it('rejects unknown types', () => {
+    expect(leerArgs('numero', 'Conjunto')).toBeNull();
   });
 });
 
@@ -55,6 +70,7 @@ describe('topic 1 catalogue', () => {
         const f = leerFirma(`${o.args.join(', ')} -> ${o.devuelve}`, ej.tad);
         expect(f, o.nombre).not.toBeNull();
         expect(mismaFirma(o, f!), o.nombre).toBe(true);
+        expect(mismosArgs(o, leerArgs(o.args.join(', '), ej.tad)!), o.nombre).toBe(true);
       }
       for (const e of ej.ecuaciones) for (const d of e.der) expect(respuestaValida(e, d), `${e.izq} -> ${d}`).toBe(true);
     });

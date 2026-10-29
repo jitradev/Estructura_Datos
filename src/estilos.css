@@ -482,7 +482,10 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .fila-espec input[type='text'] { font-family: var(--f-mono); font-size: 0.92rem; }
 .fila-espec .bien { border-color: var(--verde); background: var(--verde-claro); }
 .fila-espec .mal { border-color: var(--carmin); background: var(--rojo-claro); }
-.fila-espec.firma { grid-template-columns: 44px minmax(120px, 190px) minmax(0, 1fr); }
+.fila-espec.firma { grid-template-columns: 44px auto minmax(140px, 1fr); justify-content: start; }
+.fila-espec.informal { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.op-params { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.op-params input { flex: 1; min-width: 80px; }
 .fila-espec .constr { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-mono); font-weight: 700; cursor: pointer; }
 .fila-espec.ecuacion-espec { grid-template-columns: minmax(0, auto) auto auto minmax(160px, 1fr); justify-content: start; }
 .fila-espec.ecuacion-espec code { white-space: nowrap; }
@@ -492,3 +495,4 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
   .fila-espec, .fila-espec.firma, .fila-espec.ecuacion-espec { grid-template-columns: minmax(0, 1fr); }
 }
 .fila-espec > code { justify-self: start; }
+.op-params code:first-child { min-width: 17ch; text-align: right; }

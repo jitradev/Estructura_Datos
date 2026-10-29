@@ -119,7 +119,10 @@ export function Inicio() {
         </a>
         <a href="#/lab" className="tarjeta-tema ancha">
           <strong>Laboratorio</strong>
-          <span className="resumen">Elige {['una lista', temaVisible('3') && 'una pila', temaVisible('4') && 'una cola'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' o $1')}, escribe lo que quieras y mira qué pasa en la memoria. Sin corrección.</span>
+          <span className="resumen">
+            Elige {['una lista', temaVisible('3') && 'una pila', temaVisible('4') && 'una cola'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' o $1')}, escribe lo que quieras y mira qué pasa en la memoria. Sin corrección.
+            {temaVisible('5') && ' Y una calculadora de O(n) para tus bucles.'}
+          </span>
         </a>
       </section>
       <p className="nota pie">

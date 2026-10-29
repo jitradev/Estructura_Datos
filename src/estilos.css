@@ -361,3 +361,13 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .opcion:disabled:not(.on) { opacity: 0.55; cursor: default; }
 .ej-rejilla.misterio .panel-memoria { grid-column: 1 / -1; }
 @media (min-width: 901px) { .ej-rejilla.misterio { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+/* ------------------------------------------------ laboratorio: pestañas y calculadora */
+.pestanas { display: flex; gap: 4px; border-bottom: 2px solid var(--linea); margin: 0 0 14px; flex-wrap: wrap; }
+.pestanas a { padding: 10px 14px; text-decoration: none; color: var(--grafito); font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.pestanas a:hover { color: var(--carmin); }
+.pestanas a.on { color: var(--carmin); border-bottom-color: var(--carmin); }
+.veredicto { font-size: 1.25rem; margin: 4px 0 10px; }
+.veredicto strong { font-family: var(--f-mono); color: var(--carmin); }
+.calculadora .tabla-crece td.factor { color: var(--gris); }
+.calculadora select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1.5px solid #d9c9c1; background: #fff; }

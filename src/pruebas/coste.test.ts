@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { leerCoste } from '../ejercicios/coste';
+import { contarCodigo, estimarCoste, leerCoste } from '../ejercicios/coste';
+import { TODOS_LOS_TEMAS } from '../ejercicios/registro';
+import { EjCoste } from '../ejercicios/tipos';
 
 describe('leerCoste', () => {
   const casos: [string, string][] = [
@@ -36,4 +38,22 @@ describe('leerCoste', () => {
     expect(leerCoste('rápido')).toBeNull();
     expect(leerCoste('O(n+1)')).toBeNull();
   });
+});
+
+describe('estimarCoste', () => {
+  // the topic 5 fragments, counted for growing n, are told apart by their counts
+  const NS = [8, 16, 32, 64, 128, 256];
+  const deCoste = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios).filter((e): e is EjCoste => e.tipo === 'coste');
+  for (const ej of deCoste) {
+    if (ej.nCrecimiento) continue; // worst case or very slow classes need other values of n
+    it(`${ej.id} ${ej.titulo}: ${ej.coste}`, () => {
+      const puntos: { n: number; x: number }[] = [];
+      for (const n of NS) {
+        const r = contarCodigo(ej.contar ?? ej.codigo, n, 400_000);
+        if ('error' in r) break;
+        puntos.push({ n, x: r.x });
+      }
+      expect(estimarCoste(puntos)).toBe(ej.coste);
+    });
+  }
 });

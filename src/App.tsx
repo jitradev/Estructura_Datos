@@ -24,7 +24,7 @@ export function App() {
   const partes = ruta.split('/').filter(Boolean);
   if (partes[0] === 'ej' && partes[1]) pagina = <EjercicioPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'tema' && partes[1]) pagina = <TemaPagina id={decodeURIComponent(partes[1])} />;
-  else if (partes[0] === 'lab') pagina = <Laboratorio />;
+  else if (partes[0] === 'lab') pagina = <Laboratorio modo={partes[1] === 'coste' ? 'coste' : 'memoria'} />;
   else if (partes[0] === 'ver' && partes[1]?.startsWith('pila') && temaVisible('3')) pagina = <StackPageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && /^(cola|bicola)/.test(partes[1] ?? '') && temaVisible('4')) pagina = <QueuePageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && partes[1]) pagina = <VisualizarLista id={decodeURIComponent(partes[1])} />;

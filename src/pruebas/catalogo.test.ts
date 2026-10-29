@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TODOS_LOS_TEMAS } from '../ejercicios/registro';
 import { comprobarCaso, ejecutarCaso } from '../ejercicios/comprobar';
-import { contarVueltas } from '../ejercicios/coste';
+import { contarVueltas, CRECIMIENTO } from '../ejercicios/coste';
 import { leerValores, mismosValores, respuestas } from '../ejercicios/misterio';
 import { ClaseCoste, EjCodigo, EjCoste } from '../ejercicios/tipos';
 
@@ -9,17 +9,7 @@ const todos = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios);
 const conCodigo = todos.filter((e): e is EjCodigo => e.tipo !== 'coste');
 const deCoste = todos.filter((e): e is EjCoste => e.tipo === 'coste');
 
-const lg = Math.log2;
-const CRECE: Record<ClaseCoste, (n: number) => number> = {
-  'O(1)': () => 1,
-  'O(log log n)': (n) => lg(lg(n)),
-  'O(log n)': lg,
-  'O(√n)': Math.sqrt,
-  'O(n)': (n) => n,
-  'O(n log n)': (n) => n * lg(n),
-  'O(n²)': (n) => n * n,
-  'O(n³)': (n) => n ** 3,
-};
+const CRECE = CRECIMIENTO;
 
 describe('catálogo', () => {
   it('ids únicos', () => {

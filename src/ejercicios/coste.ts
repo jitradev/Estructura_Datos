@@ -4,16 +4,19 @@
 import { ejecutar } from '../interprete/ejecutar';
 import { construir, entero } from '../memoria/construir';
 import { Contexto } from '../memoria/modelo';
-import { ClaseCoste, EjCoste } from './tipos';
+import { ClaseCoste, CLASES_COSTE, EjCoste } from './tipos';
 
 const CTX: Contexto = { structs: [] };
 
 /** Enough for O(n³) with n = 64 or O(n²) with n = 512, and still quick in the browser. */
 const MAX_PASOS = 1_000_000;
 
-export function contarVueltas(ej: EjCoste, n: number): { x: number } | { error: string } {
+export const contarVueltas = (ej: EjCoste, n: number) => contarCodigo(ej.contar ?? ej.codigo, n);
+
+/** Runs `codigo` with `n` and reads `x`. `n`, `x`, `i`, `j` and `k` are already declared. */
+export function contarCodigo(codigo: string, n: number, maxPasos = MAX_PASOS): { x: number } | { error: string } {
   const inicial = construir(CTX, [entero('n', n), entero('x', 0), entero('i', 0), entero('j', 0), entero('k', 0)]);
-  const r = ejecutar(ej.contar ?? ej.codigo, CTX, inicial, { sinPasos: true, maxPasos: MAX_PASOS });
+  const r = ejecutar(codigo, CTX, inicial, { sinPasos: true, maxPasos });
   if (r.error?.tipo === 'bucle') return { error: 'Demasiadas vueltas para contarlas aquí: prueba con un n más pequeño.' };
   if (r.error) return { error: r.error.mensaje };
   const x = r.memFinal.marcos[0].vars.find((v) => v.nombre === 'x')?.valor;
@@ -66,4 +69,37 @@ export function leerCoste(s: string): { clase: ClaseCoste } | { constante: Clase
   const sin = t.replace(/^\d+(?=[a-z])/, '').replace(/\/\d+$/, '').replace(/^\((.*)\)$/, '$1');
   if (sin !== t && FORMAS[sin]) return { constante: FORMAS[sin] };
   return null;
+}
+
+const lg = Math.log2;
+/** Growth of each class, to compare with the counts. */
+export const CRECIMIENTO: Record<ClaseCoste, (n: number) => number> = {
+  'O(1)': () => 1,
+  'O(log log n)': (n) => lg(lg(n)),
+  'O(log n)': lg,
+  'O(√n)': Math.sqrt,
+  'O(n)': (n) => n,
+  'O(n log n)': (n) => n * lg(n),
+  'O(n²)': (n) => n * n,
+  'O(n³)': (n) => n ** 3,
+};
+
+/**
+ * The class whose growth best follows the counts: the one for which count / growth stays
+ * most constant (least spread of its logarithm) over the largest values of n.
+ */
+export function estimarCoste(puntos: { n: number; x: number }[]): ClaseCoste | null {
+  const ps = puntos.filter((p) => p.x > 0 && p.n >= 4).slice(-4);
+  if (ps.length < 3) return null;
+  let mejor: ClaseCoste | null = null;
+  let menor = Infinity;
+  for (const clase of CLASES_COSTE) {
+    const r = ps.map((p) => Math.log(p.x / CRECIMIENTO[clase](p.n)));
+    const dispersion = Math.max(...r) - Math.min(...r);
+    if (dispersion < menor - 1e-9) {
+      menor = dispersion;
+      mejor = clase;
+    }
+  }
+  return mejor;
 }

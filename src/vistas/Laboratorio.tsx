@@ -20,6 +20,7 @@ import { Contexto } from '../memoria/modelo';
 import { EditorCodigo } from './EditorCodigo';
 import { Chuleta, estadosLineas } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
+import { CalculadoraCoste } from './CalculadoraCoste';
 
 const TODAS_LAS_MESAS: { tema: string; nombre: string; ctx: Contexto; inicial: Constructor[]; ejemplo: string }[] = [
   {
@@ -62,7 +63,7 @@ const TODAS_LAS_MESAS: { tema: string; nombre: string; ctx: Contexto; inicial: C
 // Only the starting structures of the visible topics
 const MESAS = TODAS_LAS_MESAS.filter((m) => temaVisible(m.tema));
 
-export function Laboratorio() {
+export function Laboratorio({ modo = 'memoria' }: { modo?: 'memoria' | 'coste' }) {
   const [mesa, setMesa] = useState(0);
   const [codigo, setCodigo] = useState(MESAS[0].ejemplo);
   const [res, setRes] = useState<Resultado | null>(null);
@@ -83,64 +84,83 @@ export function Laboratorio() {
         <a href="#/">Temas</a>
       </nav>
       <h1>Laboratorio</h1>
-      <p className="entradilla">Elige con qué empezar, escribe lo que quieras y ejecútalo. Aquí no se corrige nada: es para probar.</p>
-      <label className="selector-mesa">
-        Empezar con{' '}
-        <select
-          value={mesa}
-          onChange={(e) => {
-            const i = Number(e.target.value);
-            setMesa(i);
-            setCodigo(MESAS[i].ejemplo);
-            setRes(null);
-          }}
-        >
-          {MESAS.map((x, i) => (
-            <option key={i} value={i}>
-              {x.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-      <div className="ej-rejilla">
-        <section className="panel panel-codigo">
-          <div className="panel-cab">
-            <h2>Código</h2>
+      <nav className="pestanas" aria-label="Laboratorio">
+        <a href="#/lab" className={modo === 'memoria' ? 'on' : ''} aria-current={modo === 'memoria' ? 'page' : undefined}>
+          Memoria
+        </a>
+        {temaVisible('5') && (
+          <a href="#/lab/coste" className={modo === 'coste' ? 'on' : ''} aria-current={modo === 'coste' ? 'page' : undefined}>
+            Calculadora de O(n)
+          </a>
+        )}
+      </nav>
+      {modo === 'coste' && temaVisible('5') ? (
+        <>
+          <p className="entradilla">Escribe unos bucles con n y mira cuánto crecen las vueltas al doblar n, y qué O les corresponde.</p>
+          <CalculadoraCoste />
+        </>
+      ) : (
+        <>
+          <p className="entradilla">Elige con qué empezar, escribe lo que quieras y ejecútalo. Aquí no se corrige nada: es para probar.</p>
+          <label className="selector-mesa">
+            Empezar con{' '}
+            <select
+              value={mesa}
+              onChange={(e) => {
+                const i = Number(e.target.value);
+                setMesa(i);
+                setCodigo(MESAS[i].ejemplo);
+                setRes(null);
+              }}
+            >
+              {MESAS.map((x, i) => (
+                <option key={i} value={i}>
+                  {x.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="ej-rejilla">
+            <section className="panel panel-codigo">
+              <div className="panel-cab">
+                <h2>Código</h2>
+              </div>
+              <EditorCodigo
+                valor={codigo}
+                onChange={(v) => {
+                  setCodigo(v);
+                  setRes(null);
+                }}
+                estados={estadosLineas(res?.pasos ?? null, rep.idx)}
+              />
+              <div className="acciones">
+                <button className="btn" onClick={() => lanzar(true)}>
+                  ▶ Ejecutar
+                </button>
+                <button className="btn secundario" onClick={() => lanzar(false)}>
+                  Paso a paso
+                </button>
+              </div>
+              <Chuleta ctx={m.ctx} />
+            </section>
+            <section className="panel panel-memoria">
+              <div className="panel-cab">
+                <h2>Memoria</h2>
+              </div>
+              <Reproductor pasos={res?.pasos ?? null} rep={rep} ctx={m.ctx} memInicial={memInicial} />
+              {res?.error && (
+                <div className="caja-error" role="alert">
+                  <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
+                  {res.error.mensaje}
+                </div>
+              )}
+              {res && !res.error && res.fugas.length > 0 && (
+                <div className="caja-aviso">Al terminar quedan {res.fugas.length} nodos reservados a los que no llega nadie: son fugas.</div>
+              )}
+            </section>
           </div>
-          <EditorCodigo
-            valor={codigo}
-            onChange={(v) => {
-              setCodigo(v);
-              setRes(null);
-            }}
-            estados={estadosLineas(res?.pasos ?? null, rep.idx)}
-          />
-          <div className="acciones">
-            <button className="btn" onClick={() => lanzar(true)}>
-              ▶ Ejecutar
-            </button>
-            <button className="btn secundario" onClick={() => lanzar(false)}>
-              Paso a paso
-            </button>
-          </div>
-          <Chuleta ctx={m.ctx} />
-        </section>
-        <section className="panel panel-memoria">
-          <div className="panel-cab">
-            <h2>Memoria</h2>
-          </div>
-          <Reproductor pasos={res?.pasos ?? null} rep={rep} ctx={m.ctx} memInicial={memInicial} />
-          {res?.error && (
-            <div className="caja-error" role="alert">
-              <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
-              {res.error.mensaje}
-            </div>
-          )}
-          {res && !res.error && res.fugas.length > 0 && (
-            <div className="caja-aviso">Al terminar quedan {res.fugas.length} nodos reservados a los que no llega nadie: son fugas.</div>
-          )}
-        </section>
-      </div>
+        </>
+      )}
     </main>
   );
 }

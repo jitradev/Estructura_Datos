@@ -659,5 +659,93 @@ export const tema3: Tema = {
       correcta: 0,
       explicacion: 'En la pila enlazada la cima es el primer nodo y los enlaces bajan hacia el fondo: el último nodo de la cadena es el primero que entró. Llegar a él cuesta recorrer toda la pila, por eso una pila no lo ofrece.',
     },
+    {
+      id: '3-M4',
+      tipo: 'misterio',
+      titulo: 'Contando como la cima',
+      enunciado: 'Predice qué devuelve en cada caso. La pila se escribe del fondo a la cima.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 8 1 8', inicial: [pilaArray('pila', [4, 8, 1, 8])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', [])], llamada: 'misterio(pila)' },
+      ],
+      observar: ['pila'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(PilaArray *pila) {
+            if (esVaciaArray(pila)) { return 0; }
+            int n = 0;
+            for (int i = 0; i <= pila->cima; i++)
+                if (pila->array[i] == pila->array[pila->cima]) n++;
+            return n;
+        }`),
+      opciones: ['Cuenta cuántas veces está en la pila el valor de la cima (contando la propia cima).', 'Devuelve cuántos elementos hay.', 'Cuenta cuántos valores hay repetidos.', 'Devuelve la posición de la cima.'],
+      correcta: 0,
+      explicacion: 'Recorre el array de 0 a `cima` comparando con `array[cima]`. La cima se cuenta a sí misma, así que con la pila no vacía devuelve al menos 1.',
+    },
+    {
+      id: '3-M5',
+      tipo: 'misterio',
+      titulo: 'Dos pop y dos push',
+      enunciado: 'Predice cómo queda la pila (del fondo a la cima) en cada caso. Fíjate bien en el caso de un solo elemento.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila 7', inicial: [pilaArray('pila', [7])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', [])], llamada: 'misterio(pila)' },
+      ],
+      observar: ['pila'],
+      responder: ['pila'],
+      solucion: c(`
+        void misterio(PilaArray *pila) {
+            int a = 0;
+            int b = 0;
+            if (popArray(pila, &a) && popArray(pila, &b)) {
+                pushArray(pila, a);
+                pushArray(pila, b);
+            }
+        }`),
+      opciones: [
+        'Intercambia los dos de arriba; si solo hay uno, lo pierde.',
+        'Intercambia los dos de arriba; si solo hay uno, no hace nada.',
+        'Deja la pila como estaba.',
+        'Quita los dos de arriba.',
+      ],
+      correcta: 0,
+      explicacion: 'Saca la cima (a) y la de debajo (b) y las mete en orden contrario, así que se intercambian. Pero con un elemento el primer `popArray` funciona, el segundo no, y el `if` no vuelve a meter `a`: se pierde. Habría que mirar antes que hay al menos dos (`tamanoArray(pila) >= 2`).',
+    },
+    {
+      id: '3-M6',
+      tipo: 'misterio',
+      titulo: 'Buscando en una pila',
+      enunciado: 'Predice qué devuelve y cómo queda la pila (del fondo a la cima) en cada caso. Después di qué hace.',
+      ctx: E,
+      casos: [
+        { nombre: 'Pila 4 1 8, x = 1', inicial: [pilaEnlazada('pila', [4, 1, 8])], llamada: 'misterio(pila, 1)' },
+        { nombre: 'Pila 4 1 8, x = 8', inicial: [pilaEnlazada('pila', [4, 1, 8])], llamada: 'misterio(pila, 8)' },
+        { nombre: 'Pila 4 1 8, x = 5', inicial: [pilaEnlazada('pila', [4, 1, 8])], llamada: 'misterio(pila, 5)' },
+      ],
+      observar: ['pila'],
+      responder: ['devuelve', 'pila'],
+      solucion: c(`
+        int misterio(PilaEnlazada *pila, int x) {
+            int n = 0;
+            int v = 0;
+            while (popEnlazada(pila, &v)) {
+                n++;
+                if (v == x) return n;
+            }
+            return -1;
+        }`),
+      opciones: [
+        'Desapila hasta sacar `x` y devuelve cuántos ha sacado; si no está, vacía la pila y devuelve -1.',
+        'Devuelve a qué profundidad está `x` sin tocar la pila, o -1.',
+        'Quita `x` de la pila, deje donde deje los demás.',
+        'Devuelve cuántas veces está `x` y vacía la pila.',
+      ],
+      correcta: 0,
+      explicacion: 'Con una pila solo se ve la cima: para encontrar algo hay que ir sacando. El que se busca también sale. Si no está, la pila acaba vacía: para buscar sin destruirla haría falta una pila auxiliar donde ir guardando lo sacado.',
+    },
   ],
 };

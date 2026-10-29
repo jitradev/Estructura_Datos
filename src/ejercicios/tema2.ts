@@ -1085,5 +1085,132 @@ export const tema2: Tema = {
       correcta: 0,
       explicacion: 'Tras insertar la copia, `p` salta a `n->siguiente`, que es el nodo que venía detrás del original: así no vuelve a pasar por la copia y el bucle termina. Si avanzara con `p = p->siguiente`, caería en la copia y no acabaría nunca.',
     },
+    {
+      id: '2-M5',
+      tipo: 'misterio',
+      titulo: 'Mirando al vecino',
+      enunciado: 'Predice qué devuelve en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 1 → 2 → 2 → 2 → 3', inicial: L(1, 1, 2, 2, 2, 3), llamada: 'misterio(cab)' },
+        { nombre: '1 → 2 → 3', inicial: L(1, 2, 3), llamada: 'misterio(cab)' },
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(Nodo *cab)
+        {
+            int n = 0;
+            if (cab == NULL) return 0;
+            for (Nodo *p = cab; p->siguiente != NULL; p = p->siguiente)
+                if (p->valor == p->siguiente->valor) n++;
+            return n;
+        }`),
+      opciones: [
+        'Cuenta cuántos nodos valen lo mismo que el siguiente.',
+        'Cuenta cuántos valores distintos hay.',
+        'Cuenta cuántos valores aparecen más de una vez.',
+        'Devuelve la longitud del tramo más largo de valores iguales.',
+      ],
+      correcta: 0,
+      explicacion: 'Compara cada nodo con el de detrás: en `1 1 2 2 2 3` coinciden el primer 1 con el segundo y dos veces los 2, así que 3. El `if (cab == NULL)` hace falta porque la condición del `for` mira `p->siguiente`.',
+    },
+    {
+      id: '2-M6',
+      tipo: 'misterio',
+      titulo: 'Una sola pregunta',
+      enunciado: 'Predice qué devuelve en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 3 → 3 → 5', inicial: L(1, 3, 3, 5), llamada: 'misterio(cab)' },
+        { nombre: '1 → 5 → 3', inicial: L(1, 5, 3), llamada: 'misterio(cab)' },
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(Nodo *cab)
+        {
+            Nodo *p = cab;
+            while (p != NULL && p->siguiente != NULL) {
+                if (p->valor > p->siguiente->valor) return 0;
+                p = p->siguiente;
+            }
+            return 1;
+        }`),
+      opciones: [
+        'Devuelve 1 si la lista está ordenada de menor a mayor (admite repetidos) y 0 si no.',
+        'Devuelve 1 si no hay valores repetidos y 0 si los hay.',
+        'Devuelve 1 si la lista está ordenada de mayor a menor y 0 si no.',
+        'Devuelve 1 si el primero es el menor y 0 si no.',
+      ],
+      correcta: 0,
+      explicacion: 'En cuanto encuentra un nodo mayor que el siguiente, la lista no está ordenada: 0. Si llega al final sin encontrarlo, sí: 1. La lista vacía y la de un nodo cuentan como ordenadas.',
+    },
+    {
+      id: '2-M7',
+      tipo: 'misterio',
+      titulo: 'Del fondo a la cabeza',
+      enunciado: 'Predice cómo queda la lista en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 2 → 3', inicial: L(1, 2, 3), llamada: 'misterio(&cab)' },
+        { nombre: '1 → 2', inicial: L(1, 2), llamada: 'misterio(&cab)' },
+        { nombre: 'Un nodo', inicial: L(7), llamada: 'misterio(&cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['cab'],
+      solucion: c(`
+        void misterio(Nodo **cab)
+        {
+            if (*cab == NULL || (*cab)->siguiente == NULL) return;
+            Nodo *ant = NULL;
+            Nodo *p = *cab;
+            while (p->siguiente != NULL) {
+                ant = p;
+                p = p->siguiente;
+            }
+            ant->siguiente = NULL;
+            p->siguiente = *cab;
+            *cab = p;
+        }`),
+      opciones: ['Pasa el último nodo al principio.', 'Pasa el primer nodo al final.', 'Da la vuelta a la lista.', 'Intercambia el primero y el último.'],
+      correcta: 0,
+      explicacion: 'Busca el último (y su anterior), lo descuelga y lo engancha delante de la cabeza. Mueve el nodo, no el valor. Con menos de dos nodos no hay nada que mover.',
+    },
+    {
+      id: '2-M8',
+      tipo: 'misterio',
+      titulo: 'Saltando nodos',
+      enunciado: 'Predice cómo queda la lista en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 2 → 3 → 4 → 5', inicial: L(1, 2, 3, 4, 5), llamada: 'misterio(cab)' },
+        { nombre: '1 → 2 → 3 → 4', inicial: L(1, 2, 3, 4), llamada: 'misterio(cab)' },
+        { nombre: 'Un nodo', inicial: L(7), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['cab'],
+      solucion: c(`
+        void misterio(Nodo *cab)
+        {
+            Nodo *p = cab;
+            while (p != NULL && p->siguiente != NULL) {
+                Nodo *borrar = p->siguiente;
+                p->siguiente = borrar->siguiente;
+                free(borrar);
+                p = p->siguiente;
+            }
+        }`),
+      opciones: [
+        'Quita uno de cada dos nodos: el 2.º, el 4.º, el 6.º…',
+        'Quita los nodos con valor par.',
+        'Quita la segunda mitad de la lista.',
+        'Quita todos los nodos menos el primero.',
+      ],
+      correcta: 0,
+      explicacion: 'Cada vuelta salta y libera el nodo de detrás de `p`, y después avanza `p` al siguiente que queda: se queda con el 1.º, 3.º, 5.º… Que en `1 2 3 4 5` coincida con quitar los pares es casualidad: mira posiciones, no valores.',
+    },
   ],
 };

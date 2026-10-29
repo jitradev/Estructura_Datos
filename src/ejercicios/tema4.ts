@@ -725,5 +725,82 @@ export const tema4: Tema = {
       correcta: 0,
       explicacion: 'Cada vuelta saca el primero y lo pone el último: la cola rota k posiciones. Con la cola vacía `desencolarColaEnlazada` devuelve 0 y no se encola nada.',
     },
+    {
+      id: '4-M4',
+      tipo: 'misterio',
+      titulo: 'Un paso atrás',
+      enunciado: 'Predice qué devuelve en cada caso. La cola se escribe del frente al final y «desde la casilla 8» dice dónde está el frente.',
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 5 8 2', inicial: [colaArray('cola', [5, 8, 2])], llamada: 'misterio(cola)' },
+        { nombre: 'Cola 1 2 3, desde la casilla 8', inicial: [colaArray('cola', [1, 2, 3], 8)], llamada: 'misterio(cola)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [])], llamada: 'misterio(cola)' },
+      ],
+      observar: ['cola'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(ColaArray *cola) {
+            if (estaVaciaColaArray(cola) == 1) return -1;
+            return cola->array[(cola->final - 1 + TAM_COLA_ARRAY) % TAM_COLA_ARRAY];
+        }`),
+      opciones: ['Devuelve el último que se encoló, o -1 si está vacía.', 'Devuelve el primero de la cola, o -1 si está vacía.', 'Devuelve el penúltimo de la cola.', 'Devuelve lo que hay en la casilla anterior al frente.'],
+      correcta: 0,
+      explicacion: '`final` es el primer hueco libre, así que el último elemento está una casilla antes. El `+ TAM_COLA_ARRAY` evita el -1 cuando `final` vale 0 (en el segundo caso, `final` ha dado la vuelta y el 3 está en la casilla 0).',
+    },
+    {
+      id: '4-M5',
+      tipo: 'misterio',
+      titulo: 'Uno sale, dos entran',
+      enunciado: 'Predice cómo queda la cola (del frente al final) en cada caso y después di qué hace.',
+      ctx: CE,
+      casos: [
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3])], llamada: 'misterio(cola)' },
+        { nombre: 'Cola 7', inicial: [colaEnlazada('cola', [7])], llamada: 'misterio(cola)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', [])], llamada: 'misterio(cola)' },
+      ],
+      observar: ['cola'],
+      responder: ['cola'],
+      solucion: c(`
+        void misterio(ColaEnlazada *cola) {
+            int x = 0;
+            if (desencolarColaEnlazada(cola, &x) == 1) {
+                encolarColaEnlazada(cola, x);
+                encolarColaEnlazada(cola, x);
+            }
+        }`),
+      opciones: ['Pasa el primero al final, dos veces repetido.', 'Duplica el primero dejándolo delante.', 'Duplica el último.', 'Pasa los dos primeros al final.'],
+      correcta: 0,
+      explicacion: 'Sale el primero y entra dos veces por detrás: la cola crece en uno y el que era primero queda dos veces al final. Con la cola vacía no sale nada y no se encola nada.',
+    },
+    {
+      id: '4-M6',
+      tipo: 'misterio',
+      titulo: 'Uno sí, otro no',
+      enunciado: 'Predice cómo queda la cola (del frente al final) en cada caso y después di qué hace.',
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 1 2 3 4 5', inicial: [colaArray('cola', [1, 2, 3, 4, 5])], llamada: 'misterio(cola)' },
+        { nombre: 'Cola 6 7 8 9, desde la casilla 8', inicial: [colaArray('cola', [6, 7, 8, 9], 8)], llamada: 'misterio(cola)' },
+      ],
+      observar: ['cola'],
+      responder: ['cola'],
+      solucion: c(`
+        void misterio(ColaArray *cola) {
+            int x = 0;
+            int t = tamanoColaArray(cola);
+            for (int i = 0; i < t; i++) {
+                desencolarColaArray(cola, &x);
+                if (i % 2 == 0) encolarColaArray(cola, x);
+            }
+        }`),
+      opciones: [
+        'Quita uno de cada dos: se queda con el 1.º, el 3.º, el 5.º…, en el mismo orden.',
+        'Quita los valores pares.',
+        'Quita la segunda mitad de la cola.',
+        'Deja la cola como estaba.',
+      ],
+      correcta: 0,
+      explicacion: 'Da una vuelta entera (`t` elementos) y solo reencola los de posición par (contando desde 0). En `6 7 8 9` quedan el 6 y el 8: mira posiciones, no valores.',
+    },
   ],
 };

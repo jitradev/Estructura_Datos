@@ -458,3 +458,16 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 }
 .solucion-fallo { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 .solucion-fallo p { margin: 0; }
+
+/* ------------------------------------------------ main menu */
+.menu-principal { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 20px; margin-top: 28px; }
+.boton-menu { display: flex; flex-direction: column; gap: 10px; padding: 26px 24px 22px; background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; text-decoration: none; color: var(--tinta); transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+.boton-menu:hover { border-color: var(--carmin); transform: translateY(-3px); box-shadow: 0 10px 24px rgba(60, 30, 20, 0.08); }
+.boton-menu strong { font-size: 1.6rem; }
+.boton-menu .resumen { color: var(--grafito); flex: 1; }
+.icono-menu { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 16px; background: var(--arena); color: var(--tinta); }
+.icono-menu svg { width: 34px; height: 34px; }
+.boton-menu.ejercicios .icono-menu { background: var(--carmin); color: #fff; }
+.pie-menu { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+.pie-menu .progreso { flex: 1; }
+.pie-menu .cta-tema { margin-left: auto; }

@@ -4,6 +4,8 @@ Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de
 
 ## Qué hay
 
+La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/temas`), **Visualizar** (`#/ver`) y **Laboratorio** (`#/lab`). Todas las páginas llevan arriba un botón «Volver».
+
 | Tema | Programar a mano | Escribe la función | Encuentra el fallo | Función misteriosa |
 |---|---|---|---|---|
 | 2 · Listas | 8 | 10 | 13 | 8 |

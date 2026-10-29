@@ -31,7 +31,7 @@ export function SelectorTipo({
     <>
       <Miga
         pasos={[
-          ['Temas', '#/'],
+          ['Inicio', '#/'],
           [sec.nombre, sec.raiz],
           [NOMBRE_GRUPO[grupo], sec.grupo(grupo)],
         ]}

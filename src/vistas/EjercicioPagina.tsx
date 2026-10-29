@@ -29,7 +29,7 @@ export function EjercicioPagina({ id }: { id: string }) {
   if (!r)
     return (
       <p className="contenido">
-        No existe ese ejercicio. <a href="#/">Volver</a>
+        No existe ese ejercicio. <a href="#/temas">Volver</a>
       </p>
     );
   const { tema, ejercicio: ej, indice } = r;
@@ -45,7 +45,7 @@ export function EjercicioPagina({ id }: { id: string }) {
     <main className="contenido ancho ejercicio">
       <Miga
         pasos={[
-          ['Temas', '#/'],
+          ['Ejercicios', '#/temas'],
           [`Tema ${tema.id} · ${tema.titulo}`, `#/tema/${tema.id}`],
         ]}
       />

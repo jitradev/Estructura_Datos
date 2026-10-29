@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { nombreTemasVisibles, TEMAS, temaVisible } from '../ejercicios/registro';
+import { TEMAS } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
 import { nombreTipo } from './EjercicioPagina';
@@ -87,14 +87,12 @@ export function Inicio() {
   const resueltos = useResueltos();
   return (
     <main className="contenido">
-      <section className="portada">
-        <p className="antetitulo">Estructura de Datos y Algoritmos · Universidad San Jorge</p>
-        <h1>{nombreTemasVisibles()}, paso a paso</h1>
-        <p className="entradilla">
-          Escribe las sentencias, pulsa «Ejecutar» y mira cómo cambia la memoria línea a línea. Si algo falla (un NULL, un nodo ya liberado, una fuga), la
-          animación se para justo ahí. Tu progreso se guarda en este navegador.
-        </p>
-      </section>
+      <Miga pasos={[['Inicio', '#/']]} />
+      <h1>Ejercicios</h1>
+      <p className="entradilla">
+        Elige un tema. Escribe las sentencias, pulsa «Ejecutar» y mira cómo cambia la memoria línea a línea; si algo falla (un NULL, un nodo ya liberado, una fuga), la
+        animación se para justo ahí. Tu progreso se guarda en este navegador.
+      </p>
       <section className="temas">
         {TEMAS.map((t) => {
           const h = t.ejercicios.filter((e) => resueltos.has(e.id)).length;
@@ -131,21 +129,6 @@ export function Inicio() {
             </a>
           );
         })}
-      </section>
-      <section className="lab-link">
-        <a href="#/ver" className="tarjeta-tema ancha">
-          <strong>Visualizar</strong>
-          <span className="resumen">
-            {['Las cuatro listas del TAD', temaVisible('3') && 'las dos pilas', temaVisible('4') && 'las colas, bicolas y colas con prioridad'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' y $1')}: cómo se ve cada una en memoria y sus operaciones paso a paso, con su código.
-          </span>
-        </a>
-        <a href="#/lab" className="tarjeta-tema ancha">
-          <strong>Laboratorio</strong>
-          <span className="resumen">
-            Elige {['una lista', temaVisible('3') && 'una pila', temaVisible('4') && 'una cola'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' o $1')}, escribe lo que quieras y mira qué pasa en la memoria. Sin corrección.
-            {temaVisible('5') && ' Y una calculadora de O(n) para tus bucles.'}
-          </span>
-        </a>
       </section>
       <p className="nota pie">
         <button
@@ -184,7 +167,7 @@ export function TemaPagina({ id }: { id: string }) {
   const siguiente = tema.ejercicios.find((e) => !resueltos.has(e.id));
   return (
     <main className="contenido">
-      <Miga pasos={[['Temas', '#/']]} />
+      <Miga pasos={[['Ejercicios', '#/temas']]} />
       <header className="cab-pagina-tema">
         <span className="num-grande" aria-hidden>
           {tema.id}

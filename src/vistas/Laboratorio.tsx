@@ -27,7 +27,7 @@ export function Laboratorio({ ruta = [] }: { ruta?: string[] }) {
   const coste = ruta[0] === 'coste' && temaVisible('5');
   return (
     <main className="contenido ancho">
-      <Miga pasos={[['Temas', '#/']]} />
+      <Miga pasos={[['Inicio', '#/']]} />
       <h1>Laboratorio</h1>
       <nav className="pestanas" aria-label="Laboratorio">
         <a href="#/lab" className={!coste ? 'on' : ''} aria-current={!coste ? 'page' : undefined}>

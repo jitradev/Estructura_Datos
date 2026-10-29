@@ -36,7 +36,7 @@ export function Visualizar({ grupo = 'listas' }: { grupo?: GrupoVer }) {
   const actual = grupos.find((g) => g.id === grupo) ?? grupos[0];
   return (
     <main className="contenido ancho">
-      <Miga pasos={[['Temas', '#/']]} />
+      <Miga pasos={[['Inicio', '#/']]} />
       <h1>Visualizar</h1>
       <p className="entradilla">
         Cómo se ve cada estructura en memoria, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los{' '}

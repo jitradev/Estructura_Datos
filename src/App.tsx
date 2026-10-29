@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { EjercicioPagina } from './vistas/EjercicioPagina';
 import { Inicio, TemaPagina } from './vistas/Inicio';
 import { Laboratorio } from './vistas/Laboratorio';
+import { Menu } from './vistas/Menu';
 import { GrupoVer } from './vistas/SelectorTipo';
 import { Visualizar, VisualizarLista } from './vistas/Visualizar';
 import { StackPageRoute } from './vistas/StackView';
@@ -31,7 +32,8 @@ export function App() {
   else if (partes[0] === 'ver' && /^(cola|bicola)/.test(partes[1] ?? '') && temaVisible('4')) pagina = <QueuePageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && partes[1]) pagina = <VisualizarLista id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver') pagina = <Visualizar />;
-  else pagina = <Inicio />;
+  else if (partes[0] === 'temas') pagina = <Inicio />;
+  else pagina = <Menu />;
   return (
     <>
       <header className="cabecera">
@@ -46,7 +48,7 @@ export function App() {
           </span>
         </a>
         <nav>
-          <a href="#/">Temas</a>
+          <a href="#/temas">Ejercicios</a>
           <a href="#/ver">Visualizar</a>
           <a href="#/lab">Laboratorio</a>
         </nav>

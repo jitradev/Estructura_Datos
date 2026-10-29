@@ -115,7 +115,48 @@ export interface EjMisterio extends Base {
 
 /** Exercises run on memory states, case by case. */
 export type EjCodigo = EjProgramar | EjFallo | EjMisterio;
-export type Ejercicio = EjCodigo | EjCoste;
+/** One operation of a TAD: what its informal and formal specifications say. */
+export interface OpEspec {
+  nombre: string;
+  /** Types of the arguments: entero, real, booleano, cadena or the TAD itself. */
+  args: string[];
+  devuelve: string;
+  /** Marked with * in the syntax: it builds a value of the TAD from nothing. */
+  constructora?: boolean;
+  /** Its line in the informal specification. */
+  descripcion: string;
+}
+
+/** An equation of the semantics whose right side the student writes. */
+export interface EcuacionEspec {
+  izq: string;
+  /** Accepted right sides; the first is the one shown. */
+  der: string[];
+  /** Fixed text before the gap, such as «verdadero si». */
+  antes?: string;
+}
+
+/** Topic 1: write the informal and formal specification of a TAD, step by step. */
+export interface EjEspec {
+  id: string;
+  tipo: 'especificacion';
+  titulo: string;
+  bloque: string;
+  enunciado: string;
+  pistas?: string[];
+  alResolver?: string;
+  tad: string;
+  /** What its values are, in the header «TAD Fraccion (...)». */
+  valores: string;
+  /** «a, b enteros y f, g de tipo Fraccion», for «Para todo ...». */
+  variables: string;
+  operaciones: OpEspec[];
+  /** Wrong descriptions offered next to the right ones in the informal step. */
+  distractores: string[];
+  ecuaciones: EcuacionEspec[];
+}
+
+export type Ejercicio = EjCodigo | EjCoste | EjEspec;
 
 export interface Tema {
   id: string;

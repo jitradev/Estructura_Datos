@@ -6,6 +6,19 @@ import { nombreTipo } from './EjercicioPagina';
 import { Miga } from './Miga';
 
 const DIBUJOS: Record<string, JSX.Element> = {
+  '1': (
+    <svg viewBox="0 0 300 44" aria-hidden>
+      <rect x="1" y="6" width="120" height="32" rx="6" className="mini" />
+      <text x="61" y="27" className="mini-t">
+        crear(a, b)
+      </text>
+      <path d="M126 22h36" className="mini-l" />
+      <rect x="168" y="6" width="130" height="32" rx="6" className="mini" />
+      <text x="233" y="27" className="mini-t">
+        -&gt; Fraccion
+      </text>
+    </svg>
+  ),
   '2': (
     <svg viewBox="0 0 300 44" aria-hidden>
       {[0, 1, 2].map((i) => (
@@ -79,6 +92,7 @@ function cuentas(es: Ejercicio[]): [string, number][] {
       ['de fallos', n((e) => e.tipo === 'fallo')],
       ['misteriosas', n((e) => e.tipo === 'misterio')],
       ['de coste', n((e) => e.tipo === 'coste')],
+      ['de especificar', n((e) => e.tipo === 'especificacion')],
     ] as [string, number][]
   ).filter(([, k]) => k > 0);
 }
@@ -153,7 +167,7 @@ export function Inicio() {
 const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo', 'Función misteriosa'];
 
 /** Section of the topic page: the exercise type, or its block for the cost ones. */
-const grupo = (e: Ejercicio) => (e.tipo === 'coste' ? e.bloque : nombreTipo(e));
+const grupo = (e: Ejercicio) => (e.tipo === 'coste' || e.tipo === 'especificacion' ? e.bloque : nombreTipo(e));
 
 export function TemaPagina({ id }: { id: string }) {
   const resueltos = useResueltos();

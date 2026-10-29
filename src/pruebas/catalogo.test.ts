@@ -6,7 +6,7 @@ import { leerValores, mismosValores, respuestas } from '../ejercicios/misterio';
 import { ClaseCoste, EjCodigo, EjCoste } from '../ejercicios/tipos';
 
 const todos = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios);
-const conCodigo = todos.filter((e): e is EjCodigo => e.tipo !== 'coste');
+const conCodigo = todos.filter((e): e is EjCodigo => e.tipo !== 'coste' && e.tipo !== 'especificacion');
 const deCoste = todos.filter((e): e is EjCoste => e.tipo === 'coste');
 
 const CRECE = CRECIMIENTO;

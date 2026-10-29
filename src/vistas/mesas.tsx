@@ -15,13 +15,15 @@ import { buildQueue } from '../queues/prepare';
 import { StackDrawing } from '../stacks/StackDrawing';
 import { PILAS } from '../stacks/catalog';
 import { buildStack } from '../stacks/prepare';
+import { GrupoVer } from './SelectorTipo';
 
-export type GrupoMesa = 'Listas' | 'Pilas' | 'Colas';
 
 export interface MesaLab {
   id: string;
-  grupo: GrupoMesa;
+  grupo: GrupoVer;
   nombre: string;
+  corto: string;
+  familia?: string;
   resumen: string;
   ctx: Contexto; // with every function of the project as preludio
   inicial: () => Memoria;
@@ -51,8 +53,9 @@ const listas: MesaLab[] = LISTAS.map((t) => {
   const ins = `insertarPrincipio${t.sufijo}`;
   return {
     id: t.id,
-    grupo: 'Listas',
+    grupo: 'listas',
     nombre: t.nombre,
+    corto: t.corto,
     resumen: t.resumen.slice(0, 2).join(' '),
     ctx: { ...t.ctx, preludio },
     inicial: () => construirLista(t, []),
@@ -68,8 +71,9 @@ const pilas: MesaLab[] = PILAS.map((t) => {
   const pop = t.operaciones.find((o) => o.args[0] === '&valor' && o.grupo === 'Apilar y desapilar')!.fn;
   return {
     id: t.id,
-    grupo: 'Pilas',
+    grupo: 'pilas',
     nombre: t.nombre,
+    corto: t.corto,
     resumen: t.resumen.slice(0, 2).join(' '),
     ctx: { ...t.ctx, preludio },
     inicial: () => buildStack(t, []),
@@ -86,8 +90,10 @@ const colas: MesaLab[] = COLAS.map((t) => {
   const con = (v: number, p: number) => `${meter.fn}(cola, ${v}${meter.args.includes('prioridad') ? `, ${p}` : ''});\n`;
   return {
     id: t.id,
-    grupo: 'Colas',
+    grupo: 'colas',
     nombre: t.nombre,
+    corto: t.corto,
+    familia: t.familia,
     resumen: t.resumen.slice(0, 2).join(' '),
     ctx: { ...t.ctx, preludio },
     inicial: () => buildQueue(t, { valores: [], prioridades: [], frente: 0 }),
@@ -97,7 +103,7 @@ const colas: MesaLab[] = COLAS.map((t) => {
   };
 });
 
-const TEMA: Record<GrupoMesa, string> = { Listas: '2', Pilas: '3', Colas: '4' };
+const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4' };
 
 /** Only the structures of the visible topics. */
 export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas].filter((m) => temaVisible(TEMA[m.grupo]));

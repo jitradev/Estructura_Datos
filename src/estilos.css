@@ -260,7 +260,6 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 .pie-nav { display: flex; justify-content: space-between; margin-top: 36px; gap: 16px; }
 .pie-nav a { color: var(--grafito); text-decoration: none; }
 .pie-nav a:hover { color: var(--carmin); }
-.selector-mesa { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; margin: 6px 0 4px; }
 
 @media (max-width: 640px) {
   .contenido { padding: 16px 16px 60px; }
@@ -368,8 +367,6 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .filas-coste .flecha { color: var(--gris); }
 .filas-coste .mono { color: var(--carmin); font-weight: 600; }
 .calculadora select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1.5px solid #d9c9c1; background: #fff; }
-.elegir-mesa { font: inherit; text-align: left; cursor: pointer; }
-.elegir-mesa .mini-lienzo { pointer-events: none; }
 .galeria-mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; margin-top: 18px; }
 .galeria-mesas .mini-lienzo { min-height: 0; }
 .galeria-mesas .mini-lienzo svg { max-height: 240px; }

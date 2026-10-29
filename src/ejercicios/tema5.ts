@@ -2,8 +2,9 @@ import { c } from './tema2';
 import { EjCoste, PasoCoste, Tema } from './tipos';
 
 // The fragments of the topic 5 paper booklet (EDA-Tema05-Papel), plus a few on the
-// structures of topics 2 to 4. The interpreter counts the turns: `contar` is the
-// fragment with x counting what the question asks, when the shown code does not.
+// structures of topics 2 to 4. The student only writes the cost; the growth table shown
+// afterwards is counted by the interpreter: `contar` is the fragment with x counting
+// what the question asks, when the shown code does not.
 
 const VUELTAS = '¿Cuántas vueltas da el bucle?';
 const TODAS = '¿Cuántas veces se ejecuta `x++`, sumando todas las vueltas?';
@@ -533,6 +534,6 @@ const ejercicios: EjCoste[] = bloques.flatMap(([bloque, defs]) =>
 export const tema5: Tema = {
   id: '5',
   titulo: 'Análisis de algoritmos',
-  resumen: 'El coste en notación O de bucles simples, que multiplican, anidados, seguidos y con llamadas. Primero cuentas las vueltas con un n pequeño y después eliges la O; la cuenta la comprueba el intérprete.',
+  resumen: 'El coste en notación O de bucles simples, que multiplican, anidados, seguidos y con llamadas. Escribes la O y después ves por qué y cuántas vueltas da con n = 8, 16, 32 y 64.',
   ejercicios,
 };

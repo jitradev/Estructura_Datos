@@ -68,8 +68,8 @@ export interface PasoCoste {
 }
 
 /**
- * A code fragment whose cost has to be worked out: first count the turns for a small n
- * (the interpreter runs `contar` and reads `x`), then pick the order of growth.
+ * A code fragment whose cost has to be written in O notation. Once solved, a table shows
+ * the turns for several n (the interpreter runs `contar` and reads `x`).
  */
 export interface EjCoste {
   id: string;
@@ -82,11 +82,11 @@ export interface EjCoste {
   alResolver?: string;
   /** The fragment as the student reads it. */
   codigo: string;
-  /** What is counted, shown in step 1 (admits `código`). By default «¿Cuántas veces se ejecuta `x++`?». */
+  /** What `contar` counts (admits `código`). By default «¿Cuántas veces se ejecuta `x++`?». */
   pregunta?: string;
   /** Runnable version that leaves the count in `x`. By default `codigo`. `n`, `x`, `i`, `j` and `k` are already declared. */
   contar?: string;
-  /** n for step 1. */
+  /** A small n whose count the tests check. */
   n: number;
   coste: ClaseCoste;
   /** The three steps of the method. */

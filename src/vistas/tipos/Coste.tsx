@@ -1,12 +1,11 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { contarVueltas, verNumero } from '../../ejercicios/coste';
+import { contarVueltas, leerCoste, verNumero } from '../../ejercicios/coste';
 import { ClaseCoste, CLASES_COSTE, EjCoste } from '../../ejercicios/tipos';
 import { useBorrador } from '../../progreso';
 import { Rico } from '../comun';
 import { EditorCodigo } from '../EditorCodigo';
 
 interface Avance {
-  cuenta?: number; // the right count, once found (or shown)
   coste?: ClaseCoste;
 }
 
@@ -32,45 +31,30 @@ function Estado({ n, paso, children }: { n: number; paso: number; children: Reac
 export function Coste({ ej, onResuelto }: { ej: EjCoste; onResuelto: () => void }) {
   const [av, setAv] = useBorrador<Avance>(ej.id, 'avance', () => ({}));
   const [respuesta, setRespuesta] = useState('');
-  const [fallos, setFallos] = useState(0);
   const [aviso, setAviso] = useState<string | null>(null);
-  const [avisoCoste, setAvisoCoste] = useState<string | null>(null);
   const [otroN, setOtroN] = useState('100');
   const [otra, setOtra] = useState<{ n: number; r: number | string } | null>(null);
-  const correcta = useMemo(() => cuentaDe(ej, ej.n), [ej]);
-  const paso = av.cuenta === undefined ? 1 : !av.coste ? 2 : 3;
-  const tabla = useMemo(() => (paso === 3 ? TABLA.map((n) => ({ n, r: cuentaDe(ej, n) })) : []), [ej, paso]);
-  const pregunta = ej.pregunta ?? '¿Cuántas veces se ejecuta `x++`?';
+  const paso = !av.coste ? 1 : 2;
+  const tabla = useMemo(() => (paso === 2 ? TABLA.map((n) => ({ n, r: cuentaDe(ej, n) })) : []), [ej, paso]);
 
-  const comprobarCuenta = () => {
-    const v = Number(respuesta.replace(/[.\s]/g, ''));
-    if (!respuesta.trim() || !Number.isInteger(v)) return setAviso('Escribe un número entero.');
-    if (v === correcta) {
-      setAviso(null);
-      setAv({ ...av, cuenta: v });
-      return;
-    }
-    setFallos(fallos + 1);
-    setAviso(
-      typeof correcta === 'number' && Math.abs(v - correcta) <= 1
-        ? `Casi: ${verNumero(v)} no es. Mira bien la primera y la última vuelta (¿< o <=?).`
-        : `${verNumero(v)} no es. Sigue a mano los valores de la variable del bucle, vuelta a vuelta, con n = ${ej.n}.`,
-    );
-  };
-
-  const elegir = (k: ClaseCoste) => {
-    if (paso !== 2) return;
+  const comprobar = () => {
+    if (!respuesta.trim()) return setAviso('Escribe el coste, por ejemplo O(n).');
+    const r = leerCoste(respuesta);
+    if (!r) return setAviso(`No entiendo «${respuesta}». Escríbelo como O(1), O(log n), O(√n) o sqrt(n), O(n), O(n log n), O(n^2) o O(n^3).`);
+    if ('constante' in r)
+      return setAviso(r.constante === ej.coste ? `Casi: en la O se quitan las constantes. Quedaría ${r.constante}.` : `En la O se quitan las constantes (quedaría ${r.constante}), y además no es ese.`);
+    const k = r.clase;
     if (k === ej.coste) {
-      setAvisoCoste(null);
-      setAv({ ...av, coste: k });
+      setAviso(null);
+      setAv({ coste: k });
       onResuelto();
       return;
     }
     const corta = CLASES_COSTE.indexOf(k) < CLASES_COSTE.indexOf(ej.coste);
-    setAvisoCoste(
+    setAviso(
       corta
-        ? `${k} se queda corto: la cuenta crece más deprisa. ¿Hay algo que se repita más de lo que parece?`
-        : `${k} se pasa: la cuenta crece más despacio. ¿De verdad cada vuelta cuesta lo mismo, o depende de n?`,
+        ? `${k} se queda corto: crece más deprisa. ¿Hay algo que se repita más de lo que parece?`
+        : `${k} se pasa: crece más despacio. ¿De verdad cada vuelta cuesta lo mismo, o depende de n?`,
     );
   };
 
@@ -93,50 +77,31 @@ export function Coste({ ej, onResuelto }: { ej: EjCoste; onResuelto: () => void 
       <section className="panel panel-pasos">
         <ol className="pasos-fallo">
           <Estado n={1} paso={paso}>
-            <strong>
-              Cuenta con n = {ej.n}. <Rico texto={pregunta} />
-            </strong>
+            <strong>Escribe su coste en notación O</strong>
             {paso === 1 ? (
               <>
                 <form
                   className="fila-respuesta"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    comprobarCuenta();
+                    comprobar();
                   }}
                 >
-                  <input type="text" inputMode="numeric" value={respuesta} onChange={(e) => setRespuesta(e.target.value)} aria-label="Número de vueltas" placeholder="Vueltas" />
+                  <input type="text" value={respuesta} onChange={(e) => setRespuesta(e.target.value)} aria-label="Coste en notación O" placeholder="O(...)" autoComplete="off" spellCheck={false} />
                   <button className="btn" type="submit">
                     Comprobar
                   </button>
-                  {fallos >= 2 && typeof correcta === 'number' && (
-                    <button type="button" className="btn-texto" onClick={() => setAv({ ...av, cuenta: correcta })}>
-                      Ver la cuenta
-                    </button>
-                  )}
                 </form>
+                <p className="nota">Vale O(n^2) o n², log n o log(n), sqrt(n) o √n…</p>
                 {aviso && <p className="aviso-corto">{aviso}</p>}
               </>
             ) : (
-              <p>{verNumero(av.cuenta!)}.</p>
+              <p className="mono">{av.coste}</p>
             )}
           </Estado>
           <Estado n={2} paso={paso}>
-            <strong>¿Qué coste tiene en notación O?</strong>
-            {paso >= 2 && (
-              <div className="chips">
-                {CLASES_COSTE.map((k) => (
-                  <button key={k} className={`chip-texto ${av.coste === k ? 'on' : ''}`} onClick={() => elegir(k)} disabled={paso !== 2}>
-                    {k}
-                  </button>
-                ))}
-              </div>
-            )}
-            {avisoCoste && paso === 2 && <p className="aviso-corto">{avisoCoste}</p>}
-          </Estado>
-          <Estado n={3} paso={paso}>
             <strong>Por qué</strong>
-            {paso === 3 && (
+            {paso === 2 && (
               <ol className="metodo">
                 {ej.pasos.map((p) => (
                   <li key={p.titulo}>
@@ -149,12 +114,15 @@ export function Coste({ ej, onResuelto }: { ej: EjCoste; onResuelto: () => void 
         </ol>
       </section>
 
-      {paso === 3 && (
+      {paso === 2 && (
         <section className="panel panel-crece">
           <div className="panel-cab">
             <h2>Compruébalo: ¿cuánto sube al doblar n?</h2>
             <span className="nota">Cuenta el intérprete</span>
           </div>
+          <p className="nota">
+            Lo que se cuenta: <Rico texto={ej.pregunta ?? '¿Cuántas veces se ejecuta `x++`?'} />
+          </p>
           <table className="tabla-crece">
             <thead>
               <tr>

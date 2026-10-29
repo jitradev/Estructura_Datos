@@ -393,3 +393,11 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
   .segmentado { display: flex; }
   .segmentado a { flex: 1 1 auto; text-align: center; }
 }
+
+/* ------------------------------------------------ visualizar: description and operations */
+.titulo-bloque { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; font-size: 1.3rem; }
+.num-bloque { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--tinta); color: #fff; font-size: 0.95rem; flex: none; }
+.bloque-estructura { padding: 18px; background: var(--arena); border-radius: 14px; }
+.titulo-bloque.bloque-operaciones { margin-top: 44px; padding-top: 28px; border-top: 2px solid var(--linea); }
+.titulo-bloque.bloque-operaciones .num-bloque { background: var(--carmin); }
+.subtitulo-bloque { margin: -4px 0 14px; color: var(--grafito); }

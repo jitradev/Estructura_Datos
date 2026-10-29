@@ -68,7 +68,10 @@ function StackPage({ tipo }: { tipo: StackType }) {
       <SelectorTipo grupo="pilas" actual={tipo.id} opciones={PILAS} />
       <h1>{tipo.nombre}</h1>
 
-      <section className="ver-intro">
+      <h2 className="titulo-bloque">
+        <span className="num-bloque">1</span>Cómo es
+      </h2>
+      <section className="ver-intro bloque-estructura">
         <div>
           <ul className="puntos">
             {tipo.resumen.map((r) => (
@@ -92,7 +95,12 @@ function StackPage({ tipo }: { tipo: StackType }) {
         </div>
       </section>
 
-      <h2 className="titulo-seccion">Operaciones paso a paso</h2>
+      <h2 className="titulo-bloque bloque-operaciones">
+        <span className="num-bloque">2</span>Operaciones paso a paso
+      </h2>
+      <p className="subtitulo-bloque">
+        Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria.
+      </p>
       <section className="panel form-op">
         <label>
           Operación

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { c } from '../ejercicios/tema2';
-import { contarCodigo, estimarCoste, verNumero } from '../ejercicios/coste';
+import { contarCodigo, estimarCoste } from '../ejercicios/coste';
+import { Analisis, analizarCoste, Ecuacion, Ex, verPoli } from '../ejercicios/ecuacion';
 import { ClaseCoste } from '../ejercicios/tipos';
+import { Rico } from './comun';
 import { EditorCodigo } from './EditorCodigo';
 
 const EJEMPLOS: { nombre: string; codigo: string }[] = [
@@ -26,29 +28,103 @@ const EJEMPLOS: { nombre: string; codigo: string }[] = [
 ];
 
 const NS = [8, 16, 32, 64, 128, 256, 512, 1024];
-/** Per run, so that the whole table is counted in about a second. */
+/** Per run, so that the whole fallback count takes about a second. */
 const PASOS_POR_N = 400_000;
 
-interface Calculo {
-  puntos: { n: number; x: number }[];
-  error?: string; // the first run already failed
-  corte?: number; // n at which it stopped (too many steps)
-  clase: ClaseCoste | null;
-}
-
-function calcular(codigo: string): Calculo {
+/** Without an equation: run the code with growing n and see which class follows x. */
+function estimar(codigo: string): { clase: ClaseCoste | null; error?: string; sinCuenta?: boolean } {
   const puntos: { n: number; x: number }[] = [];
-  let corte: number | undefined;
   for (const n of NS) {
     const r = contarCodigo(codigo, n, PASOS_POR_N);
     if ('error' in r) {
-      if (!puntos.length) return { puntos, error: r.error, clase: null };
-      corte = n;
+      if (!puntos.length) return { clase: null, error: r.error };
       break;
     }
     puntos.push({ n, x: r.x });
   }
-  return { puntos, corte, clase: estimarCoste(puntos) };
+  if (puntos.every((p) => p.x === 0)) return { clase: null, sinCuenta: true };
+  return { clase: estimarCoste(puntos) };
+}
+
+interface Calculo {
+  analisis: Analisis;
+  estimado?: ReturnType<typeof estimar>;
+}
+
+/** A line of the equation, with the sums drawn with their limits. */
+function Expresion({ e }: { e: Ex }) {
+  switch (e.k) {
+    case 'p':
+      return <>{verPoli(e.p)}</>;
+    case 'llamada':
+      return <code>{e.texto}</code>;
+    case 'mas':
+      return (
+        <>
+          {e.xs.map((x, i) => (
+            <Fragment key={i}>
+              {i > 0 && ' + '}
+              <Expresion e={x} />
+            </Fragment>
+          ))}
+        </>
+      );
+    case 'max':
+      return (
+        <>
+          máx(
+          {e.xs.map((x, i) => (
+            <Fragment key={i}>
+              {i > 0 && ', '}
+              <Expresion e={x} />
+            </Fragment>
+          ))}
+          )
+        </>
+      );
+    case 'sigma': {
+      const c = e.cuerpo;
+      const parentesis = c.k === 'mas' || c.k === 'max' || (c.k === 'p' && c.p.length > 1);
+      return (
+        <span className="sigma">
+          <span className="sigma-signo" title={`Línea ${e.linea}`}>
+            <small>{e.arriba}</small>
+            <span aria-hidden>Σ</span>
+            <small>{e.abajo}</small>
+          </span>
+          {parentesis ? '(' : ''}
+          <Expresion e={c} />
+          {parentesis ? ')' : ''}
+        </span>
+      );
+    }
+  }
+}
+
+function VerEcuacion({ ec }: { ec: Ecuacion }) {
+  return (
+    <div className="ecuacion">
+      {ec.lineas.map((l, i) => (
+        <Fragment key={i}>
+          <div className="ecuacion-linea">
+            <span className="ecuacion-izq">{i === 0 ? `${ec.nombre} =` : '≈'}</span>
+            <span className="mono">
+              <Expresion e={l} />
+            </span>
+          </div>
+          {ec.notas[i]?.length > 0 && (
+            <ul className="ecuacion-notas">
+              {ec.notas[i].map((n, j) => (
+                <li key={j}>
+                  <Rico texto={n} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Fragment>
+      ))}
+    </div>
+  );
 }
 
 export function CalculadoraCoste() {
@@ -58,15 +134,18 @@ export function CalculadoraCoste() {
   const [ejemplo, setEjemplo] = useState(1);
 
   const lanzar = () => {
+    const analisis = analizarCoste(codigo);
+    if (analisis.ok) return setCalculo({ analisis });
     setCalculando(true);
     // leave the browser a frame to paint «Calculando…» before the runs
     setTimeout(() => {
-      setCalculo(calcular(codigo));
+      setCalculo({ analisis, estimado: estimar(codigo) });
       setCalculando(false);
     }, 20);
   };
 
-  const sinCuenta = calculo && !calculo.error && calculo.puntos.every((p) => p.x === 0);
+  const a = calculo?.analisis;
+  const est = calculo?.estimado;
 
   return (
     <div className="ej-rejilla calculadora">
@@ -93,7 +172,7 @@ export function CalculadoraCoste() {
           </label>
         </div>
         <p className="nota">
-          <code>n</code> es el tamaño de la entrada. Pon <code>x++</code> en lo que quieras contar. Ya están declaradas <code>n</code>, <code>x</code>, <code>i</code>, <code>j</code> y <code>k</code>.
+          <code>n</code> es el tamaño de la entrada. Ya están declaradas <code>n</code>, <code>x</code>, <code>i</code>, <code>j</code> y <code>k</code>. Puedes definir funciones encima y llamarlas.
         </p>
         <EditorCodigo
           valor={codigo}
@@ -112,53 +191,50 @@ export function CalculadoraCoste() {
 
       <section className="panel panel-crece">
         <div className="panel-cab">
-          <h2>Resultado</h2>
-          <span className="nota">Cuenta el intérprete</span>
+          <h2>La ecuación</h2>
+          <span className="nota">Cada instrucción simple cuesta 1</span>
         </div>
-        {!calculo && <p className="nota">Se ejecuta el código con n = 8, 16, 32… hasta 1024 (o hasta que sean demasiadas vueltas), se mira cuánto vale <code>x</code> y se busca la O que mejor sigue esa cuenta.</p>}
-        {calculo?.error && (
-          <div className="caja-error" role="alert">
-            {calculo.error}
-          </div>
+        {!calculo && (
+          <p className="nota">
+            Cada bucle se convierte en una suma (Σ) sobre su variable, una llamada cuesta lo que cueste su función y lo que va seguido se suma. Luego se resuelven las sumas de dentro hacia fuera, quedándose con lo que crece más deprisa.
+          </p>
         )}
-        {calculo && !calculo.error && (
+        {a?.ok && (
           <>
-            {sinCuenta ? (
-              <div className="caja-aviso">
-                <code>x</code> vale 0 con todos los n: pon <code>x++</code> dentro de lo que quieras contar.
-              </div>
-            ) : calculo.clase ? (
-              <p className="veredicto">
-                Parece <strong>{calculo.clase}</strong>
-              </p>
-            ) : (
-              <div className="caja-aviso">Con tan pocos valores de n no se puede estimar: prueba con algo que dé menos vueltas.</div>
-            )}
-            <table className="tabla-crece">
-              <thead>
-                <tr>
-                  <th>n</th>
-                  <th>x</th>
-                  <th>× al doblar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calculo.puntos.map((p, i) => {
-                  const a = calculo.puntos[i - 1]?.x;
-                  return (
-                    <tr key={p.n}>
-                      <td>{verNumero(p.n)}</td>
-                      <td>{verNumero(p.x)}</td>
-                      <td className="factor">{a ? `×${(p.x / a).toFixed(2).replace('.', ',')}` : ''}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {calculo.corte && <p className="nota">Con n = {verNumero(calculo.corte)} ya son demasiadas vueltas para contarlas aquí: la tabla para antes.</p>}
-            <p className="nota">
-              Es una estimación con unos pocos valores de n, no una demostración: la O se justifica con el método (vueltas, coste de cada vuelta, total). Si el coste depende de los datos, aquí solo se ve el caso que se ejecuta.
+            {a.ecuaciones.map((ec) => (
+              <VerEcuacion key={ec.nombre} ec={ec} />
+            ))}
+            <p className="veredicto">
+              Es <strong>{a.texto}</strong>
             </p>
+            {a.avisos.map((t) => (
+              <p key={t} className="nota">
+                <Rico texto={t} />
+              </p>
+            ))}
+            <p className="nota">Los «≈» son porque en cada paso se quitan los términos que crecen más despacio: para la O no cambian nada.</p>
+          </>
+        )}
+        {a && !a.ok && (
+          <>
+            <div className="caja-aviso">
+              <strong>No puedo plantear la ecuación.</strong> <Rico texto={a.motivo} />
+            </div>
+            {est?.error && (
+              <div className="caja-error" role="alert">
+                {est.error}
+              </div>
+            )}
+            {est?.sinCuenta && (
+              <p className="nota">
+                Para estimarlo de otra forma, pon <code>x++</code> en lo que quieras contar: se ejecuta el código con n cada vez mayor y se mira cómo crece <code>x</code>.
+              </p>
+            )}
+            {est && !est.error && !est.sinCuenta && (
+              <p className="nota">
+                Ejecutándolo con n cada vez mayor, <code>x</code> crece como <strong>{est.clase ?? '¿?'}</strong>. Es una estimación, no una demostración.
+              </p>
+            )}
           </>
         )}
       </section>

@@ -369,5 +369,17 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .pestanas a.on { color: var(--carmin); border-bottom-color: var(--carmin); }
 .veredicto { font-size: 1.25rem; margin: 4px 0 10px; }
 .veredicto strong { font-family: var(--f-mono); color: var(--carmin); }
-.calculadora .tabla-crece td.factor { color: var(--gris); }
+.ecuacion { margin: 4px 0 14px; }
+.ecuacion-linea { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 4px 0; }
+.ecuacion-izq { font-family: var(--f-mono); color: var(--carmin); min-width: 3.2em; text-align: right; white-space: nowrap; }
+.ecuacion-linea .mono { font-size: 1rem; display: inline-flex; align-items: center; flex-wrap: wrap; white-space: pre; }
+.ecuacion-notas { margin: 0 0 6px 3.2em; padding-left: 18px; color: var(--gris); font-size: 0.9rem; }
+.sigma { display: inline-flex; align-items: center; }
+.sigma-signo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; margin: 0 3px; }
+.sigma-signo > span { font-size: 1.6em; }
+.sigma-signo small { font-size: 0.68em; color: var(--gris); white-space: nowrap; }
 .calculadora select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1.5px solid #d9c9c1; background: #fff; }
+.elegir-mesa { font: inherit; text-align: left; cursor: pointer; }
+.elegir-mesa .mini-lienzo { pointer-events: none; }
+.galeria-mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; margin-top: 18px; }
+.galeria-mesas .mini-lienzo svg { max-height: 170px; }

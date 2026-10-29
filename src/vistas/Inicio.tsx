@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { nombreTemasVisibles, TEMAS, temaVisible } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
@@ -69,11 +70,17 @@ const DIBUJOS: Record<string, JSX.Element> = {
   ),
 };
 
-function cuenta(es: Ejercicio[]) {
-  if (es.every((e) => e.tipo === 'coste')) return `${es.length} de coste`;
-  const f = es.filter((e) => e.tipo === 'fallo').length;
-  const m = es.filter((e) => e.tipo === 'misterio').length;
-  return `${es.length - f - m} de programar · ${f} de fallos${m ? ` · ${m} misteriosas` : ''}`;
+/** How many exercises of each kind a topic has, for the chips of its card. */
+function cuentas(es: Ejercicio[]): [string, number][] {
+  const n = (f: (e: Ejercicio) => boolean) => es.filter(f).length;
+  return (
+    [
+      ['de programar', n((e) => e.tipo === 'programar')],
+      ['de fallos', n((e) => e.tipo === 'fallo')],
+      ['misteriosas', n((e) => e.tipo === 'misterio')],
+      ['de coste', n((e) => e.tipo === 'coste')],
+    ] as [string, number][]
+  ).filter(([, k]) => k > 0);
 }
 
 export function Inicio() {
@@ -93,19 +100,33 @@ export function Inicio() {
           const h = t.ejercicios.filter((e) => resueltos.has(e.id)).length;
           const n = t.ejercicios.length;
           return (
-            <a key={t.id} className="tarjeta-tema" href={`#/tema/${t.id}`}>
-              <span className="fila-tema">
-                <span className="num-tema">Tema {t.id}</span>
-                <span className="cuenta">{cuenta(t.ejercicios)}</span>
-              </span>
-              <strong>{t.titulo}</strong>
-              <span className="resumen">{t.resumen}</span>
-              <span className="mini-dibujo">{DIBUJOS[t.id]}</span>
-              <span className="progreso">
-                <span className="barra-prog">
-                  <span style={{ width: `${(100 * h) / n}%` }} />
+            <a key={t.id} className={`tarjeta-tema ${h === n ? 'completo' : ''}`} href={`#/tema/${t.id}`}>
+              <span className="cab-tema">
+                <span className="num-grande" aria-hidden>
+                  {t.id}
                 </span>
-                {h} / {n}
+                <span>
+                  <span className="num-tema">Tema {t.id}</span>
+                  <strong>{t.titulo}</strong>
+                </span>
+              </span>
+              <span className="resumen">{t.resumen}</span>
+              <span className="chips-tema">
+                {cuentas(t.ejercicios).map(([nombre, k]) => (
+                  <span key={nombre} className="chip-tema">
+                    <b>{k}</b> {nombre}
+                  </span>
+                ))}
+              </span>
+              <span className="mini-dibujo">{DIBUJOS[t.id]}</span>
+              <span className="pie-tema">
+                <span className="progreso">
+                  <span className="barra-prog">
+                    <span style={{ width: `${(100 * h) / n}%` }} />
+                  </span>
+                  {h} / {n}
+                </span>
+                <span className="cta-tema">{h === n ? '✓ Completado' : h ? 'Continuar →' : 'Empezar →'}</span>
               </span>
             </a>
           );
@@ -153,37 +174,98 @@ const grupo = (e: Ejercicio) => (e.tipo === 'coste' ? e.bloque : nombreTipo(e));
 
 export function TemaPagina({ id }: { id: string }) {
   const resueltos = useResueltos();
+  const [filtro, setFiltro] = useState<string | null>(null);
+  const [pendientes, setPendientes] = useState(false);
   const tema = TEMAS.find((t) => t.id === id);
   if (!tema) return <p className="contenido">No existe ese tema.</p>;
+  const grupos = [...GRUPOS, ...new Set(tema.ejercicios.map(grupo))].filter((g, i, gs) => gs.indexOf(g) === i && tema.ejercicios.some((e) => grupo(e) === g));
+  const hechos = tema.ejercicios.filter((e) => resueltos.has(e.id)).length;
+  const total = tema.ejercicios.length;
+  const siguiente = tema.ejercicios.find((e) => !resueltos.has(e.id));
   return (
     <main className="contenido">
       <Miga pasos={[['Temas', '#/']]} />
-      <h1>
-        <span className="num-ej">Tema {tema.id}</span> {tema.titulo}
-      </h1>
-      <p className="entradilla">{tema.resumen}</p>
-      {[...GRUPOS, ...new Set(tema.ejercicios.map(grupo))].filter((g, i, gs) => gs.indexOf(g) === i).map((g) => {
-        const es = tema.ejercicios.filter((e) => grupo(e) === g);
-        if (!es.length) return null;
-        return (
-          <section key={g} className="grupo-ej">
-            <h2>{g}</h2>
-            <ol className="lista-ej">
-              {es.map((e) => (
-                <li key={e.id}>
-                  <a href={`#/ej/${e.id}`} className={resueltos.has(e.id) ? 'resuelto' : ''}>
-                    <span className="check" aria-label={resueltos.has(e.id) ? 'resuelto' : 'pendiente'}>
-                      {resueltos.has(e.id) ? '✓' : ''}
-                    </span>
-                    <span className="num-ej">{e.id}</span>
-                    <span className="tit">{e.titulo}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </section>
-        );
-      })}
+      <header className="cab-pagina-tema">
+        <span className="num-grande" aria-hidden>
+          {tema.id}
+        </span>
+        <div>
+          <span className="num-tema">Tema {tema.id}</span>
+          <h1>{tema.titulo}</h1>
+          <p className="entradilla">{tema.resumen}</p>
+        </div>
+      </header>
+
+      <section className="panel resumen-tema">
+        <div className="progreso grande">
+          <span className="barra-prog">
+            <span style={{ width: `${(100 * hechos) / total}%` }} />
+          </span>
+          <span>
+            <b>{hechos}</b> de {total} hechos
+          </span>
+        </div>
+        {siguiente ? (
+          <a className="btn" href={`#/ej/${siguiente.id}`}>
+            {hechos ? 'Seguir' : 'Empezar'} con {siguiente.id} →
+          </a>
+        ) : (
+          <span className="tema-completo">✓ Tema completado</span>
+        )}
+      </section>
+
+      <div className="filtros-tema">
+        <nav className="filtro-tipos" aria-label="Tipo de ejercicio">
+          <button className={filtro === null ? 'on' : ''} aria-pressed={filtro === null} onClick={() => setFiltro(null)}>
+            Todos
+            <span className="cuenta-filtro">{total}</span>
+          </button>
+          {grupos.map((g) => (
+            <button key={g} className={filtro === g ? 'on' : ''} aria-pressed={filtro === g} onClick={() => setFiltro(g)}>
+              {g}
+              <span className="cuenta-filtro">{tema.ejercicios.filter((e) => grupo(e) === g).length}</span>
+            </button>
+          ))}
+        </nav>
+        <label className="solo-pendientes">
+          <input type="checkbox" checked={pendientes} onChange={(e) => setPendientes(e.target.checked)} /> Solo los pendientes
+        </label>
+      </div>
+
+      {grupos
+        .filter((g) => filtro === null || filtro === g)
+        .map((g) => {
+          const todos = tema.ejercicios.filter((e) => grupo(e) === g);
+          const es = todos.filter((e) => !pendientes || !resueltos.has(e.id));
+          const h = todos.filter((e) => resueltos.has(e.id)).length;
+          return (
+            <section key={g} className="grupo-ej">
+              <h2>
+                <span>{g}</span>
+                <span className="cuenta-grupo">
+                  {h} / {todos.length}
+                </span>
+              </h2>
+              {es.length ? (
+                <ol className="lista-ej">
+                  {es.map((e) => (
+                    <li key={e.id}>
+                      <a href={`#/ej/${e.id}`} className={resueltos.has(e.id) ? 'resuelto' : ''}>
+                        <span className="check" aria-label={resueltos.has(e.id) ? 'resuelto' : 'pendiente'}>
+                          {resueltos.has(e.id) ? '✓' : ''}
+                        </span>
+                        <span className="num-ej">{e.id}</span>
+                        <span className="tit">{e.titulo}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="nota">Todos hechos.</p>
+              )}
+            </section>
+          );
+        })}
     </main>
   );
 }

@@ -81,8 +81,9 @@ h3 { font-size: 1rem; margin: 0 0 0.5em; }
 .tarjeta-tema.ancha { background: var(--arena); border-color: var(--arena); }
 
 .grupo-ej { margin-top: 28px; }
-.grupo-ej h2 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--grafito); border-bottom: 2px solid var(--tinta); padding-bottom: 6px; }
-.lista-ej { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.grupo-ej h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--grafito); border-bottom: 2px solid var(--tinta); padding-bottom: 6px; }
+.cuenta-grupo { font-family: var(--f-mono); font-size: 0.85rem; letter-spacing: 0; color: var(--gris); }
+.lista-ej { list-style: none; padding: 0; margin: 12px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 8px; }
 .lista-ej a { display: grid; grid-template-columns: 28px 64px 1fr; align-items: center; gap: 12px; padding: 12px 16px; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); color: var(--tinta); text-decoration: none; min-height: 48px; }
 .lista-ej a:hover { border-color: var(--carmin); }
 .lista-ej .check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--linea); display: grid; place-items: center; color: #fff; font-size: 0.8rem; }
@@ -422,3 +423,36 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .reproductor.arriba .lienzo-memoria { order: 3; margin-top: 12px; }
 .reproductor.arriba .nota-paso { order: 1; margin-top: 0; padding: 8px 12px; background: var(--hueso); border-radius: 8px; }
 .reproductor.arriba .controles { order: 2; }
+
+/* ------------------------------------------------ topics */
+.cab-tema { display: flex; align-items: center; gap: 14px; }
+.cab-tema > span:last-child { display: flex; flex-direction: column; }
+.num-grande { display: inline-grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 14px; background: var(--tinta); color: #fff; font-family: var(--f-mono); font-size: 1.6rem; font-weight: 700; }
+.tarjeta-tema.completo .num-grande { background: var(--verde); }
+.tarjeta-tema .resumen { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.chips-tema { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-tema { font-size: 0.8rem; padding: 3px 9px; border-radius: 999px; background: var(--arena); color: var(--grafito); }
+.chip-tema b { color: var(--tinta); }
+.pie-tema { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+.pie-tema .progreso { flex: 1; }
+.cta-tema { font-weight: 700; font-size: 0.9rem; color: var(--carmin); white-space: nowrap; }
+.tarjeta-tema.completo .cta-tema { color: var(--verde); }
+
+.cab-pagina-tema { display: flex; gap: 18px; align-items: flex-start; margin: 6px 0 14px; }
+.cab-pagina-tema .num-grande { width: 64px; height: 64px; font-size: 2rem; margin-top: 6px; }
+.cab-pagina-tema h1 { margin: 0.05em 0 0.2em; }
+.cab-pagina-tema .entradilla { margin: 0; }
+.resumen-tema { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+.progreso.grande { flex: 1; min-width: 220px; font-size: 0.95rem; }
+.progreso.grande .barra-prog { height: 10px; border-radius: 5px; }
+.tema-completo { font-weight: 700; color: var(--verde); }
+.filtros-tema { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 18px; }
+.filtros-tema .filtro-tipos { margin: 0; }
+.filtro-tipos button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 0; border-radius: 9px; background: none; font: inherit; font-weight: 600; font-size: 0.92rem; color: var(--grafito); cursor: pointer; }
+.filtro-tipos button:hover { color: var(--tinta); background: rgba(255, 255, 255, 0.55); }
+.filtro-tipos button.on { background: #fff; color: var(--tinta); box-shadow: 0 1px 3px rgba(60, 30, 20, 0.12); }
+.filtro-tipos button.on .cuenta-filtro { background: var(--carmin); color: #fff; }
+.solo-pendientes { display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--grafito); cursor: pointer; }
+@media (max-width: 640px) {
+  .cab-pagina-tema .num-grande { display: none; }
+}

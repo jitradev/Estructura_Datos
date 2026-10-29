@@ -8,6 +8,7 @@ import { CalculadoraCoste } from './CalculadoraCoste';
 import { Rico } from './comun';
 import { MesaLab, MESAS } from './mesas';
 import { GrupoVer, NOMBRE_GRUPO, SelectorTipo } from './SelectorTipo';
+import { Miga } from './Miga';
 
 const GRUPOS: GrupoVer[] = ['listas', 'pilas', 'colas'];
 
@@ -26,9 +27,7 @@ export function Laboratorio({ ruta = [] }: { ruta?: string[] }) {
   const coste = ruta[0] === 'coste' && temaVisible('5');
   return (
     <main className="contenido ancho">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-      </nav>
+      <Miga pasos={[['Temas', '#/']]} />
       <h1>Laboratorio</h1>
       <nav className="pestanas" aria-label="Laboratorio">
         <a href="#/lab" className={!coste ? 'on' : ''} aria-current={!coste ? 'page' : undefined}>

@@ -12,6 +12,7 @@ import { alcanzables } from '../memoria/comparar';
 import { Memoria, mismoValor, Objeto, Valor } from '../memoria/modelo';
 import { QueueType } from './catalog';
 import { esArray } from './prepare';
+import { codoLado, codoVertical, tuerce } from '../dibujo/rutas';
 
 const MARGEN = 20;
 const VAR_W = 48;
@@ -299,9 +300,11 @@ export function QueueDrawing({ mem, prev, tipo, titulo, soloCola = false }: { me
 
   function curva(s: Pt, t: Pt, desde: 'abajo' | 'arriba' | 'lado'): string {
     if (desde === 'lado') {
+      if (Math.abs(t.y - s.y) > 24 && Math.abs(t.x - s.x) > 24) return codoLado(s, t);
       const dx = Math.max(30, Math.abs(t.x - s.x) / 2);
       return `M${s.x} ${s.y} C${s.x + dx} ${s.y} ${t.x} ${t.y + (t.y > s.y ? -40 : 40)} ${t.x} ${t.y}`;
     }
+    if (tuerce(s, t)) return codoVertical(s, t);
     const dy = Math.max(16, Math.abs(t.y - s.y) / 2) * (desde === 'abajo' ? 1 : -1);
     return `M${s.x} ${s.y} C${s.x} ${s.y + dy} ${t.x} ${t.y - dy} ${t.x} ${t.y}`;
   }

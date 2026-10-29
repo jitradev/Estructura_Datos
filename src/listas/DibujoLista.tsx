@@ -12,6 +12,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { alcanzables } from '../memoria/comparar';
 import { Memoria, mismoValor, Valor } from '../memoria/modelo';
 import { TipoLista } from './catalogo';
+import { codoLado, codoVertical, tuerce } from '../dibujo/rutas';
 
 // ---------------------------------------------------------------- medidas
 
@@ -339,13 +340,16 @@ export function DibujoLista({ mem, prev, tipo, titulo, compacto = false }: { mem
     if (d.lado === 'arriba') {
       if (desde === 'cab') {
         // del struct de la lista: hacia la derecha si el nodo queda a la derecha; si no, hacia abajo
-        if (t.x > s.x + 60) return `M${s.x} ${s.y} C${s.x + 70} ${s.y} ${t.x} ${t.y - 80} ${t.x} ${t.y}`;
+        if (t.x > s.x + 60) return t.y - s.y > 30 ? codoLado(s, t) : `M${s.x} ${s.y} C${s.x + 70} ${s.y} ${t.x} ${t.y - 80} ${t.x} ${t.y}`;
+        // the turn just above the nodes, under the struct and its other fields
+        if (tuerce(s, t)) return codoVertical(s, t, t.y - 22);
         return `M${s.x} ${s.y} C${s.x} ${s.y + 70} ${t.x} ${t.y - 70} ${t.x} ${t.y}`;
       }
       if (s.y > t.y) {
         // de la fila de abajo a un nodo de arriba
         return `M${s.x} ${s.y} C${s.x} ${s.y + 30} ${t.x - 50} ${t.y - 50} ${t.x} ${t.y}`;
       }
+      if (tuerce(s, t)) return codoVertical(s, t);
       const dy = Math.max(18, (t.y - s.y) / 2);
       return `M${s.x} ${s.y} C${s.x} ${s.y + dy} ${t.x} ${t.y - dy} ${t.x} ${t.y}`;
     }

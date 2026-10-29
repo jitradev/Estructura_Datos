@@ -7,6 +7,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { alcanzables } from '../memoria/comparar';
 import { Contexto, Memoria, mismoValor, Ref, Valor } from '../memoria/modelo';
 import { anchoNodo, calcularLayout, datoDe, G, Layout } from './layout';
+import { codoVertical, polilinea, tuerce } from './rutas';
 
 interface Caja {
   x: number;
@@ -75,6 +76,14 @@ function useTransicion(destino: Layout): Layout {
 function camino(s: Punto, t: Caja, lado = false, derecha = false): string {
   const cx = t.x + t.w / 2;
   const cy = t.y + t.h / 2;
+  // a field of a struct pointing down: out to the right and down, never back across the struct
+  if (derecha && t.y > s.y + 20) {
+    const fin = { x: cx, y: t.y - 3 };
+    if (cx > s.x + 40) return polilinea([s, { x: cx, y: s.y }, fin]);
+    const carril = s.x + 46;
+    const medio = t.y - 24;
+    return polilinea([s, { x: carril, y: s.y }, { x: carril, y: medio }, { x: cx, y: medio }, fin]);
+  }
   const ini = derecha ? `M${s.x} ${s.y} C${s.x + 70} ${s.y}` : '';
   // a una variable o a un struct: se llega por el costado
   if (lado) {
@@ -106,10 +115,12 @@ function camino(s: Punto, t: Caja, lado = false, derecha = false): string {
     return `M${s.x} ${s.y} C${s.x + 26} ${s.y - 78} ${cx + 10} ${t.y - 70} ${cx} ${t.y - 3}`;
   }
   if (t.y > s.y) {
+    if (!ini && tuerce(s, { x: cx, y: t.y - 3 })) return codoVertical(s, { x: cx, y: t.y - 3 });
     const d = Math.max(30, (t.y - s.y) * 0.5);
     return `${ini || `M${s.x} ${s.y} C${s.x} ${s.y + d}`} ${cx} ${t.y - d} ${cx} ${t.y - 3}`;
   }
   const fin = t.y + t.h + 3;
+  if (!ini && tuerce(s, { x: cx, y: fin })) return codoVertical(s, { x: cx, y: fin });
   const d = Math.max(30, (s.y - fin) * 0.5);
   return `${ini || `M${s.x} ${s.y} C${s.x} ${s.y - d}`} ${cx} ${fin + d} ${cx} ${fin}`;
 }

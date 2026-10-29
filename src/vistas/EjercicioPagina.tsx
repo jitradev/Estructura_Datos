@@ -7,6 +7,7 @@ import { Coste } from './tipos/Coste';
 import { Fallo } from './tipos/Fallo';
 import { Misterio } from './tipos/Misterio';
 import { Programar } from './tipos/Programar';
+import { Miga } from './Miga';
 
 export function nombreTipo(e: Ejercicio): string {
   if (e.tipo === 'fallo') return 'Encuentra el fallo';
@@ -42,9 +43,12 @@ export function EjercicioPagina({ id }: { id: string }) {
 
   return (
     <main className="contenido ancho ejercicio">
-      <nav className="miga">
-        <a href="#/">Temas</a> <span>/</span> <a href={`#/tema/${tema.id}`}>Tema {tema.id} · {tema.titulo}</a>
-      </nav>
+      <Miga
+        pasos={[
+          ['Temas', '#/'],
+          [`Tema ${tema.id} · ${tema.titulo}`, `#/tema/${tema.id}`],
+        ]}
+      />
       <header className="cabecera-ej">
         <div>
           <span className={`etiqueta-tipo ${ej.tipo}`}>{nombreTipo(ej)}</span>

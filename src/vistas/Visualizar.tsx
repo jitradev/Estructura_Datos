@@ -19,6 +19,7 @@ import { temaVisible } from '../ejercicios/registro';
 import { StackGallery } from './StackView';
 import { QueueGallery } from './QueueView';
 import { Reproductor, useReproductor } from './Reproductor';
+import { Miga } from './Miga';
 
 const COMPARA: { pregunta: string; r: Record<string, string> }[] = [
   { pregunta: 'Enlaces por nodo', r: { simple: '1: siguiente', doble: '2: siguiente y anterior', circular: '1: siguiente', 'circular-doble': '2: siguiente y anterior' } },
@@ -35,9 +36,7 @@ export function Visualizar({ grupo = 'listas' }: { grupo?: GrupoVer }) {
   const actual = grupos.find((g) => g.id === grupo) ?? grupos[0];
   return (
     <main className="contenido ancho">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-      </nav>
+      <Miga pasos={[['Temas', '#/']]} />
       <h1>Visualizar</h1>
       <p className="entradilla">
         Cómo se ve cada estructura en memoria, con sus structs tal cual. Entra en cualquiera para ver sus operaciones paso a paso: se ejecuta el código de los{' '}

@@ -8,6 +8,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { alcanzables } from '../memoria/comparar';
 import { Memoria, mismoValor, Valor } from '../memoria/modelo';
 import { StackType } from './catalog';
+import { codoVertical, tuerce } from '../dibujo/rutas';
 
 const MARGEN = 20;
 const VAR_W = 48;
@@ -276,6 +277,7 @@ export function StackDrawing({ mem, prev, tipo, titulo }: { mem: Memoria; prev?:
       // upwards (a loose node pointing to the top of the chain): around the left
       return `M${s.x} ${s.y} C${s.x + 40} ${s.y} ${t.x} ${t.y - 50} ${t.x} ${t.y}`;
     }
+    if (tuerce(s, t)) return codoVertical(s, t);
     const dy = Math.max(16, (t.y - s.y) / 2);
     return `M${s.x} ${s.y} C${s.x} ${s.y + dy} ${t.x} ${t.y - dy} ${t.x} ${t.y}`;
   }

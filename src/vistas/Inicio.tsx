@@ -2,6 +2,7 @@ import { nombreTemasVisibles, TEMAS, temaVisible } from '../ejercicios/registro'
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
 import { nombreTipo } from './EjercicioPagina';
+import { Miga } from './Miga';
 
 const DIBUJOS: Record<string, JSX.Element> = {
   '2': (
@@ -156,9 +157,7 @@ export function TemaPagina({ id }: { id: string }) {
   if (!tema) return <p className="contenido">No existe ese tema.</p>;
   return (
     <main className="contenido">
-      <nav className="miga">
-        <a href="#/">Temas</a>
-      </nav>
+      <Miga pasos={[['Temas', '#/']]} />
       <h1>
         <span className="num-ej">Tema {tema.id}</span> {tema.titulo}
       </h1>

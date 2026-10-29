@@ -2,6 +2,8 @@
 // of structure and a segmented control to switch to another subtype (grouped by family for
 // the queues).
 
+import { Miga } from './Miga';
+
 export type GrupoVer = 'listas' | 'pilas' | 'colas';
 
 export const NOMBRE_GRUPO: Record<GrupoVer, string> = { listas: 'Listas', pilas: 'Pilas', colas: 'Colas' };
@@ -27,13 +29,13 @@ export function SelectorTipo({
   const familias = [...new Set(opciones.map((o) => o.familia ?? ''))];
   return (
     <>
-      <nav className="miga">
-        <a href="#/">Temas</a>
-        <span>/</span>
-        <a href={sec.raiz}>{sec.nombre}</a>
-        <span>/</span>
-        <a href={sec.grupo(grupo)}>{NOMBRE_GRUPO[grupo]}</a>
-      </nav>
+      <Miga
+        pasos={[
+          ['Temas', '#/'],
+          [sec.nombre, sec.raiz],
+          [NOMBRE_GRUPO[grupo], sec.grupo(grupo)],
+        ]}
+      />
       <nav className="selector-tipo" aria-label={`Cambiar de ${NOMBRE_GRUPO[grupo].toLowerCase().slice(0, -1)}`}>
         {familias.map((f) => (
           <div key={f} className="selector-grupo">

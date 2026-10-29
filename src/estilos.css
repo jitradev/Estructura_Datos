@@ -46,10 +46,12 @@ h3 { font-size: 1rem; margin: 0 0 0.5em; }
 
 .contenido { max-width: 1120px; margin: 0 auto; padding: 24px 24px 80px; }
 .contenido.ancho { max-width: 1480px; }
-.miga { font-size: 0.9rem; color: var(--gris); margin-bottom: 6px; }
+.miga { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; font-size: 0.9rem; color: var(--gris); margin-bottom: 8px; }
 .miga a { color: var(--gris); text-decoration: none; }
 .miga a:hover { color: var(--carmin); }
-.miga span { margin: 0 6px; }
+.miga .sep { margin: 0 6px; }
+.miga a.volver { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; padding: 5px 12px 5px 10px; border: 1.5px solid #d9c9c1; border-radius: 999px; background: #fff; color: var(--grafito); font-weight: 600; }
+.miga a.volver:hover { border-color: var(--carmin); color: var(--carmin); }
 .nota { color: var(--gris); font-size: 0.9rem; }
 .nota.pie { margin-top: 40px; text-align: center; }
 

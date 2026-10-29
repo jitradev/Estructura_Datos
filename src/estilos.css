@@ -68,12 +68,29 @@ h3 { font-size: 1rem; margin: 0 0 0.5em; }
 .tarjeta-tema strong { font-size: 1.35rem; }
 .tarjeta-tema .resumen { color: var(--grafito); font-size: 0.95rem; flex: 1; }
 .cuenta { color: var(--gris); font-size: 0.8rem; }
-.mini-dibujo svg { width: 100%; max-width: 300px; height: 44px; display: block; }
-.mini { fill: #fff; stroke: var(--tinta); stroke-width: 1.5; }
-.mini.apagado { stroke: var(--linea); }
-.mini-t { font: 600 14px var(--f-mono); fill: var(--tinta); text-anchor: middle; }
-.mini-l { fill: none; stroke: var(--tinta); stroke-width: 1.5; }
-.mini-n { font: 12px var(--f-mono); fill: var(--gris); }
+.tarjeta-tema { overflow: hidden; }
+.lamina { display: block; margin: -20px -22px 6px; padding: 10px 14px; border-bottom: 1px solid var(--linea); background-color: var(--hueso); background-image: radial-gradient(var(--linea) 1.2px, transparent 1.2px); background-size: 14px 14px; transition: background-color 0.15s; }
+.tarjeta-tema:hover .lamina { background-color: var(--arena); }
+.lamina svg { display: block; width: 100%; height: 112px; }
+.lam-caja { fill: #fff; stroke: var(--tinta); stroke-width: 1.5; }
+.lam-vacia { fill: rgba(255, 255, 255, 0.6); stroke: var(--palo); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.lam-cab { fill: var(--tinta); }
+.lam-cab-t { font: 600 12px var(--f-txt); fill: #fff; text-anchor: middle; letter-spacing: 0.04em; }
+.lam-t { font: 600 14px var(--f-mono); fill: var(--tinta); text-anchor: middle; }
+.lam-t.peq { font-size: 12px; }
+.lam-mono { font: 11.5px var(--f-mono); fill: var(--tinta); }
+.lam-rojo, .lam-et.rojo { fill: var(--carmin); font-weight: 700; }
+.lam-et { font: 11px var(--f-mono); fill: var(--grafito); }
+.lam-et.centro { text-anchor: middle; }
+.lam-flecha { fill: none; stroke: var(--carmin); stroke-width: 1.8; stroke-linecap: round; }
+.lam-flecha.discontinua { stroke-dasharray: 5 4; stroke-width: 1.5; }
+.lam-punta { fill: var(--carmin); }
+.lam-pastilla { fill: var(--hueso); stroke: var(--linea); }
+.lam-eje { fill: none; stroke: var(--gris); stroke-width: 1.3; }
+.lam-curva { fill: none; stroke-width: 2.2; stroke-linecap: round; }
+.lam-curva.c1 { stroke: var(--palo); }
+.lam-curva.c2 { stroke: var(--quemado); }
+.lam-curva.c3 { stroke: var(--carmin); }
 .progreso { display: flex; align-items: center; gap: 10px; font-family: var(--f-mono); color: var(--grafito); font-size: 0.85rem; }
 .barra-prog { flex: 1; height: 6px; background: var(--linea); border-radius: 3px; overflow: hidden; display: flex; }
 .barra-prog span { display: block; height: 100%; background: var(--carmin); }

@@ -3,85 +3,8 @@ import { TEMAS } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
 import { nombreTipo } from './EjercicioPagina';
+import { DIBUJOS_TEMAS } from './DibujosTemas';
 import { Miga } from './Miga';
-
-const DIBUJOS: Record<string, JSX.Element> = {
-  '1': (
-    <svg viewBox="0 0 300 44" aria-hidden>
-      <rect x="1" y="6" width="120" height="32" rx="6" className="mini" />
-      <text x="61" y="27" className="mini-t">
-        crear(a, b)
-      </text>
-      <path d="M126 22h36" className="mini-l" />
-      <rect x="168" y="6" width="130" height="32" rx="6" className="mini" />
-      <text x="233" y="27" className="mini-t">
-        -&gt; Fraccion
-      </text>
-    </svg>
-  ),
-  '2': (
-    <svg viewBox="0 0 300 44" aria-hidden>
-      {[0, 1, 2].map((i) => (
-        <g key={i} transform={`translate(${i * 88} 8)`}>
-          <rect width="36" height="28" rx="4" className="mini" />
-          <rect x="36" width="22" height="28" rx="4" className="mini" />
-          <text x="18" y="19" className="mini-t">
-            {[9, 3, 7][i]}
-          </text>
-          <path d={i < 2 ? 'M47 14h36' : 'M47 14h26'} className="mini-l" />
-        </g>
-      ))}
-      <text x="252" y="27" className="mini-n">
-        NULL
-      </text>
-    </svg>
-  ),
-  '3': (
-    <svg viewBox="0 0 300 44" aria-hidden>
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <g key={i}>
-          <rect x={1 + i * 40} y="8" width="40" height="28" className={i < 3 ? 'mini' : 'mini apagado'} />
-          {i < 3 && (
-            <text x={21 + i * 40} y="27" className="mini-t">
-              {[4, 1, 8][i]}
-            </text>
-          )}
-        </g>
-      ))}
-      <text x="248" y="27" className="mini-n">
-        cima=2
-      </text>
-    </svg>
-  ),
-  '4': (
-    <svg viewBox="0 0 300 44" aria-hidden>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <g key={i}>
-          <rect x={1 + i * 44} y="8" width="44" height="28" className="mini" />
-          {i !== 1 && (
-            <text x={23 + i * 44} y="27" className="mini-t">
-              {[2, 0, 8, 4, 9][i]}
-            </text>
-          )}
-        </g>
-      ))}
-      <text x="232" y="27" className="mini-n">
-        % TAM
-      </text>
-    </svg>
-  ),
-  '5': (
-    <svg viewBox="0 0 300 44" aria-hidden>
-      <path d="M4 40h200M4 40V4" className="mini-l" />
-      <path d="M4 40C60 38 120 34 196 30" className="mini-l" />
-      <path d="M4 40L196 12" className="mini-l" />
-      <path d="M4 40C90 39 140 30 160 4" className="mini-l" />
-      <text x="214" y="27" className="mini-n">
-        O(n²)
-      </text>
-    </svg>
-  ),
-};
 
 /** How many exercises of each kind a topic has, for the chips of its card. */
 function cuentas(es: Ejercicio[]): [string, number][] {
@@ -113,6 +36,7 @@ export function Inicio() {
           const n = t.ejercicios.length;
           return (
             <a key={t.id} className={`tarjeta-tema ${h === n ? 'completo' : ''}`} href={`#/tema/${t.id}`}>
+              <span className="lamina">{DIBUJOS_TEMAS[t.id]}</span>
               <span className="cab-tema">
                 <span className="num-grande" aria-hidden>
                   {t.id}
@@ -130,7 +54,6 @@ export function Inicio() {
                   </span>
                 ))}
               </span>
-              <span className="mini-dibujo">{DIBUJOS[t.id]}</span>
               <span className="pie-tema">
                 <span className="progreso">
                   <span className="barra-prog">

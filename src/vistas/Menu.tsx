@@ -15,9 +15,9 @@ export function Menu() {
   return (
     <main className="contenido">
       <section className="portada">
-        <p className="antetitulo">Estructura de Datos y Algoritmos · Universidad San Jorge</p>
-        <h1>{nombreTemasVisibles()}, paso a paso</h1>
-        <p className="entradilla">Escribe el código, ejecútalo y mira cómo cambia la memoria línea a línea. ¿Por dónde empiezas?</p>
+        <p className="antetitulo">Universidad San Jorge · Ejercicios y visualizaciones</p>
+        <h1>Estructura de Datos</h1>
+        <p className="entradilla">{nombreTemasVisibles()}, paso a paso: escribe el código, ejecútalo y mira cómo cambia la memoria línea a línea. ¿Por dónde empiezas?</p>
       </section>
       <nav className="menu-principal" aria-label="Menú principal">
         <a href="#/temas" className="boton-menu ejercicios">

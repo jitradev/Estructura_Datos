@@ -99,13 +99,8 @@ h3 { font-size: 1rem; margin: 0 0 0.5em; }
 .pista { background: var(--ambar-claro); padding: 10px 14px; border-radius: var(--radio); margin: 6px 0; max-width: 90ch; }
 
 .ej-rejilla { display: grid; grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr); gap: 18px; align-items: start; margin-top: 12px; }
-.ej-rejilla.fallo { grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr); }
-/* the four steps as a strip above the code and the memory */
-.ej-rejilla.fallo .panel-pasos { grid-column: 1 / -1; }
-.ej-rejilla.fallo .pasos-fallo { flex-direction: row; flex-wrap: wrap; gap: 14px 22px; }
-.ej-rejilla.fallo .paso-fallo { flex: 1 1 210px; min-width: 0; }
-.ej-rejilla.fallo .paso-fallo.actual { padding: 10px 12px; margin: -10px -12px; border-radius: 10px; background: var(--hueso); }
-@media (max-width: 1180px) { .ej-rejilla.fallo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.ej-rejilla.fallo { grid-template-columns: minmax(250px, 3fr) minmax(360px, 5fr) minmax(0, 7fr); }
+@media (max-width: 1180px) { .ej-rejilla.fallo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ej-rejilla.fallo .panel-memoria { grid-column: 1 / -1; } }
 @media (max-width: 900px) { .ej-rejilla, .ej-rejilla.fallo { grid-template-columns: minmax(0, 1fr); } }
 .panel { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 16px; min-width: 0; }
 .panel-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }

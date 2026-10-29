@@ -27,6 +27,10 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
   const [avisoTipo, setAvisoTipo] = useState<string | null>(null);
   const [informes, setInformes] = useState<InformeCaso[] | null>(null);
   const [infSel, setInfSel] = useState<InformeCaso | null>(null);
+  /** Result of the last «Comprobar el arreglo» and how many times it did not pass. */
+  const [arreglo, setArreglo] = useState<{ ok: boolean; sinCambios?: boolean; falla?: InformeCaso } | null>(null);
+  const [fallidos, setFallidos] = useState(0);
+  const [verSolucion, setVerSolucion] = useState(false);
   const rep = useReproductor(res?.pasos ?? null);
   const caso = ej.casos[casoSel];
   const memInicial = useMemo(() => construir(ej.ctx, caso.inicial), [ej, caso]);
@@ -64,6 +68,10 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
   };
 
   const comprobarArreglo = () => {
+    if (original) {
+      setArreglo({ ok: false, sinCambios: true });
+      return;
+    }
     const inf = comprobarTodo(codigo, ej);
     setInformes(inf);
     const malo = inf.findIndex((i) => !i.ok);
@@ -72,7 +80,9 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
     setRes(inf[k].resultado);
     rep.setEnMarcha(false);
     rep.setIdx(inf[k].resultado.pasos.length - 1);
+    setArreglo({ ok: malo < 0, falla: malo >= 0 ? inf[malo] : undefined });
     if (malo < 0) onResuelto();
+    else setFallidos(fallidos + 1);
   };
 
   const estados: Record<number, EstadoLinea> = { ...estadosLineas(res?.pasos ?? null, rep.idx) };
@@ -124,7 +134,34 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
           </Estado>
           <Estado n={4}>
             <strong>Arréglalo</strong>
-            {paso === 4 && <p>Edita el código y comprueba que pasa todos los casos, sin errores ni fugas.</p>}
+            {paso === 4 && !arreglo?.ok && <p>Edita el código y pulsa «Comprobar el arreglo»: tiene que pasar todos los casos, sin errores ni fugas.</p>}
+            {paso === 4 && arreglo?.sinCambios && <p className="aviso-corto">Todavía no has cambiado nada: edita el código y vuelve a comprobar.</p>}
+            {paso === 4 && arreglo && !arreglo.ok && arreglo.falla && (
+              <p className="aviso-corto">
+                Aún no está: falla con «{arreglo.falla.caso.nombre}» ({arreglo.falla.titulo.toLowerCase().replace(/\.$/, '')}). Míralo en la memoria y vuelve a intentarlo.
+              </p>
+            )}
+            {paso === 4 && arreglo?.ok && <p className="explicacion">¡Bien arreglado! Pasa todos los casos, sin errores ni fugas.</p>}
+            {paso === 4 && !arreglo?.ok && fallidos >= 2 && !verSolucion && (
+              <button className="btn-texto" onClick={() => setVerSolucion(true)}>
+                Ver la solución
+              </button>
+            )}
+            {paso === 4 && verSolucion && !arreglo?.ok && (
+              <div className="solucion-fallo">
+                <p>Así queda arreglado:</p>
+                <EditorCodigo valor={ej.solucion} soloLectura minLineas={1} etiquetaAria="Solución" />
+                <button
+                  className="btn secundario"
+                  onClick={() => {
+                    setCodigo(ej.solucion);
+                    setArreglo(null);
+                  }}
+                >
+                  Copiarla al editor
+                </button>
+              </div>
+            )}
           </Estado>
         </ol>
       </section>
@@ -142,6 +179,7 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
                   setCodigo(v);
                   setRes(null);
                   setInformes(null);
+                  if (arreglo?.sinCambios) setArreglo(null);
                 }
               : undefined
           }
@@ -195,6 +233,7 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
                   restaurar();
                   setRes(null);
                   setInformes(null);
+                  setArreglo(null);
                 }}
               >
                 Volver al código original

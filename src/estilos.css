@@ -456,3 +456,5 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 @media (max-width: 640px) {
   .cab-pagina-tema .num-grande { display: none; }
 }
+.solucion-fallo { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.solucion-fallo p { margin: 0; }

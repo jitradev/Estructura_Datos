@@ -342,3 +342,22 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .tabla-crece tbody th { text-align: left; font-family: var(--f-txt); font-weight: 600; color: var(--grafito); }
 .tabla-crece .factor td { color: var(--gris); }
 @media (max-width: 600px) { .tabla-crece th, .tabla-crece td { padding: 6px 8px; } }
+
+/* ------------------------------------------------ función misteriosa */
+.etiqueta-tipo.misterio { background: #e6e1f5; color: #4a3a86; }
+.prediccion { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.caso-prediccion { border: 1px solid var(--linea); border-radius: 10px; padding: 8px 12px 10px; margin: 0; min-width: 0; }
+.caso-prediccion legend { font-size: 0.85rem; font-weight: 600; color: var(--grafito); padding: 0 4px; }
+.fila-prediccion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; font-size: 0.9rem; color: var(--grafito); margin-top: 6px; }
+.fila-prediccion input { width: 170px; max-width: 100%; min-height: 38px; padding: 6px 10px; border: 1.5px solid #d9c9c1; border-radius: 8px; font: 500 0.95rem var(--f-mono); background: #fff; color: var(--tinta); }
+.fila-prediccion input.bien { border-color: var(--verde); background: var(--verde-claro); }
+.fila-prediccion input.mal { border-color: var(--carmin); background: var(--rojo-claro); }
+.fila-prediccion .mono { font-weight: 600; color: var(--tinta); }
+.opciones { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.opcion { text-align: left; font: 500 0.9rem var(--f-txt); padding: 9px 12px; min-height: 40px; border-radius: 8px; border: 1.5px solid #d9c9c1; background: #fff; color: var(--grafito); cursor: pointer; }
+.opcion:hover:not(:disabled) { border-color: var(--carmin); }
+.opcion.on { background: var(--verde-claro); border-color: var(--verde); color: #1f5535; }
+.opcion.mal { border-color: var(--carmin); background: var(--rojo-claro); }
+.opcion:disabled:not(.on) { opacity: 0.55; cursor: default; }
+.ej-rejilla.misterio .panel-memoria { grid-column: 1 / -1; }
+@media (min-width: 901px) { .ej-rejilla.misterio { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }

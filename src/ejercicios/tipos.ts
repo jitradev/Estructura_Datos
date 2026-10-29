@@ -32,7 +32,7 @@ export interface EjProgramar extends Base {
   prohibidos?: string[];
 }
 
-export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'caso';
+export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'bucle' | 'caso';
 
 export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   nulo: 'Acceso a NULL',
@@ -41,6 +41,7 @@ export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   pierde: 'Se pierde la lista',
   colgante: 'Puntero colgando',
   array: 'Fuera del array',
+  bucle: 'Bucle infinito',
   caso: 'Caso sin contemplar',
 };
 
@@ -95,8 +96,25 @@ export interface EjCoste {
   nCrecimiento?: [number, number];
 }
 
-/** Exercises run on memory states, checked case by case against `solucion`. */
-export type EjCodigo = EjProgramar | EjFallo;
+/**
+ * A function (or a few statements) to read and understand: first predict what it leaves in
+ * each case (the interpreter runs `solucion`, which is the code shown), then pick what it does.
+ */
+export interface EjMisterio extends Base {
+  tipo: 'misterio';
+  /** What is asked in each case: «devuelve» (what the call returns) or variables of main. */
+  responder: string[];
+  /** Descriptions to choose from; `correcta` is the index of the right one. */
+  opciones: string[];
+  correcta: number;
+  /** Question of step 2. By default «¿Qué hace?». */
+  preguntaOpciones?: string;
+  /** Shown once solved. */
+  explicacion: string;
+}
+
+/** Exercises run on memory states, case by case. */
+export type EjCodigo = EjProgramar | EjFallo | EjMisterio;
 export type Ejercicio = EjCodigo | EjCoste;
 
 export interface Tema {

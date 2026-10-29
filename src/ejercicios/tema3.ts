@@ -251,6 +251,28 @@ export const tema3: Tema = {
             return suma;
         }`),
     },
+    {
+      id: '3-13',
+      tipo: 'programar',
+      titulo: 'Escribe cimaEnlazada',
+      enunciado: 'Completa `cimaEnlazada`: deja el valor de la cima en `*valor` **sin quitarla** y devuelve 1; con la pila vacía o `valor` a NULL, devuelve 0 sin tocar nada.',
+      ctx: E,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaEnlazada('pila', [4, 1, 8]), entero('valor', 0)], llamada: 'cimaEnlazada(pila, &valor)' },
+        { nombre: 'Pila vacía', inicial: [pilaEnlazada('pila', []), entero('valor', 0)], llamada: 'cimaEnlazada(pila, &valor)' },
+      ],
+      observar: ['pila', 'valor'],
+      codigoInicial: c(`
+        int cimaEnlazada(PilaEnlazada *pila, int *valor) {
+
+        }`),
+      solucion: c(`
+        int cimaEnlazada(PilaEnlazada *pila, int *valor) {
+            if (esVaciaEnlazada(pila) || valor == NULL) { return 0; }
+            *valor = pila->cima->valor;
+            return 1;
+        }`),
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '3-F1',
@@ -464,6 +486,178 @@ export const tema3: Tema = {
             pila->array[pila->cima] = valor;
             return 1;
         }`),
+    },
+    {
+      id: '3-F8',
+      tipo: 'fallo',
+      titulo: 'popArray que baja antes de leer',
+      enunciado: 'Este `popArray` devuelve 1 y baja la cima. ¿Devuelve el valor que toca?',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8]), entero('valor', 0)], llamada: 'popArray(pila, &valor)' },
+        { nombre: 'Un elemento', inicial: [pilaArray('pila', [4]), entero('valor', 0)], llamada: 'popArray(pila, &valor)' },
+      ],
+      observar: ['pila', 'valor'],
+      codigo: c(`
+        int popArray(PilaArray *pila, int *valor) {
+            if (esVaciaArray(pila)) { return 0; }
+            pila->cima--;
+            if (valor != NULL) { *valor = pila->array[pila->cima]; }
+            return 1;
+        }`),
+      lineasFallo: [3, 4],
+      tiposFallo: ['array'],
+      explicacion: 'Al bajar la cima antes de leer, se lee el que hay debajo de la cima (el 1 en lugar del 8) y, con un solo elemento, `array[-1]`. Primero se lee y después se baja.',
+      solucion: c(`
+        int popArray(PilaArray *pila, int *valor) {
+            if (esVaciaArray(pila)) { return 0; }
+            if (valor != NULL) { *valor = pila->array[pila->cima]; }
+            pila->cima--;
+            return 1;
+        }`),
+    },
+    {
+      id: '3-F9',
+      tipo: 'fallo',
+      titulo: 'popEnlazada que se deja algo',
+      enunciado: 'La pila queda bien después de este `popEnlazada`. La memoria, no tanto.',
+      ctx: E,
+      casos: [
+        { nombre: 'Pila vacía', inicial: [pilaEnlazada('pila', []), entero('valor', 0)], llamada: 'popEnlazada(pila, &valor)' },
+        { nombre: 'Pila 4 1 8', inicial: [pilaEnlazada('pila', [4, 1, 8]), entero('valor', 0)], llamada: 'popEnlazada(pila, &valor)' },
+      ],
+      observar: ['pila', 'valor'],
+      codigo: c(`
+        int popEnlazada(PilaEnlazada *pila, int *valor) {
+            if (esVaciaEnlazada(pila)) { return 0; }
+            Nodo *borrar = pila->cima;
+            if (valor != NULL) { *valor = borrar->valor; }
+            pila->cima = borrar->siguiente;
+            pila->tamano--;
+            return 1;
+        }`),
+      lineasFallo: [5, 6],
+      preguntaLinea: 'Marca la línea después de la que falta algo',
+      tiposFallo: ['fuga'],
+      explicacion: 'Falta `free(borrar);` después de mover la cima. `borrar` es una variable local: al salir de la función nadie apunta al nodo y ya no se puede liberar nunca.',
+      solucion: c(`
+        int popEnlazada(PilaEnlazada *pila, int *valor) {
+            if (esVaciaEnlazada(pila)) { return 0; }
+            Nodo *borrar = pila->cima;
+            if (valor != NULL) { *valor = borrar->valor; }
+            pila->cima = borrar->siguiente;
+            free(borrar);
+            pila->tamano--;
+            return 1;
+        }`),
+    },
+    {
+      id: '3-F10',
+      tipo: 'fallo',
+      titulo: 'sumaArray que se deja la cima',
+      enunciado: 'Con la pila vacía este `sumaArray` acierta. Con elementos, no.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', [])], llamada: 'sumaArray(pila)' },
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])], llamada: 'sumaArray(pila)' },
+      ],
+      observar: ['pila'],
+      codigo: c(`
+        int sumaArray(PilaArray *pila) {
+            int suma = 0;
+            for (int i = 0; i < pila->cima; i++)
+                suma += pila->array[i];
+            return suma;
+        }`),
+      lineasFallo: [3],
+      tiposFallo: ['caso'],
+      explicacion: '`cima` es el índice del último elemento, no cuántos hay: con `i < pila->cima` se queda fuera la cima (suma 5 en lugar de 13). Tiene que ser `i <= pila->cima`.',
+      solucion: c(`
+        int sumaArray(PilaArray *pila) {
+            int suma = 0;
+            for (int i = 0; i <= pila->cima; i++)
+                suma += pila->array[i];
+            return suma;
+        }`),
+    },
+    // ------------------------------------------------------------ misteriosas
+    {
+      id: '3-M1',
+      tipo: 'misterio',
+      titulo: 'Qué sale de la pila',
+      enunciado: 'Del cuadernillo a papel. La pila empieza vacía. Sigue las sentencias y predice cuánto vale `x` y cómo queda la pila al terminar.',
+      ctx: A,
+      casos: [{ nombre: 'Pila vacía', inicial: [pilaArray('pila', [])] }],
+      observar: ['pila', 'x'],
+      responder: ['x', 'pila'],
+      solucion: c(`
+        int x = 0;
+        pushArray(pila, 1);
+        pushArray(pila, 2);
+        pushArray(pila, 3);
+        popArray(pila, &x);
+        pushArray(pila, x * 10);
+        popArray(pila, &x);
+        popArray(pila, &x);`),
+      preguntaOpciones: '¿Qué valores han salido de la pila, en orden?',
+      opciones: ['3, 30 y 2.', '1, 2 y 3.', '3, 2 y 1.', '30, 3 y 2.'],
+      correcta: 0,
+      explicacion: 'Sale el 3 (la cima), entra 30 encima del 2, sale el 30 y después el 2. Queda solo el 1, el primero que entró: es el último en salir.',
+    },
+    {
+      id: '3-M2',
+      tipo: 'misterio',
+      titulo: 'Volcar y volver',
+      enunciado: 'Predice qué devuelve y cómo queda la pila (del fondo a la cima) en cada caso. Después di qué hace.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila 9 2', inicial: [pilaArray('pila', [9, 2])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', [])], llamada: 'misterio(pila)' },
+      ],
+      observar: ['pila'],
+      responder: ['devuelve', 'pila'],
+      solucion: c(`
+        int misterio(PilaArray *pila) {
+            PilaArray *aux = CrearPilaArray();
+            int x = 0;
+            int m = 0;
+            while (popArray(pila, &x)) {
+                if (x > m) m = x;
+                pushArray(aux, x);
+            }
+            while (popArray(aux, &x)) pushArray(pila, x);
+            destruirPilaArray(aux);
+            return m;
+        }`),
+      opciones: ['Devuelve el mayor y deja la pila como estaba.', 'Devuelve el mayor y deja la pila vacía.', 'Devuelve el mayor y deja la pila al revés.', 'Devuelve la cima y deja la pila como estaba.'],
+      correcta: 0,
+      explicacion: 'El primer bucle vuelca la pila en `aux` (al revés) mirando el máximo; el segundo la vuelca otra vez, y dos vuelcos la dejan como estaba. Es la forma de recorrer una pila usando solo su interfaz. Con todos negativos devolvería 0, que no está: `m` debería empezar con el primero.',
+    },
+    {
+      id: '3-M3',
+      tipo: 'misterio',
+      titulo: 'Hasta abajo',
+      enunciado: 'Predice qué devuelve en cada caso. La pila se escribe del fondo a la cima.',
+      ctx: E,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaEnlazada('pila', [4, 1, 8])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila 7', inicial: [pilaEnlazada('pila', [7])], llamada: 'misterio(pila)' },
+        { nombre: 'Pila vacía', inicial: [pilaEnlazada('pila', [])], llamada: 'misterio(pila)' },
+      ],
+      observar: ['pila'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(PilaEnlazada *pila) {
+            Nodo *p = pila->cima;
+            if (p == NULL) return -1;
+            while (p->siguiente != NULL)
+                p = p->siguiente;
+            return p->valor;
+        }`),
+      opciones: ['Devuelve el del fondo (el primero que se apiló), o -1 si está vacía.', 'Devuelve la cima, o -1 si está vacía.', 'Devuelve cuántos elementos hay.', 'Devuelve el último que se apiló.'],
+      correcta: 0,
+      explicacion: 'En la pila enlazada la cima es el primer nodo y los enlaces bajan hacia el fondo: el último nodo de la cadena es el primero que entró. Llegar a él cuesta recorrer toda la pila, por eso una pila no lo ofrece.',
     },
   ],
 };

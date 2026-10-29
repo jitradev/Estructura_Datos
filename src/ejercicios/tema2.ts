@@ -419,6 +419,61 @@ export const tema2: Tema = {
             }
         }`),
     },
+    {
+      id: '2-17',
+      tipo: 'programar',
+      titulo: 'Tres operaciones seguidas',
+      enunciado: 'Partiendo de `4 → 9 → 2`, y en este orden: inserta el **7** al principio, inserta el **5** detrás del 9 y suprime el **4**. Tiene que quedar `7 → 9 → 5 → 2`. Es el ejercicio 1 del cuadernillo a papel: dibújalo antes.',
+      pistas: ['Cuando vayas a quitar el 4 ya no es el primero: el enlace que lo salta sale del 7, no de `cab`.', 'Guarda el 4 en un auxiliar antes de saltarlo, para poder hacer `free`.'],
+      ctx,
+      casos: [{ nombre: '4 → 9 → 2', inicial: L(4, 9, 2) }],
+      observar: ['cab'],
+      solucion: c(`
+        Nodo *nuevo = malloc(sizeof(Nodo));
+        nuevo->valor = 7;
+        nuevo->siguiente = cab;
+        cab = nuevo;
+        Nodo *nueve = cab->siguiente->siguiente;
+        Nodo *cinco = malloc(sizeof(Nodo));
+        cinco->valor = 5;
+        cinco->siguiente = nueve->siguiente;
+        nueve->siguiente = cinco;
+        Nodo *borrar = cab->siguiente;
+        cab->siguiente = borrar->siguiente;
+        free(borrar);`),
+    },
+    {
+      id: '2-18',
+      tipo: 'programar',
+      titulo: 'Escribe penultimo',
+      enunciado: 'Completa `penultimo`: devuelve el valor del penúltimo nodo, o -1 si la lista tiene menos de dos. En una sola pasada, sin contar antes cuántos hay.',
+      pistas: ['Dos punteros que avanzan a la vez, uno un paso por detrás del otro.', 'Con un solo nodo, `cab->siguiente->...` revienta: compruébalo antes de entrar.'],
+      ctx,
+      casos: [
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'penultimo(cab)' },
+        { nombre: 'Un nodo', inicial: L(9), llamada: 'penultimo(cab)' },
+        { nombre: '9 → 3', inicial: L(9, 3), llamada: 'penultimo(cab)' },
+        { nombre: '4 → 8 → 2', inicial: L(4, 8, 2), llamada: 'penultimo(cab)' },
+      ],
+      observar: ['cab'],
+      codigoInicial: c(`
+        int penultimo(Nodo *cab)
+        {
+
+        }`),
+      solucion: c(`
+        int penultimo(Nodo *cab)
+        {
+            if (cab == NULL || cab->siguiente == NULL) return -1;
+            Nodo *ant = cab;
+            Nodo *p = cab->siguiente;
+            while (p->siguiente != NULL) {
+                ant = p;
+                p = p->siguiente;
+            }
+            return ant->valor;
+        }`),
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '2-F1',
@@ -788,6 +843,247 @@ export const tema2: Tema = {
             free(p->siguiente);
             p->siguiente = NULL;
         }`),
+    },
+    {
+      id: '2-F11',
+      tipo: 'fallo',
+      titulo: 'suprimirTodos con dos errores',
+      enunciado: 'Del cuadernillo a papel: este `suprimirTodos` con `ant` tiene **dos** errores. Encuentra el primero y arregla los dos.',
+      ctx,
+      casos: [
+        { nombre: 'No está', inicial: L(9, 7), llamada: 'suprimirTodos(&cab, 3)' },
+        { nombre: '9 → 3 → 7', inicial: L(9, 3, 7), llamada: 'suprimirTodos(&cab, 3)' },
+        { nombre: '9 → 3 → 3 → 7', inicial: L(9, 3, 3, 7), llamada: 'suprimirTodos(&cab, 3)' },
+      ],
+      observar: ['cab'],
+      codigo: c(`
+        void suprimirTodos(Nodo **cab, int v)
+        {
+            Nodo *p = *cab;
+            Nodo *ant = NULL;
+            while (p != NULL) {
+                if (p->valor == v) {
+                    if (ant != NULL) ant->siguiente = p->siguiente;
+                    else             *cab = p->siguiente;
+                    free(p);
+                }
+                ant = p;
+                p = p->siguiente;
+            }
+        }`),
+      lineasFallo: [9, 11, 12],
+      tiposFallo: ['liberado'],
+      explicacion: 'Tras `free(p)` se lee `p->siguiente`: memoria liberada. Y hay otro: al borrar, `ant` pasa a ser el nodo borrado, así que con dos 3 seguidos el segundo se engancha a un nodo muerto. Se guarda `Nodo *sig = p->siguiente;` antes del `free` y `ant` solo avanza cuando no se borra.',
+      solucion: c(`
+        void suprimirTodos(Nodo **cab, int v)
+        {
+            Nodo *p = *cab;
+            Nodo *ant = NULL;
+            while (p != NULL) {
+                Nodo *sig = p->siguiente;
+                if (p->valor == v) {
+                    if (ant != NULL) ant->siguiente = sig;
+                    else             *cab = sig;
+                    free(p);
+                } else {
+                    ant = p;
+                }
+                p = sig;
+            }
+        }`),
+    },
+    {
+      id: '2-F12',
+      tipo: 'fallo',
+      titulo: 'sumar que se para antes',
+      enunciado: 'Es el recorrido B del cuadernillo a papel, sumando en lugar de imprimir. Pruébalo con varias listas.',
+      ctx,
+      casos: [
+        { nombre: '3 → 8 → 3 → 1', inicial: L(3, 8, 3, 1), llamada: 'sumar(cab)' },
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'sumar(cab)' },
+      ],
+      observar: ['cab'],
+      codigo: c(`
+        int sumar(Nodo *cab)
+        {
+            int s = 0;
+            Nodo *p = cab;
+            while (p->siguiente != NULL) {
+                s += p->valor;
+                p = p->siguiente;
+            }
+            return s;
+        }`),
+      lineasFallo: [5],
+      tiposFallo: ['caso', 'nulo'],
+      explicacion: 'La condición `p->siguiente != NULL` para en el último sin sumarlo (da 14 y no 15), y con la lista vacía `p` es NULL y `p->siguiente` revienta. Para recorrerla entera, `while (p != NULL)`.',
+      solucion: c(`
+        int sumar(Nodo *cab)
+        {
+            int s = 0;
+            Nodo *p = cab;
+            while (p != NULL) {
+                s += p->valor;
+                p = p->siguiente;
+            }
+            return s;
+        }`),
+    },
+    {
+      id: '2-F13',
+      tipo: 'fallo',
+      titulo: 'contar que no termina',
+      enunciado: 'Es el recorrido C del cuadernillo a papel. A veces cuenta bien. Otras no acaba nunca.',
+      ctx,
+      casos: [
+        { nombre: 'No está', inicial: L(8, 1), llamada: 'contar(cab, 3)' },
+        { nombre: '3 → 8 → 3 → 1', inicial: L(3, 8, 3, 1), llamada: 'contar(cab, 3)' },
+      ],
+      observar: ['cab'],
+      codigo: c(`
+        int contar(Nodo *cab, int x)
+        {
+            int n = 0;
+            Nodo *p = cab;
+            while (p != NULL) {
+                if (p->valor == x) {
+                    n++;
+                    continue;
+                }
+                p = p->siguiente;
+            }
+            return n;
+        }`),
+      lineasFallo: [8],
+      preguntaLinea: 'Marca la línea que hace que `p` no avance',
+      tiposFallo: ['bucle'],
+      explicacion: 'El `continue` salta a la condición sin pasar por `p = p->siguiente`: en el primer nodo que vale `x`, `p` no avanza nunca y el bucle no termina. Se quita el `continue` (o se avanza antes).',
+      solucion: c(`
+        int contar(Nodo *cab, int x)
+        {
+            int n = 0;
+            Nodo *p = cab;
+            while (p != NULL) {
+                if (p->valor == x) n++;
+                p = p->siguiente;
+            }
+            return n;
+        }`),
+    },
+    // ------------------------------------------------------------ misteriosas
+    {
+      id: '2-M1',
+      tipo: 'misterio',
+      titulo: 'Un recorrido que se queda con uno',
+      enunciado: 'Lee la función sin ejecutarla. Predice qué devuelve en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '4 → 9 → 2', inicial: L(4, 9, 2), llamada: 'misterio(cab)' },
+        { nombre: '3 → 1 → 8', inicial: L(3, 1, 8), llamada: 'misterio(cab)' },
+        { nombre: 'Un nodo', inicial: L(7), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(Nodo *cab)
+        {
+            int m = cab->valor;
+            for (Nodo *p = cab->siguiente; p != NULL; p = p->siguiente)
+                if (p->valor > m) m = p->valor;
+            return m;
+        }`),
+      opciones: ['Devuelve el mayor valor de la lista.', 'Devuelve el último valor de la lista.', 'Devuelve el primer valor que es mayor que el anterior.', 'Devuelve la suma de los valores.'],
+      correcta: 0,
+      explicacion: 'Es el máximo: `m` empieza con el primero y se cambia cada vez que aparece uno mayor. Ojo, con la lista vacía revienta en la primera línea: `cab->valor` con `cab` a NULL.',
+    },
+    {
+      id: '2-M2',
+      tipo: 'misterio',
+      titulo: 'Un contador que se escapa',
+      enunciado: 'Predice qué devuelve en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '4 → 9 → 2, x = 9', inicial: L(4, 9, 2), llamada: 'misterio(cab, 9)' },
+        { nombre: '4 → 9 → 2, x = 4', inicial: L(4, 9, 2), llamada: 'misterio(cab, 4)' },
+        { nombre: '4 → 9 → 2, x = 5', inicial: L(4, 9, 2), llamada: 'misterio(cab, 5)' },
+        { nombre: '3 → 3, x = 3', inicial: L(3, 3), llamada: 'misterio(cab, 3)' },
+      ],
+      observar: ['cab'],
+      responder: ['devuelve'],
+      solucion: c(`
+        int misterio(Nodo *cab, int x)
+        {
+            int i = 0;
+            for (Nodo *p = cab; p != NULL; p = p->siguiente) {
+                if (p->valor == x) return i;
+                i++;
+            }
+            return -1;
+        }`),
+      opciones: [
+        'Devuelve la posición (contando desde 0) de la primera vez que aparece `x`, o -1 si no está.',
+        'Devuelve cuántas veces aparece `x`, o -1 si no está.',
+        'Devuelve la posición de la última vez que aparece `x`, o -1 si no está.',
+        'Devuelve 1 si `x` está y -1 si no.',
+      ],
+      correcta: 0,
+      explicacion: 'El `return i` dentro del bucle sale en cuanto encuentra el primero, así que con `3 → 3` devuelve 0. Si el bucle acaba, no estaba: -1.',
+    },
+    {
+      id: '2-M3',
+      tipo: 'misterio',
+      titulo: 'De dos en dos',
+      enunciado: 'Esta función no devuelve nada. Predice cómo queda la lista en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 2 → 3 → 4', inicial: L(1, 2, 3, 4), llamada: 'misterio(cab)' },
+        { nombre: '1 → 2 → 3 → 4 → 5', inicial: L(1, 2, 3, 4, 5), llamada: 'misterio(cab)' },
+        { nombre: 'Un nodo', inicial: L(7), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['cab'],
+      solucion: c(`
+        void misterio(Nodo *cab)
+        {
+            Nodo *p = cab;
+            while (p != NULL && p->siguiente != NULL) {
+                int aux = p->valor;
+                p->valor = p->siguiente->valor;
+                p->siguiente->valor = aux;
+                p = p->siguiente->siguiente;
+            }
+        }`),
+      opciones: ['Intercambia los valores por parejas: el 1.º con el 2.º, el 3.º con el 4.º…', 'Da la vuelta a la lista.', 'Pasa el primero al final.', 'Ordena la lista de mayor a menor.'],
+      correcta: 0,
+      explicacion: 'Cambia los valores de cada pareja y salta dos nodos. Si el número de nodos es impar, el último se queda donde estaba. No mueve enlaces: los nodos son los mismos, solo cambian sus valores.',
+    },
+    {
+      id: '2-M4',
+      tipo: 'misterio',
+      titulo: 'Nodos que aparecen',
+      enunciado: 'Predice cómo queda la lista en cada caso y después di qué hace.',
+      ctx,
+      casos: [
+        { nombre: '1 → 2 → 3', inicial: L(1, 2, 3), llamada: 'misterio(cab)' },
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'misterio(cab)' },
+      ],
+      observar: ['cab'],
+      responder: ['cab'],
+      solucion: c(`
+        void misterio(Nodo *cab)
+        {
+            Nodo *p = cab;
+            while (p != NULL) {
+                Nodo *n = malloc(sizeof(Nodo));
+                n->valor = p->valor;
+                n->siguiente = p->siguiente;
+                p->siguiente = n;
+                p = n->siguiente;
+            }
+        }`),
+      opciones: ['Duplica cada nodo: detrás de cada uno inserta otro con el mismo valor.', 'Copia la lista entera al final de sí misma.', 'No termina nunca: siempre hay un nodo nuevo detrás.', 'Inserta un 0 detrás de cada nodo.'],
+      correcta: 0,
+      explicacion: 'Tras insertar la copia, `p` salta a `n->siguiente`, que es el nodo que venía detrás del original: así no vuelve a pasar por la copia y el bucle termina. Si avanzara con `p = p->siguiente`, caería en la copia y no acabaría nunca.',
     },
   ],
 };

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { TODOS_LOS_TEMAS } from '../ejercicios/registro';
 import { comprobarCaso, ejecutarCaso } from '../ejercicios/comprobar';
 import { contarVueltas } from '../ejercicios/coste';
+import { leerValores, mismosValores, respuestas } from '../ejercicios/misterio';
 import { ClaseCoste, EjCodigo, EjCoste } from '../ejercicios/tipos';
 
 const todos = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios);
@@ -45,6 +46,21 @@ describe('catálogo', () => {
       if (ej.tipo === 'programar' && ej.codigoInicial) {
         it('el código de partida no resuelve el ejercicio', () => {
           expect(ej.casos.some((c) => !comprobarCaso(ej.codigoInicial!, ej, c).ok)).toBe(true);
+        });
+      }
+      if (ej.tipo === 'misterio') {
+        it('cada pregunta tiene respuesta, la opción correcta existe y los casos no dan todos lo mismo', () => {
+          expect(ej.correcta >= 0 && ej.correcta < ej.opciones.length).toBe(true);
+          expect(new Set(ej.opciones).size).toBe(ej.opciones.length);
+          const textos = ej.casos.map((c) => {
+            const { respuestas: rs } = respuestas(ej, c);
+            for (const r of rs) {
+              expect(r.valores, c.nombre).not.toBeNull();
+              expect(mismosValores(leerValores(r.texto), r.valores), `${c.nombre}: ${r.texto}`).toBe(true);
+            }
+            return rs.map((r) => r.texto).join('|');
+          });
+          if (ej.casos.length > 1) expect(new Set(textos).size).toBeGreaterThan(1);
         });
       }
       if (ej.tipo === 'fallo') {

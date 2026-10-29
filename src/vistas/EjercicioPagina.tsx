@@ -5,11 +5,13 @@ import { marcarResuelto, useResueltos } from '../progreso';
 import { Rico } from './comun';
 import { Coste } from './tipos/Coste';
 import { Fallo } from './tipos/Fallo';
+import { Misterio } from './tipos/Misterio';
 import { Programar } from './tipos/Programar';
 
 export function nombreTipo(e: Ejercicio): string {
   if (e.tipo === 'fallo') return 'Encuentra el fallo';
   if (e.tipo === 'coste') return 'Calcula el coste';
+  if (e.tipo === 'misterio') return 'Función misteriosa';
   return e.codigoInicial && e.codigoInicial.includes('(') ? 'Escribe la función' : 'Programar a mano';
 }
 
@@ -74,6 +76,8 @@ export function EjercicioPagina({ id }: { id: string }) {
         <Programar key={ej.id} ej={ej} onResuelto={onResuelto} />
       ) : ej.tipo === 'fallo' ? (
         <Fallo key={ej.id} ej={ej} onResuelto={onResuelto} />
+      ) : ej.tipo === 'misterio' ? (
+        <Misterio key={ej.id} ej={ej} onResuelto={onResuelto} />
       ) : (
         <Coste key={ej.id} ej={ej} onResuelto={onResuelto} />
       )}

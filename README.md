@@ -4,17 +4,18 @@ Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de
 
 ## Qué hay
 
-| Tema | Programar a mano | Escribe la función | Encuentra el fallo |
-|---|---|---|---|
-| 2 · Listas | 7 | 9 | 10 |
-| 3 · Pilas | 6 | 6 | 7 |
-| 4 · Colas | 6 | 6 | 8 |
+| Tema | Programar a mano | Escribe la función | Encuentra el fallo | Función misteriosa |
+|---|---|---|---|---|
+| 2 · Listas | 8 | 10 | 13 | 4 |
+| 3 · Pilas | 6 | 7 | 10 | 3 |
+| 4 · Colas | 6 | 7 | 10 | 3 |
 
-Y el tema 5 (Análisis de algoritmos), con 29 de **Calcula el coste**.
+Varios vienen del cuadernillo a papel de cada tema (la traza de operaciones, los recorridos que fallan, el `suprimirTodos` con dos errores, el penúltimo, «qué sale» de la pila y de la cola, contar la cola sin mirar el contador). Y el tema 5 (Análisis de algoritmos), con 29 de **Calcula el coste**.
 
 - **Programar a mano**: sentencias sueltas sobre una estructura dada (insertar al principio, quitar el primero, push a mano...).
 - **Escribe la función**: completar una función de las cabeceras del tema (`insertarFinal`, `suprimir`, `pop`, `encolar`...). Se prueba con varios casos (lista vacía, un nodo, varios; pila llena o vacía...).
 - **Encuentra el fallo**: una función con un fallo típico. Cuatro pasos: encontrar el caso que falla, marcar la línea, decir qué tipo de fallo es y arreglarlo.
+- **Función misteriosa**: una función (o unas sentencias) sin decir qué hace. Primero se predice qué devuelve o cómo queda la estructura en cada caso (una lista se escribe desde la cabeza, una pila del fondo a la cima y una cola del frente al final) y después se elige qué hace entre cuatro descripciones. Al acabar se ve ejecutarse paso a paso.
 - **Calcula el coste** (tema 5): un fragmento de código con bucles y solo hay que escribir su coste en notación O (vale `O(n^2)`, `n²`, `log(n)`, `sqrt(n)`...; si sobra una constante, como `O(2n)`, lo avisa). Al acabar salen los tres pasos del método y una tabla con la cuenta para n = 8, 16, 32 y 64 (y la que se quiera), para ver cuánto sube al doblar n. Son los 24 fragmentos del cuadernillo a papel del tema 5 más cinco nuevos (dos bucles seguidos, dos completos, búsqueda binaria, insertar n veces al final y vaciar una pila).
 - **Laboratorio**: lista, pila o cola de partida y código libre, sin corrección.
 - **Visualizar** (`#/ver`): las dos pilas del proyecto Pilas (`PilaArray` y `PilaEnlazada`, en `src/stacks/`), las del proyecto Colas (cola con array y enlazada; bicola con array, enlazada y de salida restringida; cola con prioridad con lista ordenada y con array de colas, en `src/queues/`) y las cuatro listas del TAD (simple, doble, circular y circular doble) dibujadas con sus structs, una tabla que las compara y, para cada una, sus operaciones paso a paso (insertar, eliminar, consultar) con la lista de partida y los parámetros que se quieran. Se ejecuta el código de `src/listas/c/*.c` tal cual: las funciones del TAD Nodo y las de consulta van de un solo paso y el resto se ve línea a línea.
@@ -40,7 +41,7 @@ Igual que la de Lenguajes Formales: subir la carpeta a un repositorio de GitHub 
 
 ## Cómo añadir ejercicios
 
-Están en `src/ejercicios/tema2.ts`, `tema3.ts`, `tema4.ts` y `tema5.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
+Están en `src/ejercicios/tema2.ts`, `tema3.ts`, `tema4.ts` y `tema5.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
 
 Los de coste (`tema5.ts`) no tienen casos: llevan `codigo`, la `pregunta` de qué se cuenta, `contar` (el mismo fragmento dejando la cuenta en `x`, si el que se enseña no lo hace; `n`, `x`, `i`, `j` y `k` ya están declaradas), el `coste` y los tres `pasos` de la explicación. La cuenta no se escribe a mano: la hace el intérprete (`src/ejercicios/coste.ts`). `npm test` comprueba que se cuenta sin errores y que la cuenta crece como dice `coste` entre dos valores de n (`nCrecimiento`, por defecto 32 y 256; en el peor caso si depende de n).
 

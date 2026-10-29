@@ -71,7 +71,8 @@ const DIBUJOS: Record<string, JSX.Element> = {
 function cuenta(es: Ejercicio[]) {
   if (es.every((e) => e.tipo === 'coste')) return `${es.length} de coste`;
   const f = es.filter((e) => e.tipo === 'fallo').length;
-  return `${es.length - f} de programar · ${f} de fallos`;
+  const m = es.filter((e) => e.tipo === 'misterio').length;
+  return `${es.length - f - m} de programar · ${f} de fallos${m ? ` · ${m} misteriosas` : ''}`;
 }
 
 export function Inicio() {
@@ -141,7 +142,7 @@ export function Inicio() {
   );
 }
 
-const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo'];
+const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo', 'Función misteriosa'];
 
 /** Section of the topic page: the exercise type, or its block for the cost ones. */
 const grupo = (e: Ejercicio) => (e.tipo === 'coste' ? e.bloque : nombreTipo(e));

@@ -268,6 +268,39 @@ export const tema4: Tema = {
             return 1;
         }`),
     },
+    {
+      id: '4-13',
+      tipo: 'programar',
+      titulo: 'Escribe contarColaArray',
+      enunciado: 'Del cuadernillo a papel: completa `contarColaArray`, que devuelve cuántos elementos tiene la cola y la deja como estaba, usando **solo** `encolarColaArray`, `desencolarColaArray` y `estaVaciaColaArray` (sin mirar `numElementos` ni llamar a `tamanoColaArray`). Puedes crear una cola auxiliar con `crearColaArray()` y liberarla con `destruirColaArray`.',
+      pistas: ['«Mientras no esté vacía» no sirve si vas reencolando: nunca lo está. Vacíala en una auxiliar contando y después devuélvela.'],
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 5 8 2', inicial: [colaArray('cola', [5, 8, 2])], llamada: 'contarColaArray(cola)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [])], llamada: 'contarColaArray(cola)' },
+        { nombre: 'Da la vuelta', inicial: [colaArray('cola', [1, 2, 3, 4], 8)], llamada: 'contarColaArray(cola)' },
+      ],
+      observar: ['cola'],
+      prohibidos: ['tamanoColaArray()'],
+      codigoInicial: c(`
+        int contarColaArray(ColaArray *cola) {
+
+        }`),
+      solucion: c(`
+        int contarColaArray(ColaArray *cola) {
+            ColaArray *aux = crearColaArray();
+            int x = 0;
+            int n = 0;
+            while (desencolarColaArray(cola, &x) == 1) {
+                n++;
+                encolarColaArray(aux, x);
+            }
+            while (desencolarColaArray(aux, &x) == 1) encolarColaArray(cola, x);
+            destruirColaArray(aux);
+            return n;
+        }`),
+      alResolver: 'Con `numElementos` es `return cola->numElementos;`: llevar el contador cuesta un entero y ahorra recorrer la cola dos veces.',
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '4-F1',
@@ -553,6 +586,144 @@ export const tema4: Tema = {
             cola->numElementos++;
             return 1;
         }`),
+    },
+    {
+      id: '4-F9',
+      tipo: 'fallo',
+      titulo: 'desencolarColaArray que no descuenta',
+      enunciado: 'Este `desencolarColaArray` saca el que toca. Mira bien cómo queda la cola.',
+      ctx: CA,
+      casos: [
+        { nombre: 'Vacía', inicial: [colaArray('cola', []), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x)' },
+        { nombre: 'Cola 1 2 3', inicial: [colaArray('cola', [1, 2, 3]), entero('x', 0)], llamada: 'desencolarColaArray(cola, &x)' },
+      ],
+      observar: ['cola', 'x'],
+      codigo: c(`
+        int desencolarColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            cola->frente = (cola->frente + 1) % TAM_COLA_ARRAY;
+            return 1;
+        }`),
+      lineasFallo: [4, 5],
+      preguntaLinea: 'Marca la línea después de la que falta algo',
+      tiposFallo: ['caso'],
+      explicacion: 'Falta `cola->numElementos--;`. El frente avanza, pero la cola sigue diciendo que tiene 3: el siguiente desencolar de más sacaría un valor que ya no es de la cola, y `estaLLenaColaArray` diría que está llena antes de tiempo.',
+      solucion: c(`
+        int desencolarColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            cola->frente = (cola->frente + 1) % TAM_COLA_ARRAY;
+            cola->numElementos--;
+            return 1;
+        }`),
+    },
+    {
+      id: '4-F10',
+      tipo: 'fallo',
+      titulo: 'vaciarColaEnlazada de tres líneas',
+      enunciado: 'Después de este `vaciarColaEnlazada` la cola está vacía. ¿Y los nodos?',
+      ctx: CE,
+      casos: [
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', [])], llamada: 'vaciarColaEnlazada(cola)' },
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3])], llamada: 'vaciarColaEnlazada(cola)' },
+      ],
+      observar: ['cola'],
+      codigo: c(`
+        int vaciarColaEnlazada(ColaEnlazada *cola) {
+            cola->inicio = NULL;
+            cola->final = NULL;
+            cola->tamano = 0;
+            return 1;
+        }`),
+      lineasFallo: [2],
+      tiposFallo: ['fuga'],
+      explicacion: 'Poner `inicio` a NULL suelta la cadena entera sin liberarla: los tres nodos se quedan reservados y nadie los apunta. Hay que desencolar (y liberar) uno a uno.',
+      solucion: c(`
+        int vaciarColaEnlazada(ColaEnlazada *cola) {
+            int aux = 0;
+            while (estaVaciaColaEnlazada(cola) == 0) {
+                desencolarColaEnlazada(cola, &aux);
+            }
+            return 1;
+        }`),
+    },
+    // ------------------------------------------------------------ misteriosas
+    {
+      id: '4-M1',
+      tipo: 'misterio',
+      titulo: 'Qué sale de la cola',
+      enunciado: 'Del cuadernillo a papel. La cola empieza vacía. Predice cuánto vale `x` y cómo queda la cola al terminar.',
+      ctx: CA,
+      casos: [{ nombre: 'Cola vacía', inicial: [colaArray('cola', [])] }],
+      observar: ['cola', 'x'],
+      responder: ['x', 'cola'],
+      solucion: c(`
+        int x = 0;
+        encolarColaArray(cola, 1);
+        encolarColaArray(cola, 2);
+        encolarColaArray(cola, 3);
+        desencolarColaArray(cola, &x);
+        encolarColaArray(cola, x + 10);
+        desencolarColaArray(cola, &x);
+        desencolarColaArray(cola, &x);`),
+      preguntaOpciones: '¿Qué valores han salido de la cola, en orden?',
+      opciones: ['1, 2 y 3.', '3, 13 y 2.', '1, 11 y 2.', '3, 2 y 1.'],
+      correcta: 0,
+      explicacion: 'El 11 entra por el final, así que sale el último: queda solo él. Con una pila, las mismas operaciones sacarían 3, 13 y 2. Eso es lo que distingue una cola de una pila.',
+    },
+    {
+      id: '4-M2',
+      tipo: 'misterio',
+      titulo: 'Una vuelta completa',
+      enunciado: 'Predice qué devuelve y cómo queda la cola (del frente al final) en cada caso. Después di qué hace.',
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 4 7 2 9, dando la vuelta', inicial: [colaArray('cola', [4, 7, 2, 9], 8)], llamada: 'misterio(cola)' },
+        { nombre: 'Cola 1 3', inicial: [colaArray('cola', [1, 3])], llamada: 'misterio(cola)' },
+      ],
+      observar: ['cola'],
+      responder: ['devuelve', 'cola'],
+      solucion: c(`
+        int misterio(ColaArray *cola) {
+            int n = 0;
+            int x = 0;
+            int t = tamanoColaArray(cola);
+            for (int i = 0; i < t; i++) {
+                desencolarColaArray(cola, &x);
+                if (x % 2 == 0) n++;
+                encolarColaArray(cola, x);
+            }
+            return n;
+        }`),
+      opciones: ['Cuenta los pares y deja la cola como estaba.', 'Cuenta los pares y deja la cola vacía.', 'Cuenta los impares y deja la cola como estaba.', 'Cuenta los pares y deja la cola al revés.'],
+      correcta: 0,
+      explicacion: 'Cada elemento sale por delante y vuelve a entrar por detrás: tras `t` vueltas la cola tiene el mismo orden. Aquí sí se puede reencolar, porque se cuentan las vueltas con el tamaño en lugar de esperar a que se vacíe.',
+    },
+    {
+      id: '4-M3',
+      tipo: 'misterio',
+      titulo: 'k veces',
+      enunciado: 'Predice cómo queda la cola (del frente al final) en cada caso y después di qué hace.',
+      ctx: CE,
+      casos: [
+        { nombre: 'Cola 1 2 3 4, k = 1', inicial: [colaEnlazada('cola', [1, 2, 3, 4])], llamada: 'misterio(cola, 1)' },
+        { nombre: 'Cola 1 2 3 4, k = 3', inicial: [colaEnlazada('cola', [1, 2, 3, 4])], llamada: 'misterio(cola, 3)' },
+        { nombre: 'Vacía, k = 2', inicial: [colaEnlazada('cola', [])], llamada: 'misterio(cola, 2)' },
+      ],
+      observar: ['cola'],
+      responder: ['cola'],
+      solucion: c(`
+        void misterio(ColaEnlazada *cola, int k) {
+            int x = 0;
+            for (int i = 0; i < k; i++) {
+                if (desencolarColaEnlazada(cola, &x) == 1)
+                    encolarColaEnlazada(cola, x);
+            }
+        }`),
+      opciones: ['Pasa los k primeros al final, en el mismo orden.', 'Quita los k primeros.', 'Pasa los k últimos al principio.', 'Da la vuelta a los k primeros.'],
+      correcta: 0,
+      explicacion: 'Cada vuelta saca el primero y lo pone el último: la cola rota k posiciones. Con la cola vacía `desencolarColaEnlazada` devuelve 0 y no se encola nada.',
     },
   ],
 };

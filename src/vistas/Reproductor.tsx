@@ -35,6 +35,8 @@ export function Reproductor({
   memInicial,
   dibujar,
   vacio = 'Así empieza la memoria. Pulsa «Ejecutar» o «Paso a paso».',
+  teclas = false,
+  controlesArriba = false,
 }: {
   pasos: Paso[] | null;
   rep: ReturnType<typeof useReproductor>;
@@ -43,6 +45,10 @@ export function Reproductor({
   /** Otro dibujo en lugar del de por defecto. */
   dibujar?: (mem: Memoria, prev?: Memoria) => ReactNode;
   vacio?: string;
+  /** ← and → move one step, outside text fields. */
+  teclas?: boolean;
+  /** The controls and the step note above the drawing, for tall drawings. */
+  controlesArriba?: boolean;
 }) {
   const { idx, setIdx, enMarcha, setEnMarcha, vel, setVel } = rep;
   // si llega una ejecución más corta, idx puede ir por delante hasta que se reinicia
@@ -52,8 +58,22 @@ export function Reproductor({
   const prev = pasos && i > 0 ? pasos[i - 1].mem : undefined;
   const n = pasos?.length ?? 0;
 
+  useEffect(() => {
+    if (!teclas || !n) return;
+    const pulsar = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.altKey || e.ctrlKey || e.metaKey || t?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      setEnMarcha(false);
+      setIdx((x) => (e.key === 'ArrowLeft' ? Math.max(0, x - 1) : Math.min(n - 1, x + 1)));
+    };
+    window.addEventListener('keydown', pulsar);
+    return () => window.removeEventListener('keydown', pulsar);
+  }, [teclas, n, setIdx, setEnMarcha]);
+
   return (
-    <div className="reproductor">
+    <div className={`reproductor ${controlesArriba ? 'arriba' : ''}`}>
       <div className="lienzo-memoria">
         {dibujar ? dibujar(mem, prev) : <Dibujo mem={mem} prev={prev} ctx={ctx} />}
       </div>

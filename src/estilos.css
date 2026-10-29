@@ -316,7 +316,7 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 .marca-cima { font: 700 12px var(--f-txt) !important; fill: var(--carmin-osc); }
 .celda-fantasma { fill: none; stroke: var(--palo); stroke-dasharray: 4 4; }
 .record-caja.liberada { fill: #f6f1ee; stroke: #8a7a76; stroke-dasharray: 5 4; }
-@media (min-width: 901px) { .ej-rejilla.ver-rejilla { grid-template-columns: minmax(340px, 4fr) minmax(0, 8fr); } }
+@media (min-width: 901px) { .ej-rejilla.ver-rejilla { grid-template-columns: minmax(380px, 5fr) minmax(0, 7fr); } }
 @media (max-width: 900px) { .ver-intro { grid-template-columns: minmax(0, 1fr); } }
 
 /* sin ligaduras: «->» y «!=» se tienen que ver tal cual */
@@ -395,9 +395,28 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 }
 
 /* ------------------------------------------------ visualizar: description and operations */
-.titulo-bloque { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; font-size: 1.3rem; }
+.bloque-ver { margin-top: 18px; }
+.bloque-ver.bloque-operaciones { margin-top: 36px; padding-top: 22px; border-top: 2px solid var(--linea); }
+.titulo-bloque { margin: 0 0 12px; font-size: 1.3rem; }
+.titulo-bloque button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.titulo-bloque-texto { flex: 1; }
 .num-bloque { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--tinta); color: #fff; font-size: 0.95rem; flex: none; }
+.bloque-operaciones .num-bloque { background: var(--carmin); }
+.plegar { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--gris); padding: 6px 10px; border-radius: 8px; }
+.titulo-bloque button:hover .plegar { background: var(--arena); color: var(--tinta); }
+.flecha-plegar { display: inline-block; transition: transform 0.15s; }
+.cerrado .flecha-plegar { transform: rotate(-90deg); }
+.cerrado .titulo-bloque { margin-bottom: 0; color: var(--grafito); }
 .bloque-estructura { padding: 18px; background: var(--arena); border-radius: 14px; }
-.titulo-bloque.bloque-operaciones { margin-top: 44px; padding-top: 28px; border-top: 2px solid var(--linea); }
-.titulo-bloque.bloque-operaciones .num-bloque { background: var(--carmin); }
 .subtitulo-bloque { margin: -4px 0 14px; color: var(--grafito); }
+
+.elegir-op { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 12px 22px; padding-bottom: 14px; border-bottom: 1px solid var(--linea); }
+.elegir-op-grupo { display: flex; flex-direction: column; gap: 6px; }
+.elegir-op-botones { display: flex; flex-wrap: wrap; gap: 6px; }
+.elegir-op-botones button { padding: 7px 12px; border-radius: 8px; border: 1.5px solid #d9c9c1; background: #fff; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--grafito); cursor: pointer; }
+.elegir-op-botones button:hover { border-color: var(--carmin); color: var(--tinta); }
+.elegir-op-botones button.on { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.reproductor.arriba { display: flex; flex-direction: column; }
+.reproductor.arriba .lienzo-memoria { order: 3; margin-top: 12px; }
+.reproductor.arriba .nota-paso { order: 1; margin-top: 0; padding: 8px 12px; background: var(--hueso); border-radius: 8px; }
+.reproductor.arriba .controles { order: 2; }

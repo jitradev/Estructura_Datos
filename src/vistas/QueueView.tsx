@@ -9,6 +9,7 @@ import { QueueDrawing } from '../queues/QueueDrawing';
 import { buildQueue, esArray, readQueue, runQueueOp, structsOf } from '../queues/prepare';
 import { Rico } from './comun';
 import { SelectorTipo } from './SelectorTipo';
+import { Bloque, ElegirOperacion } from './BloqueVer';
 import { EditorCodigo } from './EditorCodigo';
 import { estadosLineas, Leyenda } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
@@ -81,7 +82,6 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
     rep.setEnMarcha(false);
   }, [res]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const grupos = [...new Set(tipo.operaciones.map((o) => o.grupo))];
   const final = rep.idx >= res.pasos.length - 1;
   const enMain = (n: string) => res.memFinal.marcos[0].vars.find((v) => v.nombre === n)?.valor;
   const salidas = op.args.filter((a) => a.startsWith('&')).map((a) => a.slice(1));
@@ -92,158 +92,151 @@ function QueuePage({ tipo }: { tipo: QueueType }) {
       <SelectorTipo grupo="colas" actual={tipo.id} opciones={COLAS} />
       <h1>{tipo.nombre}</h1>
 
-      <h2 className="titulo-bloque">
-        <span className="num-bloque">1</span>Cómo es
-      </h2>
-      <section className="ver-intro bloque-estructura">
-        <div>
-          <ul className="puntos">
-            {tipo.resumen.map((r) => (
-              <li key={r}>
-                <Rico texto={r} />
-              </li>
-            ))}
-          </ul>
-          <details className="chuleta" open>
-            <summary>{tipo.nodo ? 'Los structs' : 'El struct'}</summary>
-            <EditorCodigo valor={structsOf(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la cola" />
-          </details>
-          {tipo.nota && (
-            <p className="nota">
-              <Rico texto={tipo.nota} />
-            </p>
-          )}
-          {hermanas.length > 1 && (
-            <p className="nota">
-              {hermanas.length > 2 ? 'Las otras formas: ' : 'La otra forma: '}
-              {hermanas
-                .filter((t) => t.id !== tipo.id)
-                .map((t, i) => (
-                  <span key={t.id}>
-                    {i > 0 && ', '}
-                    <a href={`#/ver/${t.id}`}>{t.nombre.toLowerCase()}</a>
-                  </span>
-                ))}
-              .
-            </p>
-          )}
-        </div>
-        <div className="lienzo-memoria">
-          <QueueDrawing mem={buildQueue(tipo, ejemploDe(tipo))} tipo={tipo} soloCola titulo={`Ejemplo: ${tipo.nombre} con ${textoInicial(tipo)}`} />
-        </div>
-      </section>
-
-      <h2 className="titulo-bloque bloque-operaciones">
-        <span className="num-bloque">2</span>Operaciones paso a paso
-      </h2>
-      <p className="subtitulo-bloque">
-        Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria.
-      </p>
-      <section className="panel form-op">
-        <label>
-          Operación
-          <select value={opIdx} onChange={(e) => setOpIdx(Number(e.target.value))}>
-            {grupos.map((g) => (
-              <optgroup key={g} label={g}>
-                {tipo.operaciones.map((o, i) =>
-                  o.grupo === g ? (
-                    <option key={o.fn} value={i}>
-                      {o.titulo}
-                    </option>
-                  ) : null,
-                )}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-        {!op.crea && (
-          <label>
-            {tipo.familia === 'Bicola' ? 'Bicola de partida' : 'Cola de partida'}
-            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-cola" />
-            <span id="ayuda-cola" className="ayuda">
-              {tipo.prioridades ? `valor:prioridad (0 a ${NUM_PRIORIDADES - 1}), hasta ${tipo.max}` : `Del principio al final, hasta ${tipo.max}`}; en blanco, vacía
-            </span>
-          </label>
-        )}
-        {!op.crea && esArray(tipo) && (
-          <label>
-            Frente en la casilla
-            <select value={frente} onChange={(e) => setFrente(Number(e.target.value))}>
-              {Array.from({ length: tipo.max }, (_, i) => (
-                <option key={i} value={i}>
-                  {i}
-                </option>
+      <Bloque id="como" num={1} titulo="Cómo es">
+        <section className="ver-intro bloque-estructura">
+          <div>
+            <ul className="puntos">
+              {tipo.resumen.map((r) => (
+                <li key={r}>
+                  <Rico texto={r} />
+                </li>
               ))}
-            </select>
-          </label>
-        )}
-        {op.args.includes('x') && (
-          <label>
-            Valor
-            <input type="number" value={x} onChange={(e) => setX(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        {op.args.includes('prioridad') && (
-          <label>
-            Prioridad
-            <input type="number" value={prioridad} onChange={(e) => setPrioridad(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        <p className="llamada-op">
-          Desde main: <code>{res.llamada};</code>
-          <span className="nota"> {op.descripcion}</span>
-        </p>
-      </section>
-
-      <div className="ej-rejilla ver-rejilla">
-        <section className="panel panel-codigo">
-          <div className="panel-cab">
-            <h2>Código</h2>
-            <span className="nota">de {tipo.archivo}</span>
-          </div>
-          <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
-          <p className="nota">Las demás funciones del archivo y las del TAD del nodo se ejecutan de un solo paso.</p>
-        </section>
-        <section className="panel panel-memoria">
-          <div className="panel-cab">
-            <h2>Memoria</h2>
-          </div>
-          <Reproductor
-            pasos={res.pasos}
-            rep={rep}
-            ctx={tipo.ctx}
-            memInicial={res.inicial}
-            dibujar={(mem, prev) => <QueueDrawing mem={mem} prev={prev} tipo={tipo} />}
-          />
-          {res.error && (
-            <div className="caja-error" role="alert">
-              <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
-              {res.error.mensaje}
-            </div>
-          )}
-          {!res.error && final && (
-            <div className="caja-bien">
-              {res.devuelve && res.devuelve.k !== 'nulo' && !op.crea && (
-                <>
-                  Devuelve <strong>{verValor(res.devuelve)}</strong>.{' '}
-                </>
-              )}
-              {res.devuelve?.k === 'int' &&
-                res.devuelve.v !== 0 &&
-                salidas.map((n) => {
-                  const v = enMain(n);
-                  return v?.k === 'int' ? (
-                    <span key={n}>
-                      En main, <code>{n} = {v.v}</code>.{' '}
+            </ul>
+            <details className="chuleta" open>
+              <summary>{tipo.nodo ? 'Los structs' : 'El struct'}</summary>
+              <EditorCodigo valor={structsOf(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la cola" />
+            </details>
+            {tipo.nota && (
+              <p className="nota">
+                <Rico texto={tipo.nota} />
+              </p>
+            )}
+            {hermanas.length > 1 && (
+              <p className="nota">
+                {hermanas.length > 2 ? 'Las otras formas: ' : 'La otra forma: '}
+                {hermanas
+                  .filter((t) => t.id !== tipo.id)
+                  .map((t, i) => (
+                    <span key={t.id}>
+                      {i > 0 && ', '}
+                      <a href={`#/ver/${t.id}`}>{t.nombre.toLowerCase()}</a>
                     </span>
-                  ) : null;
-                })}
-              <span className="mono">{mostrar(tipo, res.memFinal)}</span>
-            </div>
-          )}
+                  ))}
+                .
+              </p>
+            )}
+          </div>
+          <div className="lienzo-memoria">
+            <QueueDrawing mem={buildQueue(tipo, ejemploDe(tipo))} tipo={tipo} soloCola titulo={`Ejemplo: ${tipo.nombre} con ${textoInicial(tipo)}`} />
+          </div>
         </section>
-      </div>
-      <Leyenda />
+
+      </Bloque>
+
+      <Bloque
+        id="operaciones"
+        num={2}
+        titulo="Operaciones paso a paso"
+        operaciones
+        subtitulo={
+          <>
+            Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria. Con las flechas ← → del teclado también se avanza.
+          </>
+        }
+      >
+        <section className="panel form-op">
+          <ElegirOperacion operaciones={tipo.operaciones} actual={opIdx} onChange={setOpIdx} />
+          {!op.crea && (
+            <label>
+              {tipo.familia === 'Bicola' ? 'Bicola de partida' : 'Cola de partida'}
+              <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-cola" />
+              <span id="ayuda-cola" className="ayuda">
+                {tipo.prioridades ? `valor:prioridad (0 a ${NUM_PRIORIDADES - 1}), hasta ${tipo.max}` : `Del principio al final, hasta ${tipo.max}`}; en blanco, vacía
+              </span>
+            </label>
+          )}
+          {!op.crea && esArray(tipo) && (
+            <label>
+              Frente en la casilla
+              <select value={frente} onChange={(e) => setFrente(Number(e.target.value))}>
+                {Array.from({ length: tipo.max }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {op.args.includes('x') && (
+            <label>
+              Valor
+              <input type="number" value={x} onChange={(e) => setX(Number(e.target.value) || 0)} />
+            </label>
+          )}
+          {op.args.includes('prioridad') && (
+            <label>
+              Prioridad
+              <input type="number" value={prioridad} onChange={(e) => setPrioridad(Number(e.target.value) || 0)} />
+            </label>
+          )}
+          <p className="llamada-op">
+            Desde main: <code>{res.llamada};</code>
+            <span className="nota"> {op.descripcion}</span>
+          </p>
+        </section>
+
+        <div className="ej-rejilla ver-rejilla">
+          <section className="panel panel-codigo">
+            <div className="panel-cab">
+              <h2>Código</h2>
+              <span className="nota">de {tipo.archivo}</span>
+            </div>
+            <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
+            <p className="nota">Las demás funciones del archivo y las del TAD del nodo se ejecutan de un solo paso.</p>
+          </section>
+          <section className="panel panel-memoria">
+            <div className="panel-cab">
+              <h2>Memoria</h2>
+            </div>
+            <Reproductor
+              teclas
+              controlesArriba
+              pasos={res.pasos}
+              rep={rep}
+              ctx={tipo.ctx}
+              memInicial={res.inicial}
+              dibujar={(mem, prev) => <QueueDrawing mem={mem} prev={prev} tipo={tipo} />}
+            />
+            {res.error && (
+              <div className="caja-error" role="alert">
+                <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
+                {res.error.mensaje}
+              </div>
+            )}
+            {!res.error && final && (
+              <div className="caja-bien">
+                {res.devuelve && res.devuelve.k !== 'nulo' && !op.crea && (
+                  <>
+                    Devuelve <strong>{verValor(res.devuelve)}</strong>.{' '}
+                  </>
+                )}
+                {res.devuelve?.k === 'int' &&
+                  res.devuelve.v !== 0 &&
+                  salidas.map((n) => {
+                    const v = enMain(n);
+                    return v?.k === 'int' ? (
+                      <span key={n}>
+                        En main, <code>{n} = {v.v}</code>.{' '}
+                      </span>
+                    ) : null;
+                  })}
+                <span className="mono">{mostrar(tipo, res.memFinal)}</span>
+              </div>
+            )}
+          </section>
+        </div>
+        <Leyenda />
+      </Bloque>
     </main>
   );
 }

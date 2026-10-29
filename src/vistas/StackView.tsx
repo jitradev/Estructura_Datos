@@ -9,6 +9,7 @@ import { StackDrawing } from '../stacks/StackDrawing';
 import { buildStack, readStack, runStackOp, structsOf } from '../stacks/prepare';
 import { Rico } from './comun';
 import { SelectorTipo } from './SelectorTipo';
+import { Bloque, ElegirOperacion } from './BloqueVer';
 import { EditorCodigo } from './EditorCodigo';
 import { estadosLineas, Leyenda } from './piezas';
 import { Reproductor, useReproductor } from './Reproductor';
@@ -58,7 +59,6 @@ function StackPage({ tipo }: { tipo: StackType }) {
     rep.setEnMarcha(false);
   }, [res]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const grupos = [...new Set(tipo.operaciones.map((o) => o.grupo))];
   const final = rep.idx >= res.pasos.length - 1;
   const valorMain = res.memFinal.marcos[0].vars.find((v) => v.nombre === 'valor')?.valor;
   const usaValor = op.args.includes('&valor');
@@ -68,121 +68,114 @@ function StackPage({ tipo }: { tipo: StackType }) {
       <SelectorTipo grupo="pilas" actual={tipo.id} opciones={PILAS} />
       <h1>{tipo.nombre}</h1>
 
-      <h2 className="titulo-bloque">
-        <span className="num-bloque">1</span>Cómo es
-      </h2>
-      <section className="ver-intro bloque-estructura">
-        <div>
-          <ul className="puntos">
-            {tipo.resumen.map((r) => (
-              <li key={r}>
-                <Rico texto={r} />
-              </li>
-            ))}
-          </ul>
-          <details className="chuleta" open>
-            <summary>{tipo.enlazada ? 'Los structs' : 'El struct'}</summary>
-            <EditorCodigo valor={structsOf(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la pila" />
-          </details>
-          {tipo.nota && (
-            <p className="nota">
-              <Rico texto={tipo.nota} />
-            </p>
-          )}
-        </div>
-        <div className="lienzo-memoria">
-          <StackDrawing mem={buildStack(tipo, EJEMPLO_PILA)} tipo={tipo} titulo={`Ejemplo: ${tipo.nombre} tras apilar ${EJEMPLO_PILA.join(', ')}`} />
-        </div>
-      </section>
+      <Bloque id="como" num={1} titulo="Cómo es">
+        <section className="ver-intro bloque-estructura">
+          <div>
+            <ul className="puntos">
+              {tipo.resumen.map((r) => (
+                <li key={r}>
+                  <Rico texto={r} />
+                </li>
+              ))}
+            </ul>
+            <details className="chuleta" open>
+              <summary>{tipo.enlazada ? 'Los structs' : 'El struct'}</summary>
+              <EditorCodigo valor={structsOf(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la pila" />
+            </details>
+            {tipo.nota && (
+              <p className="nota">
+                <Rico texto={tipo.nota} />
+              </p>
+            )}
+          </div>
+          <div className="lienzo-memoria">
+            <StackDrawing mem={buildStack(tipo, EJEMPLO_PILA)} tipo={tipo} titulo={`Ejemplo: ${tipo.nombre} tras apilar ${EJEMPLO_PILA.join(', ')}`} />
+          </div>
+        </section>
 
-      <h2 className="titulo-bloque bloque-operaciones">
-        <span className="num-bloque">2</span>Operaciones paso a paso
-      </h2>
-      <p className="subtitulo-bloque">
-        Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria.
-      </p>
-      <section className="panel form-op">
-        <label>
-          Operación
-          <select value={opIdx} onChange={(e) => setOpIdx(Number(e.target.value))}>
-            {grupos.map((g) => (
-              <optgroup key={g} label={g}>
-                {tipo.operaciones.map((o, i) =>
-                  o.grupo === g ? (
-                    <option key={o.fn} value={i}>
-                      {o.titulo}
-                    </option>
-                  ) : null,
+      </Bloque>
+
+      <Bloque
+        id="operaciones"
+        num={2}
+        titulo="Operaciones paso a paso"
+        operaciones
+        subtitulo={
+          <>
+            Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria. Con las flechas ← → del teclado también se avanza.
+          </>
+        }
+      >
+        <section className="panel form-op">
+          <ElegirOperacion operaciones={tipo.operaciones} actual={opIdx} onChange={setOpIdx} />
+          {!op.crea && (
+            <label>
+              Pila de partida
+              <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-pila" />
+              <span id="ayuda-pila" className="ayuda">
+                Del fondo a la cima, hasta {tipo.max}; en blanco, vacía
+              </span>
+            </label>
+          )}
+          {op.args.includes('valor') && (
+            <label>
+              Valor a apilar
+              <input type="number" value={valor} onChange={(e) => setValor(Number(e.target.value) || 0)} />
+            </label>
+          )}
+          <p className="llamada-op">
+            Desde main: <code>{res.llamada};</code>
+            <span className="nota"> {op.descripcion}</span>
+          </p>
+        </section>
+
+        <div className="ej-rejilla ver-rejilla">
+          <section className="panel panel-codigo">
+            <div className="panel-cab">
+              <h2>Código</h2>
+              <span className="nota">de {tipo.archivo}</span>
+            </div>
+            <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
+            <p className="nota">Las demás funciones de la pila (esVacia, esLLena, limpiar…) se ejecutan de un solo paso.</p>
+          </section>
+          <section className="panel panel-memoria">
+            <div className="panel-cab">
+              <h2>Memoria</h2>
+            </div>
+            <Reproductor
+              teclas
+              controlesArriba
+              pasos={res.pasos}
+              rep={rep}
+              ctx={tipo.ctx}
+              memInicial={res.inicial}
+              dibujar={(mem, prev) => <StackDrawing mem={mem} prev={prev} tipo={tipo} />}
+            />
+            {res.error && (
+              <div className="caja-error" role="alert">
+                <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
+                {res.error.mensaje}
+              </div>
+            )}
+            {!res.error && final && (
+              <div className="caja-bien">
+                {res.devuelve && res.devuelve.k !== 'nulo' && !op.crea && (
+                  <>
+                    Devuelve <strong>{verValor(res.devuelve)}</strong>.{' '}
+                  </>
                 )}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-        {!op.crea && (
-          <label>
-            Pila de partida
-            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-pila" />
-            <span id="ayuda-pila" className="ayuda">
-              Del fondo a la cima, hasta {tipo.max}; en blanco, vacía
-            </span>
-          </label>
-        )}
-        {op.args.includes('valor') && (
-          <label>
-            Valor a apilar
-            <input type="number" value={valor} onChange={(e) => setValor(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        <p className="llamada-op">
-          Desde main: <code>{res.llamada};</code>
-          <span className="nota"> {op.descripcion}</span>
-        </p>
-      </section>
-
-      <div className="ej-rejilla ver-rejilla">
-        <section className="panel panel-codigo">
-          <div className="panel-cab">
-            <h2>Código</h2>
-            <span className="nota">de {tipo.archivo}</span>
-          </div>
-          <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
-          <p className="nota">Las demás funciones de la pila (esVacia, esLLena, limpiar…) se ejecutan de un solo paso.</p>
-        </section>
-        <section className="panel panel-memoria">
-          <div className="panel-cab">
-            <h2>Memoria</h2>
-          </div>
-          <Reproductor
-            pasos={res.pasos}
-            rep={rep}
-            ctx={tipo.ctx}
-            memInicial={res.inicial}
-            dibujar={(mem, prev) => <StackDrawing mem={mem} prev={prev} tipo={tipo} />}
-          />
-          {res.error && (
-            <div className="caja-error" role="alert">
-              <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
-              {res.error.mensaje}
-            </div>
-          )}
-          {!res.error && final && (
-            <div className="caja-bien">
-              {res.devuelve && res.devuelve.k !== 'nulo' && !op.crea && (
-                <>
-                  Devuelve <strong>{verValor(res.devuelve)}</strong>.{' '}
-                </>
-              )}
-              {usaValor && valorMain?.k === 'int' && (
-                <>
-                  En main, <code>valor = {valorMain.v}</code>.{' '}
-                </>
-              )}
-              <span className="mono">{mostrar(tipo, res.memFinal)}</span>
-            </div>
-          )}
-        </section>
-      </div>
-      <Leyenda />
+                {usaValor && valorMain?.k === 'int' && (
+                  <>
+                    En main, <code>valor = {valorMain.v}</code>.{' '}
+                  </>
+                )}
+                <span className="mono">{mostrar(tipo, res.memFinal)}</span>
+              </div>
+            )}
+          </section>
+        </div>
+        <Leyenda />
+      </Bloque>
     </main>
   );
 }

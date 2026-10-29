@@ -13,6 +13,7 @@ import { GrupoVer, NOMBRE_GRUPO } from './SelectorTipo';
 import { PILAS } from '../stacks/catalog';
 import { COLAS } from '../queues/catalog';
 import { SelectorTipo } from './SelectorTipo';
+import { Bloque, ElegirOperacion } from './BloqueVer';
 import { estadosLineas, Leyenda } from './piezas';
 import { temaVisible } from '../ejercicios/registro';
 import { StackGallery } from './StackView';
@@ -172,7 +173,6 @@ function PaginaLista({ tipo }: { tipo: TipoLista }) {
     rep.setEnMarcha(false);
   }, [res]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const grupos = [...new Set(tipo.operaciones.map((o) => o.grupo))];
   const final = rep.idx >= res.pasos.length - 1;
   const comentario = comentarioDe(tipo, op.base);
   const sinNodos = op.args.includes('nodo') && !valores.length;
@@ -182,133 +182,126 @@ function PaginaLista({ tipo }: { tipo: TipoLista }) {
       <SelectorTipo grupo="listas" actual={tipo.id} opciones={LISTAS} />
       <h1>{tipo.nombre}</h1>
 
-      <h2 className="titulo-bloque">
-        <span className="num-bloque">1</span>Cómo es
-      </h2>
-      <section className="ver-intro bloque-estructura">
-        <div>
-          <ul className="puntos">
-            {tipo.resumen.map((r) => (
-              <li key={r}>
-                <Rico texto={r} />
-              </li>
-            ))}
-          </ul>
-          <details className="chuleta" open>
-            <summary>Los structs</summary>
-            <EditorCodigo valor={structsDe(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la lista" />
-          </details>
-        </div>
-        <div className="lienzo-memoria">
-          <DibujoLista mem={construirLista(tipo, tipo.ejemplo)} tipo={tipo} compacto titulo={`Ejemplo: ${tipo.nombre} con ${tipo.ejemplo.join(', ')}`} />
-        </div>
-      </section>
-
-      <h2 className="titulo-bloque bloque-operaciones">
-        <span className="num-bloque">2</span>Operaciones paso a paso
-      </h2>
-      <p className="subtitulo-bloque">
-        Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria.
-      </p>
-      <section className="panel form-op">
-        <label>
-          Operación
-          <select value={opIdx} onChange={(e) => setOpIdx(Number(e.target.value))}>
-            {grupos.map((g) => (
-              <optgroup key={g} label={g}>
-                {tipo.operaciones.map((o, i) =>
-                  o.grupo === g ? (
-                    <option key={o.base} value={i}>
-                      {o.titulo}
-                    </option>
-                  ) : null,
-                )}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-        <label>
-          Lista de partida
-          <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-lista" />
-          <span id="ayuda-lista" className="ayuda">
-            Hasta 7 números; en blanco, vacía
-          </span>
-        </label>
-        {op.args.includes('nuevo') && (
-          <label>
-            Valor del nodo nuevo
-            <input type="number" value={nuevo} onChange={(e) => setNuevo(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        {op.args.includes('posicion') && (
-          <label>
-            Posición
-            <input type="number" value={posicion} onChange={(e) => setPosicion(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        {op.args.includes('valor') && (
-          <label>
-            {op.grupo === 'Inserción' ? 'Tras el valor' : 'Valor'}
-            <input type="number" value={valor} onChange={(e) => setValor(Number(e.target.value) || 0)} />
-          </label>
-        )}
-        {op.args.includes('nodo') && (
-          <label>
-            Nodo
-            <select value={p.nodo} onChange={(e) => setNodo(Number(e.target.value))} disabled={sinNodos}>
-              {valores.map((v, i) => (
-                <option key={i} value={i}>
-                  posición {i} (el {v})
-                </option>
+      <Bloque id="como" num={1} titulo="Cómo es">
+        <section className="ver-intro bloque-estructura">
+          <div>
+            <ul className="puntos">
+              {tipo.resumen.map((r) => (
+                <li key={r}>
+                  <Rico texto={r} />
+                </li>
               ))}
-            </select>
-          </label>
-        )}
-        <p className="llamada-op">
-          Desde main: <code>{res.llamada};</code>
-          {comentario && <span className="nota"> {comentario}</span>}
-        </p>
-      </section>
+            </ul>
+            <details className="chuleta" open>
+              <summary>Los structs</summary>
+              <EditorCodigo valor={structsDe(tipo)} soloLectura minLineas={1} etiquetaAria="Structs de la lista" />
+            </details>
+          </div>
+          <div className="lienzo-memoria">
+            <DibujoLista mem={construirLista(tipo, tipo.ejemplo)} tipo={tipo} compacto titulo={`Ejemplo: ${tipo.nombre} con ${tipo.ejemplo.join(', ')}`} />
+          </div>
+        </section>
 
-      <div className="ej-rejilla ver-rejilla">
-        <section className="panel panel-codigo">
-          <div className="panel-cab">
-            <h2>Código</h2>
-            <span className="nota">de {tipo.lista}.c</span>
-          </div>
-          <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
-          <p className="nota">Las funciones del TAD Nodo y las de consulta se ejecutan de un solo paso.</p>
-        </section>
-        <section className="panel panel-memoria">
-          <div className="panel-cab">
-            <h2>Memoria</h2>
-          </div>
-          <Reproductor
-            pasos={res.pasos}
-            rep={rep}
-            ctx={tipo.ctx}
-            memInicial={inicial}
-            dibujar={(mem, prev) => <DibujoLista mem={mem} prev={prev} tipo={tipo} />}
-          />
-          {res.error && (
-            <div className="caja-error" role="alert">
-              <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
-              {res.error.mensaje}
-            </div>
+      </Bloque>
+
+      <Bloque
+        id="operaciones"
+        num={2}
+        titulo="Operaciones paso a paso"
+        operaciones
+        subtitulo={
+          <>
+            Elige una operación y los datos de partida: se ejecuta su código del <code>.c</code> línea a línea y se ve cómo cambia la memoria. Con las flechas ← → del teclado también se avanza.
+          </>
+        }
+      >
+        <section className="panel form-op">
+          <ElegirOperacion operaciones={tipo.operaciones} actual={opIdx} onChange={setOpIdx} />
+          <label>
+            Lista de partida
+            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="vacía" aria-describedby="ayuda-lista" />
+            <span id="ayuda-lista" className="ayuda">
+              Hasta 7 números; en blanco, vacía
+            </span>
+          </label>
+          {op.args.includes('nuevo') && (
+            <label>
+              Valor del nodo nuevo
+              <input type="number" value={nuevo} onChange={(e) => setNuevo(Number(e.target.value) || 0)} />
+            </label>
           )}
-          {!res.error && final && (
-            <div className="caja-bien">
-              {res.devuelve && res.devuelve.k !== 'nulo' && (
-                <>
-                  Devuelve <strong>{devuelto(res.devuelve, res.memFinal)}</strong>.{' '}
-                </>
-              )}
-              <span className="mono">{mostrar(tipo, res.memFinal)}</span>
-            </div>
+          {op.args.includes('posicion') && (
+            <label>
+              Posición
+              <input type="number" value={posicion} onChange={(e) => setPosicion(Number(e.target.value) || 0)} />
+            </label>
           )}
+          {op.args.includes('valor') && (
+            <label>
+              {op.grupo === 'Inserción' ? 'Tras el valor' : 'Valor'}
+              <input type="number" value={valor} onChange={(e) => setValor(Number(e.target.value) || 0)} />
+            </label>
+          )}
+          {op.args.includes('nodo') && (
+            <label>
+              Nodo
+              <select value={p.nodo} onChange={(e) => setNodo(Number(e.target.value))} disabled={sinNodos}>
+                {valores.map((v, i) => (
+                  <option key={i} value={i}>
+                    posición {i} (el {v})
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <p className="llamada-op">
+            Desde main: <code>{res.llamada};</code>
+            {comentario && <span className="nota"> {comentario}</span>}
+          </p>
         </section>
-      </div>
-      <Leyenda />
+
+        <div className="ej-rejilla ver-rejilla">
+          <section className="panel panel-codigo">
+            <div className="panel-cab">
+              <h2>Código</h2>
+              <span className="nota">de {tipo.lista}.c</span>
+            </div>
+            <EditorCodigo valor={res.codigo} soloLectura estados={estadosLineas(res.pasos, rep.idx)} etiquetaAria="Código de la operación" />
+            <p className="nota">Las funciones del TAD Nodo y las de consulta se ejecutan de un solo paso.</p>
+          </section>
+          <section className="panel panel-memoria">
+            <div className="panel-cab">
+              <h2>Memoria</h2>
+            </div>
+            <Reproductor
+              teclas
+              controlesArriba
+              pasos={res.pasos}
+              rep={rep}
+              ctx={tipo.ctx}
+              memInicial={inicial}
+              dibujar={(mem, prev) => <DibujoLista mem={mem} prev={prev} tipo={tipo} />}
+            />
+            {res.error && (
+              <div className="caja-error" role="alert">
+                <strong>{res.error.linea > 0 ? `Línea ${res.error.linea}: ` : ''}</strong>
+                {res.error.mensaje}
+              </div>
+            )}
+            {!res.error && final && (
+              <div className="caja-bien">
+                {res.devuelve && res.devuelve.k !== 'nulo' && (
+                  <>
+                    Devuelve <strong>{devuelto(res.devuelve, res.memFinal)}</strong>.{' '}
+                  </>
+                )}
+                <span className="mono">{mostrar(tipo, res.memFinal)}</span>
+              </div>
+            )}
+          </section>
+        </div>
+        <Leyenda />
+      </Bloque>
     </main>
   );
 }

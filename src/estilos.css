@@ -382,4 +382,6 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .elegir-mesa { font: inherit; text-align: left; cursor: pointer; }
 .elegir-mesa .mini-lienzo { pointer-events: none; }
 .galeria-mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; margin-top: 18px; }
-.galeria-mesas .mini-lienzo svg { max-height: 170px; }
+.galeria-mesas .mini-lienzo { min-height: 0; }
+.galeria-mesas .mini-lienzo svg { max-height: 240px; }
+.lista-funciones { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 4px; }

@@ -5,7 +5,7 @@ import { ejecutar, Resultado, verValor } from '../interprete/ejecutar';
 import { describir, huella } from '../memoria/comparar';
 import { construir } from '../memoria/construir';
 import { mismoValor } from '../memoria/modelo';
-import { Caso, Ejercicio } from './tipos';
+import { Caso, EjCodigo } from './tipos';
 
 export interface InformeCaso {
   caso: Caso;
@@ -15,14 +15,14 @@ export interface InformeCaso {
   resultado: Resultado;
 }
 
-export function ejecutarCaso(codigo: string, ej: Ejercicio, caso: Caso, conProhibidos = true): Resultado {
+export function ejecutarCaso(codigo: string, ej: EjCodigo, caso: Caso, conProhibidos = true): Resultado {
   return ejecutar(codigo, ej.ctx, construir(ej.ctx, caso.inicial), {
     llamada: caso.llamada,
     prohibidos: conProhibidos && ej.tipo === 'programar' ? ej.prohibidos : undefined,
   });
 }
 
-export function comprobarCaso(codigo: string, ej: Ejercicio, caso: Caso): InformeCaso {
+export function comprobarCaso(codigo: string, ej: EjCodigo, caso: Caso): InformeCaso {
   const esperado = ejecutarCaso(ej.solucion, ej, caso, false);
   const r = ejecutarCaso(codigo, ej, caso);
   const base = { caso, resultado: r };
@@ -63,6 +63,6 @@ export function comprobarCaso(codigo: string, ej: Ejercicio, caso: Caso): Inform
   return { ...base, ok: true, titulo: 'Bien: la memoria queda como debe, sin errores ni fugas.' };
 }
 
-export function comprobarTodo(codigo: string, ej: Ejercicio): InformeCaso[] {
+export function comprobarTodo(codigo: string, ej: EjCodigo): InformeCaso[] {
   return ej.casos.map((c) => comprobarCaso(codigo, ej, c));
 }

@@ -3,11 +3,13 @@ import { buscarEjercicio } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { marcarResuelto, useResueltos } from '../progreso';
 import { Rico } from './comun';
+import { Coste } from './tipos/Coste';
 import { Fallo } from './tipos/Fallo';
 import { Programar } from './tipos/Programar';
 
 export function nombreTipo(e: Ejercicio): string {
   if (e.tipo === 'fallo') return 'Encuentra el fallo';
+  if (e.tipo === 'coste') return 'Calcula el coste';
   return e.codigoInicial && e.codigoInicial.includes('(') ? 'Escribe la función' : 'Programar a mano';
 }
 
@@ -68,7 +70,13 @@ export function EjercicioPagina({ id }: { id: string }) {
         </div>
       )}
 
-      {ej.tipo === 'programar' ? <Programar key={ej.id} ej={ej} onResuelto={onResuelto} /> : <Fallo key={ej.id} ej={ej} onResuelto={onResuelto} />}
+      {ej.tipo === 'programar' ? (
+        <Programar key={ej.id} ej={ej} onResuelto={onResuelto} />
+      ) : ej.tipo === 'fallo' ? (
+        <Fallo key={ej.id} ej={ej} onResuelto={onResuelto} />
+      ) : (
+        <Coste key={ej.id} ej={ej} onResuelto={onResuelto} />
+      )}
 
       {celebrar && (
         <div className="aviso-resuelto" role="status">

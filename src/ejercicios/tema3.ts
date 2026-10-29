@@ -172,6 +172,85 @@ export const tema3: Tema = {
             pushArray(pila2, aux);
         }`),
     },
+    {
+      id: '3-09',
+      tipo: 'programar',
+      titulo: 'Pop a mano, enlazada',
+      enunciado: 'Desapila la cima de la pila enlazada, guárdala en `valor` y libera su nodo, sin llamar a `popEnlazada`.',
+      pistas: ['Guarda un puntero al nodo de arriba antes de mover la cima: si no, ya no podrás liberarlo.'],
+      ctx: E,
+      casos: [{ nombre: 'Pila 4 1 8', inicial: [pilaEnlazada('pila', [4, 1, 8]), entero('valor', 0)] }],
+      observar: ['pila', 'valor'],
+      prohibidos: ['popEnlazada()', 'limpiarEnlazada()'],
+      solucion: c(`
+        Nodo *borrar = pila->cima;
+        valor = borrar->valor;
+        pila->cima = borrar->siguiente;
+        free(borrar);
+        pila->tamano--;`),
+    },
+    {
+      id: '3-10',
+      tipo: 'programar',
+      titulo: 'Duplicar la cima',
+      enunciado: 'Deja la pila `4 1 8` como `4 1 8 8`: consulta la cima con `cimaArray` y vuelve a apilarla con `pushArray`.',
+      alResolver: '`cimaArray` mira la cima sin quitarla. Con `popArray` habría que volver a apilarla dos veces.',
+      ctx: A,
+      casos: [{ nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])] }],
+      observar: ['pila'],
+      prohibidos: ['array', 'cima'],
+      solucion: c(`
+        int aux = 0;
+        cimaArray(pila, &aux);
+        pushArray(pila, aux);`),
+    },
+    {
+      id: '3-11',
+      tipo: 'programar',
+      titulo: 'Escribe cimaArray',
+      enunciado: 'Completa `cimaArray`: deja la cima en `*valor` **sin quitarla** y devuelve 1; si la pila está vacía o `valor` es NULL, devuelve 0 sin tocar nada.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8]), entero('valor', 0)], llamada: 'cimaArray(pila, &valor)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', []), entero('valor', 0)], llamada: 'cimaArray(pila, &valor)' },
+      ],
+      observar: ['pila', 'valor'],
+      codigoInicial: c(`
+        int cimaArray(PilaArray *pila, int *valor) {
+
+        }`),
+      solucion: c(`
+        int cimaArray(PilaArray *pila, int *valor) {
+            if (esVaciaArray(pila) || valor == NULL) { return 0; }
+            *valor = pila->array[pila->cima];
+            return 1;
+        }`),
+    },
+    {
+      id: '3-12',
+      tipo: 'programar',
+      titulo: 'Escribe sumaArray',
+      enunciado: 'Completa `sumaArray`: devuelve la suma de los elementos de la pila, sin cambiarla. Con la pila vacía, 0.',
+      pistas: ['Los elementos están de `array[0]` a `array[cima]`, los dos incluidos.'],
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8])], llamada: 'sumaArray(pila)' },
+        { nombre: 'Pila vacía, con restos', inicial: [pilaArray('pila', [], [5, 5])], llamada: 'sumaArray(pila)' },
+        { nombre: 'Pila llena', inicial: [pilaArray('pila', LLENA)], llamada: 'sumaArray(pila)' },
+      ],
+      observar: ['pila'],
+      codigoInicial: c(`
+        int sumaArray(PilaArray *pila) {
+
+        }`),
+      solucion: c(`
+        int sumaArray(PilaArray *pila) {
+            int suma = 0;
+            for (int i = 0; i <= pila->cima; i++)
+                suma += pila->array[i];
+            return suma;
+        }`),
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '3-F1',
@@ -327,6 +406,62 @@ export const tema3: Tema = {
         int limpiarEnlazada(PilaEnlazada *pila) {
             if (pila == NULL) { return 0; }
             while (popEnlazada(pila, NULL)) {}
+            return 1;
+        }`),
+    },
+    {
+      id: '3-F6',
+      tipo: 'fallo',
+      titulo: 'cimaArray que no mira si hay algo',
+      enunciado: 'Este `cimaArray` comprueba `valor`, pero se le olvida otra cosa.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1 8', inicial: [pilaArray('pila', [4, 1, 8]), entero('valor', 0)], llamada: 'cimaArray(pila, &valor)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', []), entero('valor', 0)], llamada: 'cimaArray(pila, &valor)' },
+      ],
+      observar: ['pila', 'valor'],
+      codigo: c(`
+        int cimaArray(PilaArray *pila, int *valor) {
+            if (valor == NULL) { return 0; }
+            *valor = pila->array[pila->cima];
+            return 1;
+        }`),
+      lineasFallo: [2, 3],
+      tiposFallo: ['array', 'caso'],
+      explicacion: 'Con la pila vacía `cima` vale -1 y `array[-1]` está fuera del array. Falta mirar `esVaciaArray(pila)` antes de leer, como en `popArray`.',
+      solucion: c(`
+        int cimaArray(PilaArray *pila, int *valor) {
+            if (esVaciaArray(pila) || valor == NULL) { return 0; }
+            *valor = pila->array[pila->cima];
+            return 1;
+        }`),
+    },
+    {
+      id: '3-F7',
+      tipo: 'fallo',
+      titulo: 'pushArray que escribe antes de subir',
+      enunciado: 'Este `pushArray` tiene las líneas justas. Pruébalo con la pila vacía y con elementos.',
+      ctx: A,
+      casos: [
+        { nombre: 'Pila 4 1', inicial: [pilaArray('pila', [4, 1])], llamada: 'pushArray(pila, 8)' },
+        { nombre: 'Pila vacía', inicial: [pilaArray('pila', [])], llamada: 'pushArray(pila, 8)' },
+      ],
+      observar: ['pila'],
+      codigo: c(`
+        int pushArray(PilaArray *pila, int valor) {
+            if (pila == NULL || esLLenaArray(pila)) { return 0; }
+            pila->array[pila->cima] = valor;
+            pila->cima++;
+            return 1;
+        }`),
+      lineasFallo: [3, 4],
+      tiposFallo: ['array'],
+      explicacion: '`cima` apunta al último elemento, no al primer hueco. Escribiendo antes de subir se machaca la cima (el 1 pasa a 8 y la nueva casilla se queda sin valor) y, con la pila vacía, se escribe en `array[-1]`. Primero `cima++` y después se escribe.',
+      solucion: c(`
+        int pushArray(PilaArray *pila, int valor) {
+            if (pila == NULL || esLLenaArray(pila)) { return 0; }
+            pila->cima++;
+            pila->array[pila->cima] = valor;
             return 1;
         }`),
     },

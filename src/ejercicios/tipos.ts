@@ -57,7 +57,47 @@ export interface EjFallo extends Base {
   explicacion: string;
 }
 
-export type Ejercicio = EjProgramar | EjFallo;
+/** Orders of growth offered in the cost exercises, from slowest to fastest. */
+export const CLASES_COSTE = ['O(1)', 'O(log log n)', 'O(log n)', 'O(√n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(n³)'] as const;
+export type ClaseCoste = (typeof CLASES_COSTE)[number];
+
+/** One step of the solution: «Vueltas.», «Cada vuelta cuesta.», «Total.» */
+export interface PasoCoste {
+  titulo: string;
+  texto: string;
+}
+
+/**
+ * A code fragment whose cost has to be worked out: first count the turns for a small n
+ * (the interpreter runs `contar` and reads `x`), then pick the order of growth.
+ */
+export interface EjCoste {
+  id: string;
+  tipo: 'coste';
+  titulo: string;
+  /** Section of the topic page («Bucles simples», «Bucles anidados»...). */
+  bloque: string;
+  enunciado: string;
+  pistas?: string[];
+  alResolver?: string;
+  /** The fragment as the student reads it. */
+  codigo: string;
+  /** What is counted, shown in step 1 (admits `código`). By default «¿Cuántas veces se ejecuta `x++`?». */
+  pregunta?: string;
+  /** Runnable version that leaves the count in `x`. By default `codigo`. `n`, `x`, `i`, `j` and `k` are already declared. */
+  contar?: string;
+  /** n for step 1. */
+  n: number;
+  coste: ClaseCoste;
+  /** The three steps of the method. */
+  pasos: PasoCoste[];
+  /** Two values of n whose counts follow `coste` (tests); worst case if it depends on n. */
+  nCrecimiento?: [number, number];
+}
+
+/** Exercises run on memory states, checked case by case against `solucion`. */
+export type EjCodigo = EjProgramar | EjFallo;
+export type Ejercicio = EjCodigo | EjCoste;
 
 export interface Tema {
   id: string;

@@ -329,3 +329,16 @@ button.num-linea:hover { background: var(--arena); color: var(--tinta); }
 
 /* sin ligaduras: «->» y «!=» se tienen que ver tal cual */
 body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'calt' 0; }
+
+/* ------------------------------------------------ calcula el coste */
+.ej-rejilla.coste .panel-crece { grid-column: 1 / -1; }
+.fila-respuesta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.fila-respuesta input { width: 120px; min-height: 40px; padding: 6px 10px; border: 1.5px solid #d9c9c1; border-radius: 8px; font: 500 1rem var(--f-mono); background: #fff; color: var(--tinta); }
+.fila-respuesta input:focus { outline: 2px solid var(--carmin); outline-offset: 1px; }
+.metodo { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; color: var(--grafito); }
+.tabla-crece { border-collapse: collapse; font-family: var(--f-mono); font-size: 0.92rem; margin: 4px 0 10px; }
+.tabla-crece th, .tabla-crece td { padding: 6px 14px; border-bottom: 1px solid var(--linea); text-align: right; }
+.tabla-crece thead th { color: var(--carmin); }
+.tabla-crece tbody th { text-align: left; font-family: var(--f-txt); font-weight: 600; color: var(--grafito); }
+.tabla-crece .factor td { color: var(--gris); }
+@media (max-width: 600px) { .tabla-crece th, .tabla-crece td { padding: 6px 8px; } }

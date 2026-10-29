@@ -25,7 +25,7 @@ export interface Token {
   fin: number;
 }
 
-const OPS = ['->', '++', '--', '==', '!=', '<=', '>=', '&&', '||', '+=', '-=', '*=', '?', ':', '(', ')', '{', '}', '[', ']', ';', ',', '=', '<', '>', '+', '-', '*', '/', '%', '!', '&', '.'];
+const OPS = ['->', '++', '--', '==', '!=', '<=', '>=', '&&', '||', '+=', '-=', '*=', '/=', '?', ':', '(', ')', '{', '}', '[', ']', ';', ',', '=', '<', '>', '+', '-', '*', '/', '%', '!', '&', '.'];
 
 export function lexico(src: string): Token[] {
   const toks: Token[] = [];
@@ -102,7 +102,7 @@ export type Expr = Pos &
     | { k: 'bin'; op: string; a: Expr; b: Expr }
     | { k: 'un'; op: '!' | '-' | '*' | '&' | '++' | '--'; a: Expr }
     | { k: 'post'; op: '++' | '--'; a: Expr }
-    | { k: 'asig'; op: '=' | '+=' | '-=' | '*='; a: Expr; b: Expr }
+    | { k: 'asig'; op: '=' | '+=' | '-=' | '*=' | '/='; a: Expr; b: Expr }
     | { k: 'cond'; c: Expr; a: Expr; b: Expr }
     | { k: 'campo'; a: Expr; f: string; flecha: boolean }
     | { k: 'idx'; a: Expr; i: Expr }
@@ -330,7 +330,7 @@ export function analizar(src: string, tipos: string[]): Programa {
   function asignacion(): Expr {
     const a = condicional();
     const t = ver();
-    if (t.t === 'op' && (t.v === '=' || t.v === '+=' || t.v === '-=' || t.v === '*=')) {
+    if (t.t === 'op' && (t.v === '=' || t.v === '+=' || t.v === '-=' || t.v === '*=' || t.v === '/=')) {
       p++;
       const b = asignacion();
       return { k: 'asig', op: t.v, a, b, ini: a.ini, fin: b.fin, linea: a.linea };

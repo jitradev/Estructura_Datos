@@ -187,6 +187,87 @@ export const tema4: Tema = {
         establecerSiguienteNodoSimple(cola->final, primero);
         cola->final = primero;`),
     },
+    {
+      id: '4-09',
+      tipo: 'programar',
+      titulo: 'Desencolar a mano, enlazada',
+      enunciado: 'Saca el primero de la cola `1 2 3`, guárdalo en `x` y libera su nodo, sin llamar a `desencolarColaEnlazada`. Usa las funciones del TAD NodoSimple.',
+      pistas: ['Guarda el nodo del inicio en un auxiliar, mueve `cola->inicio` al siguiente y después libéralo con `eliminarNodoSimple`.', 'Aquí quedan nodos, así que `cola->final` no cambia. No olvides `cola->tamano`.'],
+      ctx: CE,
+      casos: [{ nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3]), entero('x', 0)] }],
+      observar: ['cola', 'x'],
+      prohibidos: ['desencolarColaEnlazada()', 'vaciarColaEnlazada()'],
+      solucion: c(`
+        NodoSimple *aux = cola->inicio;
+        x = obtenerValorNodoSimple(aux);
+        cola->inicio = obtenerSiguienteNodoSimple(aux);
+        cola->tamano--;
+        eliminarNodoSimple(aux);`),
+    },
+    {
+      id: '4-10',
+      tipo: 'programar',
+      titulo: 'Pasar una cola a otra',
+      enunciado: 'Pasa todos los elementos de `cola` a `cola2` (que empieza vacía) con `desencolarColaArray` y `encolarColaArray`. ¿En qué orden quedan?',
+      alResolver: 'Al contrario que al volcar una pila en otra, el orden se mantiene: lo primero que sale es lo primero que entra.',
+      ctx: CA,
+      casos: [{ nombre: 'cola = 1 2 3, dando la vuelta', inicial: [colaArray('cola', [1, 2, 3], 8), colaArray('cola2', [])] }],
+      observar: ['cola', 'cola2'],
+      codigoInicial: 'int x = 0;\n',
+      solucion: c(`
+        int x = 0;
+        while (!estaVaciaColaArray(cola)) {
+            desencolarColaArray(cola, &x);
+            encolarColaArray(cola2, x);
+        }`),
+    },
+    {
+      id: '4-11',
+      tipo: 'programar',
+      titulo: 'Escribe frenteColaArray',
+      enunciado: 'Completa `frenteColaArray`: deja en `*x` el primero de la cola **sin sacarlo** y devuelve 1; con la cola vacía, devuelve 0 sin tocar `*x`.',
+      pistas: ['El primero está en `array[frente]`, no en `array[0]`.'],
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 5 8 2, desde la casilla 7', inicial: [colaArray('cola', [5, 8, 2], 7), entero('x', 0)], llamada: 'frenteColaArray(cola, &x)' },
+        { nombre: 'Vacía', inicial: [colaArray('cola', [], 3), entero('x', 0)], llamada: 'frenteColaArray(cola, &x)' },
+      ],
+      observar: ['cola', 'x'],
+      codigoInicial: c(`
+        int frenteColaArray(ColaArray *cola, int *x) {
+
+        }`),
+      solucion: c(`
+        int frenteColaArray(ColaArray *cola, int *x) {
+            if(estaVaciaColaArray(cola) == 1) return 0;
+            *x = cola->array[cola->frente];
+            return 1;
+        }`),
+    },
+    {
+      id: '4-12',
+      tipo: 'programar',
+      titulo: 'Escribe vaciarColaEnlazada',
+      enunciado: 'Completa `vaciarColaEnlazada`: saca y libera todos los nodos, deja la cola vacía (`inicio` y `final` a NULL, `tamano` a 0) y devuelve 1. Puedes usar `desencolarColaEnlazada`.',
+      ctx: CE,
+      casos: [
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3])], llamada: 'vaciarColaEnlazada(cola)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', [])], llamada: 'vaciarColaEnlazada(cola)' },
+      ],
+      observar: ['cola'],
+      codigoInicial: c(`
+        int vaciarColaEnlazada(ColaEnlazada *cola) {
+
+        }`),
+      solucion: c(`
+        int vaciarColaEnlazada(ColaEnlazada *cola) {
+            int aux = 0;
+            while (estaVaciaColaEnlazada(cola) == 0) {
+                desencolarColaEnlazada(cola, &aux);
+            }
+            return 1;
+        }`),
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '4-F1',
@@ -413,6 +494,64 @@ export const tema4: Tema = {
             if (eliminarNodoSimple(aux) == 1) return 1;
 
             return 0;
+        }`),
+    },
+    {
+      id: '4-F7',
+      tipo: 'fallo',
+      titulo: 'frenteColaEnlazada que no se queja',
+      enunciado: 'Este `frenteColaEnlazada` nunca da un error de memoria. Eso no quiere decir que funcione.',
+      ctx: CE,
+      casos: [
+        { nombre: 'Cola 1 2 3', inicial: [colaEnlazada('cola', [1, 2, 3]), entero('x', 7)], llamada: 'frenteColaEnlazada(cola, &x)' },
+        { nombre: 'Vacía', inicial: [colaEnlazada('cola', []), entero('x', 7)], llamada: 'frenteColaEnlazada(cola, &x)' },
+      ],
+      observar: ['cola', 'x'],
+      codigo: c(`
+        int frenteColaEnlazada(ColaEnlazada *cola, int *x) {
+            *x = obtenerValorNodoSimple(cola->inicio);
+            return 1;
+        }`),
+      lineasFallo: [2],
+      preguntaLinea: 'Marca la línea antes de la que falta algo',
+      tiposFallo: ['caso'],
+      explicacion: 'Con la cola vacía, `obtenerValorNodoSimple(NULL)` no falla: devuelve 0. Así que la función dice que ha ido bien (devuelve 1) y deja un 0 en `x` como si fuera el primero. Falta `if (estaVaciaColaEnlazada(cola) == 1) return 0;`.',
+      solucion: c(`
+        int frenteColaEnlazada(ColaEnlazada *cola, int *x) {
+            if (estaVaciaColaEnlazada(cola) == 1) return 0;
+            *x = obtenerValorNodoSimple(cola->inicio);
+            return 1;
+        }`),
+    },
+    {
+      id: '4-F8',
+      tipo: 'fallo',
+      titulo: 'encolarColaArray sin mirar si cabe',
+      enunciado: 'Gracias al `%`, este `encolarColaArray` nunca se sale del array. ¿Entonces?',
+      ctx: CA,
+      casos: [
+        { nombre: 'Cola 1 2 3', inicial: [colaArray('cola', [1, 2, 3])], llamada: 'encolarColaArray(cola, 9)' },
+        { nombre: 'Llena', inicial: [colaArray('cola', LLENA, 4)], llamada: 'encolarColaArray(cola, 99)' },
+      ],
+      observar: ['cola'],
+      codigo: c(`
+        int encolarColaArray(ColaArray *cola, int x) {
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
+            return 1;
+        }`),
+      lineasFallo: [2],
+      preguntaLinea: 'Marca la línea antes de la que falta algo',
+      tiposFallo: ['caso'],
+      explicacion: 'Con la cola llena, `final` coincide con `frente`: el 99 machaca el primero de la cola y `numElementos` pasa a 11. No hay error de memoria, pero la cola ya no es lo que era. Falta `if (estaLLenaColaArray(cola) == 1) return 0;`.',
+      solucion: c(`
+        int encolarColaArray(ColaArray *cola, int x) {
+            if(estaLLenaColaArray(cola) == 1) return 0;
+            cola->array[cola->final] = x;
+            cola->final = (cola->final + 1) % TAM_COLA_ARRAY;
+            cola->numElementos++;
+            return 1;
         }`),
     },
   ],

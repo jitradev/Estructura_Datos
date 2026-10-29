@@ -55,9 +55,21 @@ const DIBUJOS: Record<string, JSX.Element> = {
       </text>
     </svg>
   ),
+  '5': (
+    <svg viewBox="0 0 300 44" aria-hidden>
+      <path d="M4 40h200M4 40V4" className="mini-l" />
+      <path d="M4 40C60 38 120 34 196 30" className="mini-l" />
+      <path d="M4 40L196 12" className="mini-l" />
+      <path d="M4 40C90 39 140 30 160 4" className="mini-l" />
+      <text x="214" y="27" className="mini-n">
+        O(n²)
+      </text>
+    </svg>
+  ),
 };
 
 function cuenta(es: Ejercicio[]) {
+  if (es.every((e) => e.tipo === 'coste')) return `${es.length} de coste`;
   const f = es.filter((e) => e.tipo === 'fallo').length;
   return `${es.length - f} de programar · ${f} de fallos`;
 }
@@ -131,6 +143,9 @@ export function Inicio() {
 
 const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo'];
 
+/** Section of the topic page: the exercise type, or its block for the cost ones. */
+const grupo = (e: Ejercicio) => (e.tipo === 'coste' ? e.bloque : nombreTipo(e));
+
 export function TemaPagina({ id }: { id: string }) {
   const resueltos = useResueltos();
   const tema = TEMAS.find((t) => t.id === id);
@@ -144,8 +159,8 @@ export function TemaPagina({ id }: { id: string }) {
         <span className="num-ej">Tema {tema.id}</span> {tema.titulo}
       </h1>
       <p className="entradilla">{tema.resumen}</p>
-      {GRUPOS.map((g) => {
-        const es = tema.ejercicios.filter((e) => nombreTipo(e) === g);
+      {[...GRUPOS, ...new Set(tema.ejercicios.map(grupo))].filter((g, i, gs) => gs.indexOf(g) === i).map((g) => {
+        const es = tema.ejercicios.filter((e) => grupo(e) === g);
         if (!es.length) return null;
         return (
           <section key={g} className="grupo-ej">

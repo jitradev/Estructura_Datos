@@ -49,6 +49,8 @@ export interface OpcionesEj {
   /** Campos que el alumno no puede asignar (para que no resuelva cambiando datos). */
   prohibidos?: string[];
   maxPasos?: number;
+  /** Keep no steps (only the final memory): for long runs such as counting loop turns. */
+  sinPasos?: boolean;
 }
 
 /** What went wrong inside a single-step function (the node TAD...), told from the call. */
@@ -124,7 +126,7 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
     throw new Fallo({ linea: silencio > 0 ? lineaVisible : linea, tipo, mensaje });
   };
   const paso = (linea: number, nota?: string) => {
-    if (silencio > 0) return;
+    if (silencio > 0 || op.sinPasos) return;
     pasos.push({ linea, mem: clonar(m), nota });
   };
   const contar = (linea: number) => {
@@ -334,7 +336,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
         if (e.op !== '=') {
           const x = entero(leer(l, e.a), e.a);
           const y = entero(v, e.b);
-          v = int(e.op === '+=' ? x + y : e.op === '-=' ? x - y : x * y);
+          if (e.op === '/=' && y === 0) fallar(e.linea, 'tipo', 'División entre 0.');
+          v = int(e.op === '+=' ? x + y : e.op === '-=' ? x - y : e.op === '*=' ? x * y : Math.trunc(x / y));
         }
         escribir(l, v, e);
         return v;

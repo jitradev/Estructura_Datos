@@ -1,15 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { TODOS_LOS_TEMAS } from '../ejercicios/registro';
 import { comprobarCaso, ejecutarCaso } from '../ejercicios/comprobar';
+import { contarVueltas } from '../ejercicios/coste';
+import { ClaseCoste, EjCodigo, EjCoste } from '../ejercicios/tipos';
 
 const todos = TODOS_LOS_TEMAS.flatMap((t) => t.ejercicios);
+const conCodigo = todos.filter((e): e is EjCodigo => e.tipo !== 'coste');
+const deCoste = todos.filter((e): e is EjCoste => e.tipo === 'coste');
+
+const lg = Math.log2;
+const CRECE: Record<ClaseCoste, (n: number) => number> = {
+  'O(1)': () => 1,
+  'O(log log n)': (n) => lg(lg(n)),
+  'O(log n)': lg,
+  'O(√n)': Math.sqrt,
+  'O(n)': (n) => n,
+  'O(n log n)': (n) => n * lg(n),
+  'O(n²)': (n) => n * n,
+  'O(n³)': (n) => n ** 3,
+};
 
 describe('catálogo', () => {
   it('ids únicos', () => {
     const ids = todos.map((e) => e.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
-  for (const ej of todos) {
+  for (const ej of conCodigo) {
     describe(ej.id + ' ' + ej.titulo, () => {
       it('la solución funciona en todos los casos, sin errores ni fugas', () => {
         for (const caso of ej.casos) {
@@ -38,6 +54,28 @@ describe('catálogo', () => {
           const n = ej.codigo.split('\n').length;
           for (const l of ej.lineasFallo) expect(l >= 1 && l <= n).toBe(true);
         });
+      }
+    });
+  }
+  for (const ej of deCoste) {
+    it(`${ej.id} ${ej.titulo}: se cuenta sin errores y crece como ${ej.coste}`, () => {
+      const cuenta = (n: number) => {
+        const r = contarVueltas(ej, n);
+        if ('error' in r) throw new Error(`n = ${n}: ${r.error}`);
+        return r.x;
+      };
+      expect(cuenta(ej.n)).toBeGreaterThan(0);
+      // the count grows like the class: same ratio between two values of n, within 40 %
+      const [a, b] = ej.nCrecimiento ?? [32, 256];
+      const g = CRECE[ej.coste];
+      const real = cuenta(b) / cuenta(a);
+      const teorica = g(b) / g(a);
+      expect(real / teorica).toBeGreaterThan(0.6);
+      expect(real / teorica).toBeLessThan(1.4);
+      // and no neighbouring class fits better
+      for (const otra of Object.keys(CRECE) as ClaseCoste[]) {
+        const t = CRECE[otra](b) / CRECE[otra](a);
+        expect(Math.abs(Math.log(real / t)) + 1e-9, otra).toBeGreaterThanOrEqual(Math.abs(Math.log(real / teorica)) - 1e-9);
       }
     });
   }

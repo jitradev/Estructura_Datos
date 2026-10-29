@@ -304,6 +304,121 @@ export const tema2: Tema = {
             *cab = anterior;
         }`),
     },
+    {
+      id: '2-13',
+      tipo: 'programar',
+      titulo: 'Quitar el último',
+      enunciado: 'Quita el último nodo de la lista `9 → 3 → 7` y libéralo: tiene que quedar `9 → 3`.',
+      pistas: ['Para quitar el último hay que pararse en el **penúltimo**: el que cumple `p->siguiente->siguiente == NULL`.', 'Después de `free`, el penúltimo sigue apuntando al nodo liberado: ponlo a NULL.'],
+      ctx,
+      casos: [{ nombre: '9 → 3 → 7', inicial: L(9, 3, 7) }],
+      observar: ['cab'],
+      solucion: c(`
+        Nodo *p = cab;
+        while (p->siguiente->siguiente != NULL)
+            p = p->siguiente;
+        free(p->siguiente);
+        p->siguiente = NULL;`),
+    },
+    {
+      id: '2-14',
+      tipo: 'programar',
+      titulo: 'Escribe buscar',
+      enunciado: 'Completa `buscar`: devuelve 1 si `x` está en la lista y 0 si no, sin cambiarla.',
+      pistas: ['Recorre con un auxiliar y para en cuanto lo encuentres: `return 1` dentro del bucle.'],
+      ctx,
+      casos: [
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'buscar(cab, 3)' },
+        { nombre: 'Está', inicial: L(9, 3, 7), llamada: 'buscar(cab, 3)' },
+        { nombre: 'Es el último', inicial: L(9, 3, 7), llamada: 'buscar(cab, 7)' },
+        { nombre: 'No está', inicial: L(9, 3, 7), llamada: 'buscar(cab, 5)' },
+      ],
+      observar: ['cab'],
+      codigoInicial: c(`
+        int buscar(Nodo *cab, int x)
+        {
+
+        }`),
+      solucion: c(`
+        int buscar(Nodo *cab, int x)
+        {
+            Nodo *p = cab;
+            while (p != NULL) {
+                if (p->valor == x) return 1;
+                p = p->siguiente;
+            }
+            return 0;
+        }`),
+    },
+    {
+      id: '2-15',
+      tipo: 'programar',
+      titulo: 'Escribe contar',
+      enunciado: 'Completa `contar`: devuelve cuántas veces aparece `x` en la lista.',
+      ctx,
+      casos: [
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'contar(cab, 3)' },
+        { nombre: '3 → 9 → 3 → 3', inicial: L(3, 9, 3, 3), llamada: 'contar(cab, 3)' },
+        { nombre: 'No está', inicial: L(9, 7), llamada: 'contar(cab, 3)' },
+      ],
+      observar: ['cab'],
+      codigoInicial: c(`
+        int contar(Nodo *cab, int x)
+        {
+
+        }`),
+      solucion: c(`
+        int contar(Nodo *cab, int x)
+        {
+            int n = 0;
+            for (Nodo *p = cab; p != NULL; p = p->siguiente)
+                if (p->valor == x) n++;
+            return n;
+        }`),
+    },
+    {
+      id: '2-16',
+      tipo: 'programar',
+      titulo: 'Escribe suprimirTodos',
+      enunciado: 'Completa `suprimirTodos`: quita y libera **todos** los nodos que valen `x`. Pueden estar al principio, seguidos o al final.',
+      pistas: [
+        'Primero, mientras el primero valga `x`, quítalo cambiando `*cab`.',
+        'Después recorre mirando `p->siguiente`: si vale `x`, sáltalo y libéralo **sin avanzar** `p` (el nuevo siguiente también puede valer `x`); si no, avanza.',
+      ],
+      ctx,
+      casos: [
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'suprimirTodos(&cab, 3)' },
+        { nombre: '3 → 3 → 9 → 3 → 3 → 7 → 3', inicial: L(3, 3, 9, 3, 3, 7, 3), llamada: 'suprimirTodos(&cab, 3)' },
+        { nombre: 'No está', inicial: L(9, 7), llamada: 'suprimirTodos(&cab, 3)' },
+        { nombre: 'Todos valen 3', inicial: L(3, 3), llamada: 'suprimirTodos(&cab, 3)' },
+      ],
+      observar: ['cab'],
+      codigoInicial: c(`
+        void suprimirTodos(Nodo **cab, int x)
+        {
+
+        }`),
+      solucion: c(`
+        void suprimirTodos(Nodo **cab, int x)
+        {
+            while (*cab != NULL && (*cab)->valor == x) {
+                Nodo *borrar = *cab;
+                *cab = borrar->siguiente;
+                free(borrar);
+            }
+            if (*cab == NULL) return;
+            Nodo *p = *cab;
+            while (p->siguiente != NULL) {
+                if (p->siguiente->valor == x) {
+                    Nodo *borrar = p->siguiente;
+                    p->siguiente = borrar->siguiente;
+                    free(borrar);
+                } else {
+                    p = p->siguiente;
+                }
+            }
+        }`),
+    },
     // ------------------------------------------------------------ fallos
     {
       id: '2-F1',
@@ -599,6 +714,79 @@ export const tema2: Tema = {
                 p = siguiente;
             }
             *cab = NULL;
+        }`),
+    },
+    {
+      id: '2-F9',
+      tipo: 'fallo',
+      titulo: 'buscar que mira demasiado lejos',
+      enunciado: 'Este `buscar` encuentra todo lo que está en la lista. ¿Y lo que no está?',
+      ctx,
+      casos: [
+        { nombre: 'Está', inicial: L(9, 3, 7), llamada: 'buscar(cab, 3)' },
+        { nombre: 'No está', inicial: L(9, 3, 7), llamada: 'buscar(cab, 5)' },
+      ],
+      observar: ['cab'],
+      codigo: c(`
+        int buscar(Nodo *cab, int x)
+        {
+            Nodo *p = cab;
+            while (p->valor != x && p != NULL)
+                p = p->siguiente;
+            return p != NULL;
+        }`),
+      lineasFallo: [4],
+      tiposFallo: ['nulo'],
+      explicacion: 'Las dos condiciones están bien, pero en mal orden. Cuando `x` no está, `p` llega a NULL y lo primero que se evalúa es `p->valor`: acceso a NULL. Con `p != NULL && p->valor != x`, el `&&` no mira la segunda si la primera es falsa.',
+      solucion: c(`
+        int buscar(Nodo *cab, int x)
+        {
+            Nodo *p = cab;
+            while (p != NULL && p->valor != x)
+                p = p->siguiente;
+            return p != NULL;
+        }`),
+    },
+    {
+      id: '2-F10',
+      tipo: 'fallo',
+      titulo: 'suprimirUltimo que se olvida de un caso',
+      enunciado: 'Este `suprimirUltimo` contempla la lista vacía y la de varios nodos. Le falta uno.',
+      ctx,
+      casos: [
+        { nombre: 'Lista vacía', inicial: L(), llamada: 'suprimirUltimo(&cab)' },
+        { nombre: '9 → 3 → 7', inicial: L(9, 3, 7), llamada: 'suprimirUltimo(&cab)' },
+        { nombre: 'Un nodo', inicial: L(9), llamada: 'suprimirUltimo(&cab)' },
+      ],
+      observar: ['cab'],
+      codigo: c(`
+        void suprimirUltimo(Nodo **cab)
+        {
+            if (*cab == NULL) return;
+            Nodo *p = *cab;
+            while (p->siguiente->siguiente != NULL)
+                p = p->siguiente;
+            free(p->siguiente);
+            p->siguiente = NULL;
+        }`),
+      lineasFallo: [3, 4, 5],
+      preguntaLinea: 'Marca la línea que falla (o donde falta lo que la evita)',
+      tiposFallo: ['caso', 'nulo'],
+      explicacion: 'Con un solo nodo no hay penúltimo: `p->siguiente` es NULL y `p->siguiente->siguiente` accede a NULL. Ese caso va aparte: se libera el único nodo y `*cab` pasa a NULL.',
+      solucion: c(`
+        void suprimirUltimo(Nodo **cab)
+        {
+            if (*cab == NULL) return;
+            if ((*cab)->siguiente == NULL) {
+                free(*cab);
+                *cab = NULL;
+                return;
+            }
+            Nodo *p = *cab;
+            while (p->siguiente->siguiente != NULL)
+                p = p->siguiente;
+            free(p->siguiente);
+            p->siguiente = NULL;
         }`),
     },
   ],

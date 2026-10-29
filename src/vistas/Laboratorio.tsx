@@ -29,7 +29,7 @@ export function Laboratorio({ modo = 'memoria' }: { modo?: 'memoria' | 'coste' }
       </nav>
       {modo === 'coste' && temaVisible('5') ? (
         <>
-          <p className="entradilla">Escribe código que dependa de n y mira cómo se plantea la ecuación de su coste y cómo se resuelve, suma a suma.</p>
+          <p className="entradilla">Escribe código que dependa de n y mira la O de cada bucle y la del total.</p>
           <CalculadoraCoste />
         </>
       ) : (

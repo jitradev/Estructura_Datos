@@ -369,15 +369,11 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .pestanas a.on { color: var(--carmin); border-bottom-color: var(--carmin); }
 .veredicto { font-size: 1.25rem; margin: 4px 0 10px; }
 .veredicto strong { font-family: var(--f-mono); color: var(--carmin); }
-.ecuacion { margin: 4px 0 14px; }
-.ecuacion-linea { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 4px 0; }
-.ecuacion-izq { font-family: var(--f-mono); color: var(--carmin); min-width: 3.2em; text-align: right; white-space: nowrap; }
-.ecuacion-linea .mono { font-size: 1rem; display: inline-flex; align-items: center; flex-wrap: wrap; white-space: pre; }
-.ecuacion-notas { margin: 0 0 6px 3.2em; padding-left: 18px; color: var(--gris); font-size: 0.9rem; }
-.sigma { display: inline-flex; align-items: center; }
-.sigma-signo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; margin: 0 3px; }
-.sigma-signo > span { font-size: 1.6em; }
-.sigma-signo small { font-size: 0.68em; color: var(--gris); white-space: nowrap; }
+.coste-bloque h3 { font-size: 1rem; margin: 6px 0 4px; }
+.filas-coste { list-style: none; margin: 4px 0 12px; padding: 0; }
+.filas-coste li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--linea); }
+.filas-coste .flecha { color: var(--gris); }
+.filas-coste .mono { color: var(--carmin); font-weight: 600; }
 .calculadora select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1.5px solid #d9c9c1; background: #fff; }
 .elegir-mesa { font: inherit; text-align: left; cursor: pointer; }
 .elegir-mesa .mini-lienzo { pointer-events: none; }

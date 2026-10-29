@@ -1,7 +1,7 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { c } from '../ejercicios/tema2';
 import { contarCodigo, estimarCoste } from '../ejercicios/coste';
-import { Analisis, analizarCoste, Ecuacion, Ex, verPoli } from '../ejercicios/ecuacion';
+import { Analisis, analizarCoste, Fila } from '../ejercicios/ecuacion';
 import { ClaseCoste } from '../ejercicios/tipos';
 import { Rico } from './comun';
 import { EditorCodigo } from './EditorCodigo';
@@ -51,79 +51,29 @@ interface Calculo {
   estimado?: ReturnType<typeof estimar>;
 }
 
-/** A line of the equation, with the sums drawn with their limits. */
-function Expresion({ e }: { e: Ex }) {
-  switch (e.k) {
-    case 'p':
-      return <>{verPoli(e.p)}</>;
-    case 'llamada':
-      return <code>{e.texto}</code>;
-    case 'mas':
-      return (
-        <>
-          {e.xs.map((x, i) => (
-            <Fragment key={i}>
-              {i > 0 && ' + '}
-              <Expresion e={x} />
-            </Fragment>
-          ))}
-        </>
-      );
-    case 'max':
-      return (
-        <>
-          máx(
-          {e.xs.map((x, i) => (
-            <Fragment key={i}>
-              {i > 0 && ', '}
-              <Expresion e={x} />
-            </Fragment>
-          ))}
-          )
-        </>
-      );
-    case 'sigma': {
-      const c = e.cuerpo;
-      const parentesis = c.k === 'mas' || c.k === 'max' || (c.k === 'p' && c.p.length > 1);
-      return (
-        <span className="sigma">
-          <span className="sigma-signo" title={`Línea ${e.linea}`}>
-            <small>{e.arriba}</small>
-            <span aria-hidden>Σ</span>
-            <small>{e.abajo}</small>
-          </span>
-          {parentesis ? '(' : ''}
-          <Expresion e={c} />
-          {parentesis ? ')' : ''}
-        </span>
-      );
-    }
-  }
-}
-
-function VerEcuacion({ ec }: { ec: Ecuacion }) {
+/** The O of every loop and call, grouped by function, inner loops indented. */
+function Filas({ filas }: { filas: Fila[] }) {
+  const ambitos = [...new Set(filas.map((f) => f.ambito))];
   return (
-    <div className="ecuacion">
-      {ec.lineas.map((l, i) => (
-        <Fragment key={i}>
-          <div className="ecuacion-linea">
-            <span className="ecuacion-izq">{i === 0 ? `${ec.nombre} =` : '≈'}</span>
-            <span className="mono">
-              <Expresion e={l} />
-            </span>
-          </div>
-          {ec.notas[i]?.length > 0 && (
-            <ul className="ecuacion-notas">
-              {ec.notas[i].map((n, j) => (
-                <li key={j}>
-                  <Rico texto={n} />
+    <>
+      {ambitos.map((am) => (
+        <div key={am} className="coste-bloque">
+          {ambitos.length > 1 && <h3>{am === 'Programa' ? 'Programa' : <>Función <code>{am}</code></>}</h3>}
+          <ul className="filas-coste">
+            {filas
+              .filter((f) => f.ambito === am)
+              .map((f, i) => (
+                <li key={i} style={{ paddingLeft: f.nivel * 22 }}>
+                  <span className="nota">Línea {f.linea}</span>
+                  <code>{f.codigo}</code>
+                  <span className="flecha">→</span>
+                  <span className="mono">{!f.vueltas ? f.coste : f.cada ? `${f.vueltas} × ${f.cada} = ${f.coste}` : f.vueltas}</span>
                 </li>
               ))}
-            </ul>
-          )}
-        </Fragment>
+          </ul>
+        </div>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -191,28 +141,20 @@ export function CalculadoraCoste() {
 
       <section className="panel panel-crece">
         <div className="panel-cab">
-          <h2>La ecuación</h2>
-          <span className="nota">Cada instrucción simple cuesta 1</span>
+          <h2>El coste, bucle a bucle</h2>
         </div>
-        {!calculo && (
-          <p className="nota">
-            Cada bucle se convierte en una suma (Σ) sobre su variable, una llamada cuesta lo que cueste su función y lo que va seguido se suma. Luego se resuelven las sumas de dentro hacia fuera, quedándose con lo que crece más deprisa.
-          </p>
-        )}
+        {!calculo && <p className="nota">Cada bucle cuesta sus vueltas × lo que cuesta una vuelta. Lo que va seguido se suma, y manda el mayor.</p>}
         {a?.ok && (
           <>
-            {a.ecuaciones.map((ec) => (
-              <VerEcuacion key={ec.nombre} ec={ec} />
-            ))}
+            {a.filas.length ? <Filas filas={a.filas} /> : <p className="nota">No hay bucles ni llamadas: cada instrucción cuesta O(1).</p>}
             <p className="veredicto">
-              Es <strong>{a.texto}</strong>
+              Total: <strong>{a.texto}</strong>
             </p>
             {a.avisos.map((t) => (
               <p key={t} className="nota">
                 <Rico texto={t} />
               </p>
             ))}
-            <p className="nota">Los «≈» son porque en cada paso se quitan los términos que crecen más despacio: para la O no cambian nada.</p>
           </>
         )}
         {a && !a.ok && (

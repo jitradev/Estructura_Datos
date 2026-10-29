@@ -219,7 +219,7 @@ export type Ex =
   | { k: 'p'; p: Poli }
   | { k: 'mas'; xs: Ex[] }
   | { k: 'max'; xs: Ex[] }
-  | { k: 'llamada'; texto: string; p: Poli }
+  | { k: 'llamada'; texto: string; p: Poli; alResolver?: () => void }
   | { k: 'sigma'; abajo: string; arriba: string; cuerpo: Ex; linea: number; resolver: (cuerpo: Poli) => { p: Poli; nota: string } };
 
 export interface Ecuacion {
@@ -232,8 +232,21 @@ export interface Ecuacion {
   resultado: Poli;
 }
 
+/** The short version: the O of every loop (turns × cost of a turn) and of every call. */
+export interface Fila {
+  /** «Programa» or the function the loop is in, «recorre(m)». */
+  ambito: string;
+  linea: number;
+  /** How deep in other loops it is (0: not inside any). */
+  nivel: number;
+  codigo: string;
+  vueltas?: string;
+  cada?: string;
+  coste: string;
+}
+
 export type Analisis =
-  | { ok: true; ecuaciones: Ecuacion[]; clase: ClaseCoste | null; texto: string; avisos: string[] }
+  | { ok: true; ecuaciones: Ecuacion[]; filas: Fila[]; clase: ClaseCoste | null; texto: string; avisos: string[] }
   | { ok: false; motivo: string; linea?: number };
 
 const resuelta = (e: Ex) => e.k === 'p';
@@ -244,6 +257,7 @@ function paso(e: Ex, notas: string[]): Ex {
     case 'p':
       return e;
     case 'llamada':
+      e.alResolver?.();
       notas.push(`\`${e.texto}\` cuesta ${verPoli(e.p)}.`);
       return { k: 'p', p: e.p };
     case 'sigma': {
@@ -493,6 +507,28 @@ export function analizarCoste(src: string): Analisis {
   const avisos = new Set<string>();
   const enCurso: string[] = [];
   let lineaActual = 0;
+  const filas: Fila[] = [];
+  let ambito = 'Programa';
+  let nivel = 0;
+  /** Up to where each loop variable goes, to give inner loops their O in n. */
+  const rangos = new Map<string, Poli>();
+  const enO = (p: Poli, rs: Map<string, Poli>) => {
+    let q = principal(p);
+    for (let i = 0; i < 6; i++) for (const [v, alto] of rs) if (contiene(q, v)) q = principal(sustituir(q, v, alto));
+    return claseDe(q).texto;
+  };
+  /** The header of a loop, without the body that may follow on the same line. */
+  const cabecera = (l: number) => {
+    const t = verLinea(l);
+    const i = t.indexOf('(');
+    if (!/^(for|while)\b/.test(t) || i < 0) return t;
+    let nivel = 0;
+    for (let j = i; j < t.length; j++) {
+      if (t[j] === '(') nivel++;
+      if (t[j] === ')' && --nivel === 0) return t.slice(0, j + 1);
+    }
+    return t;
+  };
 
   /** Cost of a function with its parameters as bases. */
   const costeFuncion = (f: Funcion): Poli => {
@@ -500,9 +536,12 @@ export function analizarCoste(src: string): Analisis {
     if (hecho) return hecho;
     if (enCurso.includes(f.nombre)) noSe(`\`${f.nombre}\` es recursiva: su coste sale de una ecuación de recurrencia, y esa no la resuelvo aquí`);
     enCurso.push(f.nombre);
+    const nivelFuera = nivel;
+    nivel = 0;
     const env: Entorno = new Map(f.params.map((p) => [p.nombre, variable(p.nombre)]));
     const ec = resolver(`${f.nombre}(${f.params.map((p) => p.nombre).join(', ')})`, sentencia(f.cuerpo, env));
     enCurso.pop();
+    nivel = nivelFuera;
     costeDe.set(f.nombre, ec.resultado);
     ecuaciones.push(ec);
     return ec.resultado;
@@ -522,7 +561,11 @@ export function analizarCoste(src: string): Analisis {
           if (!a) noSe(`el coste de \`${e.f}\` depende de \`${par.nombre}\`, y no sé cuánto vale lo que se le pasa`);
           p = sustituir(p, par.nombre, a!);
         });
-        out.push({ k: 'llamada', texto: src.slice(e.ini, e.fin).replace(/\s+/g, ' '), p: principal(p) });
+        const texto = src.slice(e.ini, e.fin).replace(/\s+/g, ' ');
+        const q = principal(p);
+        const rs = new Map(rangos);
+        const nv = nivel;
+        out.push({ k: 'llamada', texto, p: q, alResolver: () => filas.push({ ambito, linea: e.linea, nivel: nv, codigo: texto, coste: enO(q, rs) }) });
       } else if (!['printf', 'malloc', 'free'].includes(e.f)) noSe(`se llama a \`${e.f}\`, que no está en el código, y no sé cuánto cuesta`);
       return out;
     }
@@ -621,7 +664,14 @@ export function analizarCoste(src: string): Analisis {
     const dentro: Entorno = new Map(env);
     asignadas(s.s).forEach((v) => dentro.delete(v));
     dentro.set(b.v, variable(b.v));
+    const antes = rangos.get(b.v);
+    rangos.set(b.v, sube ? b.hasta : b.desde);
+    const rs = new Map(rangos);
+    const nv = nivel++;
     const cuerpo = plegar({ k: 'mas', xs: [...llamadas(s.c, dentro), sentencia(s.s, dentro)] });
+    nivel--;
+    if (antes) rangos.set(b.v, antes);
+    else rangos.delete(b.v);
     asignadas(s).forEach((v) => env.delete(v));
 
     // the sum's limits as they are written
@@ -656,12 +706,16 @@ export function analizarCoste(src: string): Analisis {
       const como = b.raiz ? `sube ${TEXTO_TIPO(b)} hasta que \`${v}\`² llega a ${verPoli(potencia(b.hasta, 2))}` : TEXTO_TIPO(b);
       const base = b.tipo === 'mult' || b.tipo === 'div' ? ` (logaritmo en base ${b.k})` : '';
       const nota = `Línea ${linea}, \`${verLinea(linea)}\`: \`${v}\` va ${como}, unas ${verPoli(principal(vueltas))} vueltas${base}, ${cada}. Total ≈ ${verPoli(total)}.`;
+      const cadaO = enO(c, rs);
+      filas.push({ ambito, linea, nivel: nv, codigo: cabecera(linea), vueltas: enO(vueltas, rs), cada: cadaO === 'O(1)' ? undefined : cadaO, coste: enO(total, rs) });
       return { p: total, nota };
     };
     return { k: 'sigma', abajo, arriba, cuerpo, linea, resolver: resolverB };
   }
 
   function resolver(nombre: string, e: Ex): Ecuacion {
+    const fuera = ambito;
+    ambito = nombre === 'T(n)' ? 'Programa' : nombre;
     const ls: Ex[] = [e];
     const notas: string[][] = [];
     let actual = e;
@@ -676,6 +730,7 @@ export function analizarCoste(src: string): Analisis {
       ls.push({ k: 'p', p: resultado });
       notas.push(['Se queda lo que crece más deprisa.']);
     }
+    ambito = fuera;
     return { nombre, lineas: ls, notas, resultado };
   }
 
@@ -687,7 +742,10 @@ export function analizarCoste(src: string): Analisis {
     if (ec.resultado.some((t) => t.c < 0)) return { ok: false, motivo: 'Al restar los términos se anulan y la aproximación no sirve aquí.' };
     ecuaciones.push(ec);
     const { clase, texto } = claseDe(ec.resultado);
-    return { ok: true, ecuaciones, clase, texto, avisos: [...avisos] };
+    // functions first (in the order they were solved), then each scope in line order
+    const orden = [...new Set(filas.map((f) => f.ambito))].sort((a, b) => (a === 'Programa' ? 1 : b === 'Programa' ? -1 : 0));
+    filas.sort((a, b) => orden.indexOf(a.ambito) - orden.indexOf(b.ambito) || a.linea - b.linea);
+    return { ok: true, ecuaciones, filas, clase, texto, avisos: [...avisos] };
   } catch (e) {
     if (e instanceof NoSe) return { ok: false, motivo: e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.', linea: lineaActual };
     throw e;

@@ -28,7 +28,7 @@ export function Menu() {
             </svg>
           </span>
           <strong>Ejercicios</strong>
-          <span className="resumen">Por temas: {temaVisible('1') ? 'especificar TAD, ' : ''}programar a mano, escribir funciones, encontrar fallos y funciones misteriosas{temaVisible('5') ? ', y el coste de algoritmos' : ''}. Se corrigen solos.</span>
+          <span className="resumen">Por temas: {temaVisible('1') ? 'especificar TAD, ' : ''}programar a mano, escribir funciones, encontrar fallos y funciones misteriosas{temaVisible('5') ? ', el coste de algoritmos' : ''}{temaVisible('6') ? ' y rellenar tablas hash a mano' : ''}. Se corrigen solos.</span>
           <span className="pie-menu">
             <span className="progreso">
               <span className="barra-prog">

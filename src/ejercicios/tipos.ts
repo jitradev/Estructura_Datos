@@ -159,7 +159,47 @@ export interface EjEspec {
   ecuaciones: EcuacionEspec[];
 }
 
-export type Ejercicio = EjCodigo | EjCoste | EjEspec;
+/** How collisions are solved in the fill-the-table exercises. */
+export type Sondeo = 'encadenamiento' | 'lineal' | 'cuadratica' | 'doble';
+
+export interface OpHash {
+  op: 'insertar' | 'buscar' | 'eliminar';
+  clave: number;
+}
+
+/** A numeric question asked once the table is done (α, nodes...). */
+export interface PreguntaHash {
+  texto: string;
+  respuesta: number;
+}
+
+/**
+ * Topic 6: run a sequence of operations on a hash table by hand. First the hash of each key,
+ * then (with `traza`) what each operation looks at and its result, then the final table.
+ * The solution is not written: it is simulated (src/ejercicios/dispersion.ts).
+ */
+export interface EjDispersion {
+  id: string;
+  tipo: 'dispersion';
+  titulo: string;
+  bloque: string;
+  enunciado: string;
+  pistas?: string[];
+  alResolver?: string;
+  /** Cells or buckets; h(x) = x % tam. */
+  tam: number;
+  sondeo: Sondeo;
+  /** Double hashing: h2(x) = q - (x % q). */
+  q?: number;
+  ops: OpHash[];
+  /** Ask what each operation looks at and its result, not only the final table. */
+  traza?: boolean;
+  preguntas?: PreguntaHash[];
+  /** Shown once solved. */
+  explicacion: string;
+}
+
+export type Ejercicio = EjCodigo | EjCoste | EjEspec | EjDispersion;
 
 export interface Tema {
   id: string;

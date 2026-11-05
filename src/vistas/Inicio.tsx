@@ -16,6 +16,7 @@ function cuentas(es: Ejercicio[]): [string, number][] {
       ['misteriosas', n((e) => e.tipo === 'misterio')],
       ['de coste', n((e) => e.tipo === 'coste')],
       ['de especificar', n((e) => e.tipo === 'especificacion')],
+      ['de rellenar la tabla', n((e) => e.tipo === 'dispersion')],
     ] as [string, number][]
   ).filter(([, k]) => k > 0);
 }

@@ -513,3 +513,36 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 }
 .fila-espec > code { justify-self: start; }
 .op-params code:first-child { min-width: 17ch; text-align: right; }
+
+/* ------------------------------------------------ fill-the-table exercises (topic 6) */
+.dispersion input[type='text'], .dispersion select { font: 0.92rem var(--f-mono); padding: 6px 8px; border-radius: 8px; border: 1.5px solid #d9c9c1; background: #fff; min-width: 0; }
+.dispersion select { font-family: var(--f-txt); }
+.dispersion input.bien, .dispersion select.bien { border-color: var(--verde); background: var(--verde-claro); }
+.dispersion input.mal, .dispersion select.mal { border-color: var(--carmin); background: var(--rojo-claro); }
+.ficha-hash { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.ficha-hash span { padding: 4px 10px; border-radius: 999px; background: var(--hueso); border: 1px solid var(--linea); font-size: 0.88rem; }
+.rejilla-hashes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 16px; }
+.fila-hash { display: flex; align-items: center; gap: 6px; }
+.fila-hash code { white-space: nowrap; }
+.fila-hash input { width: 4.5em; }
+.tabla-traza { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin-top: 4px; }
+.tabla-traza th { text-align: left; font-weight: 600; color: var(--grafito); border-bottom: 1.5px solid var(--linea); padding: 6px 8px; }
+.tabla-traza td { border-bottom: 1px solid var(--linea); padding: 6px 8px; }
+.tabla-traza input[type='text'], .tabla-traza select { width: 100%; }
+.fila-celdas { display: flex; flex-wrap: wrap; margin: 8px 0 4px; }
+.celda-hash { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.fila-celdas:not(.editable) .celda-hash b { display: grid; place-items: center; width: 42px; height: 38px; margin-left: -1.5px; border: 1.5px solid var(--tinta); background: #fff; font: 600 0.95rem var(--f-mono); }
+.celda-hash.vacia b { color: var(--palo); }
+.celda-hash.borrada b { color: var(--carmin); background: var(--rojo-claro); }
+.fila-celdas.editable { gap: 4px; }
+.fila-celdas.editable input { width: 46px; text-align: center; padding: 8px 2px; }
+.celda-hash small { font: 0.75rem var(--f-mono); color: var(--gris); }
+.cubos-hash { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 4px; }
+.cubo-hash { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cubos-hash.editable input { flex: 1; max-width: 260px; }
+.indice-cubo { font: 600 0.85rem var(--f-mono); color: var(--gris); min-width: 2.6em; }
+.nodo-hash { position: relative; padding: 4px 10px; border: 1.5px solid var(--tinta); border-radius: 5px; background: #fff; font: 600 0.92rem var(--f-mono); }
+.nodo-hash::before, .nulo-cubo::before { content: '→'; color: var(--carmin); position: absolute; left: -16px; }
+.nodo-hash, .nulo-cubo { margin-left: 10px; }
+.nulo-cubo { position: relative; font: 0.8rem var(--f-mono); color: var(--gris); }
+.resumen-preguntas { margin: 6px 0 0; padding-left: 18px; font-size: 0.9rem; }

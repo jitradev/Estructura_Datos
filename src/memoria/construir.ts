@@ -9,6 +9,7 @@ import srcPilaEnlazada from '../stacks/c/PilaEnlazada.c?raw';
 import srcColaArray from '../queues/c/ColaArray.c?raw';
 import srcColaEnlazada from '../queues/c/ColaEnlazada.c?raw';
 import srcNodoSimple from '../queues/c/NodoSimple.c?raw';
+import srcTablaAbierta from '../hash/c/tabla_abierta.c?raw';
 
 const NODO = { nombre: 'Nodo', campos: [{ nombre: 'valor', tipo: { base: 'int', ptr: 0 } }, { nombre: 'siguiente', tipo: { base: 'Nodo', ptr: 1 } }] };
 
@@ -80,6 +81,25 @@ export const CTX_COLA_ENLAZADA: Contexto = {
     },
   ],
   preludio: funcionesDe(srcNodoSimple, srcColaEnlazada),
+};
+
+/** Marks of tabla_abierta.h (an enum there; plain constants here). */
+export const MARCAS = { VACIA: 0, OCUPADA: 1, BORRADA: 2 };
+
+/** Tema 6: tabla_abierta.c (TAM 10, hash(x) = x % TAM, linear probing), with all its functions available */
+export const CTX_TABLA_ABIERTA: Contexto = {
+  structs: [
+    {
+      nombre: 'TablaHash',
+      campos: [
+        { nombre: 'claves', tipo: { base: 'int', ptr: 0 }, arr: 10 },
+        { nombre: 'marca', tipo: { base: 'int', ptr: 0 }, arr: 10 },
+        { nombre: 'n', tipo: { base: 'int', ptr: 0 } },
+      ],
+    },
+  ],
+  constantes: { TAM: 10, ...MARCAS },
+  preludio: funcionesDe(srcTablaAbierta),
 };
 
 // ------------------------------------------------------------------ constructores
@@ -172,6 +192,34 @@ export const colaEnlazada =
     o.campos.final = ultimo;
     o.campos.tamano = int(valores.length);
     declarar(m, nombre, 'ColaEnlazada', 1, ref(o.id));
+  };
+
+/**
+ * Open addressing table, reserved with malloc. The cells as in the paper booklet:
+ * «. . . 10 B17 24 . . . .», with «.» empty and «B» deleted (B17 keeps the old key 17).
+ */
+export const tablaAbierta =
+  (nombre: string, celdas: string): Constructor =>
+  (m, ctx) => {
+    const o = nuevoObjeto(m, ctx, 'TablaHash', true);
+    const claves = o.campos.claves as Valor[];
+    const marca = o.campos.marca as Valor[];
+    const partes = celdas.trim().split(/\s+/);
+    if (partes.length !== claves.length) throw new Error(`La tabla ${celdas} no tiene ${claves.length} casillas`);
+    let n = 0;
+    partes.forEach((p, i) => {
+      if (p === '.') marca[i] = int(MARCAS.VACIA);
+      else if (p.startsWith('B')) {
+        marca[i] = int(MARCAS.BORRADA);
+        if (p.length > 1) claves[i] = int(Number(p.slice(1)));
+      } else {
+        marca[i] = int(MARCAS.OCUPADA);
+        claves[i] = int(Number(p));
+        n++;
+      }
+    });
+    o.campos.n = int(n);
+    declarar(m, nombre, 'TablaHash', 1, ref(o.id));
   };
 
 export function construir(ctx: Contexto, partes: Constructor[]): Memoria {

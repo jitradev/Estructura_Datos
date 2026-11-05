@@ -134,4 +134,39 @@ export const DIBUJOS_TEMAS: Record<string, JSX.Element> = {
       </text>
     </svg>
   ),
+  // a chained hash table: the buckets of an array, each the head of a list
+  '6': (
+    <svg viewBox="0 0 280 110" aria-hidden>
+      <Punta id="pt-t6" />
+      <rect x="160" y="6" width="98" height="18" rx="9" className="lam-pastilla" />
+      <text x="209" y="19" className="lam-et centro">
+        h(x) = x % 7
+      </text>
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i}>
+          <rect x="40" y={14 + i * 22} width="30" height="22" className="lam-caja" />
+          <text x="30" y={29 + i * 22} className="lam-et centro">
+            {i}
+          </text>
+        </g>
+      ))}
+      {[
+        [1, [36, 22, 15]],
+        [3, [17]],
+      ].map(([fila, vs]) => (
+        <g key={fila as number}>
+          <circle cx="55" cy={25 + (fila as number) * 22} r="2.5" className="lam-punta" />
+          {(vs as number[]).map((v, k) => (
+            <g key={k}>
+              <path d={`M${k ? 108 + (k - 1) * 52 : 55} ${25 + (fila as number) * 22}H${k ? 116 + (k - 1) * 52 : 82}`} className="lam-flecha" markerEnd="url(#pt-t6)" />
+              <rect x={86 + k * 52} y={16 + (fila as number) * 22} width="26" height="18" rx="3" className="lam-caja" />
+              <text x={99 + k * 52} y={29 + (fila as number) * 22} className="lam-t peq">
+                {v}
+              </text>
+            </g>
+          ))}
+        </g>
+      ))}
+    </svg>
+  ),
 };

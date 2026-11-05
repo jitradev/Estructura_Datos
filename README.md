@@ -1,4 +1,4 @@
-# EDA · ejercicios interactivos de listas, pilas, colas y coste de algoritmos
+# EDA · ejercicios interactivos de listas, pilas, colas, coste de algoritmos y tablas hash
 
 Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de Lenguajes Formales. El alumnado escribe C (un C reducido: punteros, nodos, `malloc`, `free`, `if`, `while`, `for`), lo ejecuta y ve la memoria animada línea a línea con el convenio de los decks: en rojo lo que cambia, en gris lo que deja de valer, el nodo liberado con caja discontinua y aspa, y en ámbar los nodos a los que ya no llega nadie (fugas).
 
@@ -11,12 +11,14 @@ La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/
 | 2 · Listas | 20 | 21 | 23 | 12 |
 | 3 · Pilas | 6 | 7 | 10 | 6 |
 | 4 · Colas | 6 | 7 | 10 | 6 |
+| 6 · Tablas hash | 2 | 4 | 5 | 3 |
 
 El tema 1 (Tipos Abstractos de Datos) tiene 10 de **Especifica el TAD**: Fracción, Conjunto y Complejo de clase, y Contador, Fecha, Vector2D, Bolsa, Agenda, BarraVida y Temporizador de la tanda de práctica y el cuadernillo.
 
 Varios vienen del cuadernillo a papel de cada tema (la traza de operaciones, los recorridos que fallan, el `suprimirTodos` con dos errores, el penúltimo, «qué sale» de la pila y de la cola, contar la cola sin mirar el contador). Y el tema 5 (Análisis de algoritmos), con 29 de **Calcula el coste**.
 
 - **Especifica el TAD** (tema 1): tres pasos. La especificación informal (escribir los parámetros de cada operación, `crear(entero, entero)`, y elegir qué hace), la sintaxis de la formal (escribir el tipo del resultado y marcar las constructoras con *) y la semántica (completar el lado derecho de las ecuaciones). Se corrige solo, sin mirar espacios ni el orden de los operandos de + y * (`src/ejercicios/especificacion.ts`); tras dos fallos se pueden ver las respuestas, y al final sale la especificación completa con el formato de las diapositivas.
+- **Rellena la tabla** (tema 6): una tabla hash de TAM casillas con `h(x) = x % TAM` y una lista de operaciones (insertar, buscar, eliminar). Por pasos: el hash de cada clave (y `h2` en el doble hashing), la traza (qué casillas mira cada operación, o cuántos nodos con encadenamiento, y su resultado), cómo queda la tabla (`.` vacía, `B` borrada) y, si las hay, unas cuentas (α, cuántas mira una búsqueda). Hay encadenamiento insertando por delante, exploración lineal, cuadrática y doble hashing, con la marca de borrada como en `tabla_abierta.c`. La solución no se escribe: la simula `src/ejercicios/dispersion.ts`. Son las trazas del cuadernillo a papel del tema 6 (encadenamiento, lineal con borrados, cuadrática y doble) y ocho nuevas (más claves que cubos, el racimo, la clave que ya estaba detrás de la B, la tabla llena, la cuadrática que no encuentra sitio...).
 - **Programar a mano**: sentencias sueltas sobre una estructura dada (insertar al principio, quitar el primero, push a mano...).
 - **Escribe la función**: completar una función de las cabeceras del tema (`insertarFinal`, `suprimir`, `pop`, `encolar`...). Se prueba con varios casos (lista vacía, un nodo, varios; pila llena o vacía...).
 - **Encuentra el fallo**: una función con un fallo típico. Cuatro pasos: encontrar el caso que falla, marcar la línea, decir qué tipo de fallo es y arreglarlo.
@@ -46,9 +48,13 @@ Igual que la de Lenguajes Formales: subir la carpeta a un repositorio de GitHub 
 
 ## Cómo añadir ejercicios
 
-Están en `src/ejercicios/tema2.ts`, `tema2Listas.ts` (listas doble, circular y circular doble, sobre los structs del TAD Lista, con `lista` en main y el dibujo de Visualizar; cada uno lleva su `bloque`), `tema3.ts`, `tema4.ts` y `tema5.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
+Están en `src/ejercicios/tema2.ts`, `tema2Listas.ts` (listas doble, circular y circular doble, sobre los structs del TAD Lista, con `lista` en main y el dibujo de Visualizar; cada uno lleva su `bloque`), `tema3.ts`, `tema4.ts`, `tema5.ts` y `tema6.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
 
 Los de coste (`tema5.ts`) no tienen casos: llevan `codigo`, la `pregunta` de qué se cuenta, `contar` (el mismo fragmento dejando la cuenta en `x`, si el que se enseña no lo hace; `n`, `x`, `i`, `j` y `k` ya están declaradas), el `coste` y los tres `pasos` de la explicación. La cuenta no se escribe a mano: la hace el intérprete (`src/ejercicios/coste.ts`). `npm test` comprueba que se cuenta sin errores y que la cuenta crece como dice `coste` entre dos valores de n (`nCrecimiento`, por defecto 32 y 256; en el peor caso si depende de n).
+
+Los de rellenar la tabla (`tema6.ts`) llevan `tam`, `sondeo` (`encadenamiento`, `lineal`, `cuadratica` o `doble`, con `q` para `h2(x) = q - x % q`), las `ops`, `traza` si se pide qué mira cada una, `preguntas` numéricas opcionales y la `explicacion`. `npm test` comprueba que el simulador da las soluciones del cuadernillo y que cada α de las preguntas cuadra con la tabla final.
+
+Los de código del tema 6 usan `tabla_abierta.c` tal cual (`src/hash/c/`, copia de `proyecto-TAD` del tema): `TAM` 10, `hash(x) = x % TAM` y exploración lineal. El `enum` de las marcas son constantes (`VACIA` 0, `OCUPADA` 1, `BORRADA` 2), y la tabla de partida se escribe como en el cuadernillo con `tablaAbierta('t', '. . . 13 B33 43 . . . .')`, donde `B33` es una borrada que conserva su clave.
 
 ## Visualizar: el código de las listas
 

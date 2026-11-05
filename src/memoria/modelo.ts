@@ -63,6 +63,8 @@ export interface Contexto {
   constantes?: Record<string, number>;
   /** Funciones auxiliares en mini C (esVacia, esLlena...). Se ejecutan sin pasos. */
   preludio?: string;
+  /** Exercises on one of the TAD lists: they are drawn with DibujoLista. */
+  tipoLista?: 'simple' | 'doble' | 'circular' | 'circular-doble';
 }
 
 export const clonar = (m: Memoria): Memoria => structuredClone(m);

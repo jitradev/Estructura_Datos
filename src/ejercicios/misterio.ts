@@ -42,6 +42,12 @@ export function valoresDe(m: Memoria, nombre: string): number[] | null {
   const int = (x: Valor | Valor[]) => ((x as Valor).k === 'int' ? (x as { v: number }).v : NaN);
   if ('siguiente' in c) return cadena(m, v);
   if ('inicio' in c) return cadena(m, c.inicio as Valor);
+  if ('cabeza' in c) return cadena(m, c.cabeza as Valor);
+  if ('acceso' in c) {
+    // the circular list keeps its last node (the first one is the next); the circular double one, its first
+    const a = campo(m, c.acceso as Valor);
+    return cadena(m, a && !('anterior' in a.campos) ? (a.campos.siguiente as Valor) : (c.acceso as Valor));
+  }
   if ('cima' in c && 'array' in c) return (c.array as Valor[]).slice(0, int(c.cima) + 1).map(int);
   if ('cima' in c) return cadena(m, c.cima as Valor).reverse();
   if ('frente' in c) {
@@ -57,7 +63,7 @@ export function preguntas(ej: EjMisterio, caso: Caso): Pregunta[] {
     if (r === 'devuelve') return { responder: r, texto: '¿Qué devuelve?', formato: 'Un número' };
     const tipo = tipoDe(ej, caso, r);
     if (tipo === 'int') return { responder: r, texto: `¿Cuánto vale \`${r}\` al final?`, formato: 'Un número' };
-    const orden = /Pila/.test(tipo) ? ', del fondo a la cima' : /Cola/.test(tipo) ? ', del frente al final' : '';
+    const orden = /Pila/.test(tipo) ? ', del fondo a la cima' : /Cola/.test(tipo) ? ', del frente al final' : /Lista/.test(tipo) ? ', desde el primero' : '';
     return { responder: r, texto: `¿Cómo queda \`${r}\`${orden}?`, formato: 'p. ej. 4 9 2, o «vacía»' };
   });
 }

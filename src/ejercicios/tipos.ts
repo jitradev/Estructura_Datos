@@ -17,6 +17,8 @@ interface Base {
   enunciado: string;
   pistas?: string[];
   alResolver?: string;
+  /** Section of the topic page, when it is not the exercise type («Lista doble»...). */
+  bloque?: string;
   ctx: Contexto;
   casos: Caso[];
   /** Variables de main que se comparan con la solución. */
@@ -32,7 +34,7 @@ export interface EjProgramar extends Base {
   prohibidos?: string[];
 }
 
-export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'bucle' | 'caso';
+export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'bucle' | 'caso' | 'enlace';
 
 export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   nulo: 'Acceso a NULL',
@@ -43,6 +45,7 @@ export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   array: 'Fuera del array',
   bucle: 'Bucle infinito',
   caso: 'Caso sin contemplar',
+  enlace: 'Enlace sin actualizar',
 };
 
 /** Una función con un fallo típico: encontrar el caso, la línea, el tipo y arreglarla. */

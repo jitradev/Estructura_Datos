@@ -1,12 +1,9 @@
 import { CTX_LISTA, lista } from '../memoria/construir';
+import { c } from './sangrado';
+import { EJERCICIOS_LISTAS } from './tema2Listas';
 import { Tema } from './tipos';
 
-/** Quita el primer salto de línea y el sangrado común: así los números de línea son los que se ven. */
-export function c(s: string): string {
-  const lineas = s.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
-  const sangria = Math.min(...lineas.filter((l) => l.trim()).map((l) => l.match(/^ */)![0].length));
-  return lineas.map((l) => l.slice(sangria)).join('\n');
-}
+export { c };
 
 const ctx = CTX_LISTA;
 const L = (...v: number[]) => [lista('cab', v)];
@@ -14,7 +11,7 @@ const L = (...v: number[]) => [lista('cab', v)];
 export const tema2: Tema = {
   id: '2',
   titulo: 'Listas enlazadas',
-  resumen: 'Crear, enlazar y liberar nodos sin perder el resto; después, las funciones de lista.h y sus fallos típicos.',
+  resumen: 'Crear, enlazar y liberar nodos sin perder el resto; después, las funciones de lista.h y sus fallos típicos, y al final las listas doble, circular y circular doble.',
   ejercicios: [
     // ------------------------------------------------------------ a mano
     {
@@ -1212,5 +1209,6 @@ export const tema2: Tema = {
       correcta: 0,
       explicacion: 'Cada vuelta salta y libera el nodo de detrás de `p`, y después avanza `p` al siguiente que queda: se queda con el 1.º, 3.º, 5.º… Que en `1 2 3 4 5` coincida con quitar los pares es casualidad: mira posiciones, no valores.',
     },
+    ...EJERCICIOS_LISTAS,
   ],
 };

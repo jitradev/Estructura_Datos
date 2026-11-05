@@ -12,13 +12,34 @@ export function estadosLineas(pasos: Paso[] | null, idx: number): Record<number,
   return r;
 }
 
+/** Statements of the exercises on the double and circular lists. */
+function filasLista(t: NonNullable<Contexto['tipoLista']>): [string, string][] {
+  const doble = t === 'doble' || t === 'circular-doble';
+  const circular = t === 'circular' || t === 'circular-doble';
+  const nodo = doble ? 'NodoDoble' : 'Nodo';
+  const primero = t === 'circular' ? 'lista->acceso->siguiente' : circular ? 'lista->acceso' : 'lista->cabeza';
+  const ultimo = t === 'circular' ? 'lista->acceso' : circular ? 'lista->acceso->anterior' : 'lista->cola';
+  return [
+    ['Crear un nodo', `${nodo} *a = malloc(sizeof(${nodo}));`],
+    ['El primero', primero],
+    ['El último', ultimo],
+    ['Avanzar', 'aux = aux->siguiente;'],
+    ...(doble ? ([['Retroceder', 'aux = aux->anterior;']] as [string, string][]) : []),
+    ['Enlazar', doble ? 'a->siguiente = b;  b->anterior = a;' : 'a->siguiente = b;'],
+    ...(circular ? ([['Dar la vuelta', 'do { ... } while (aux != inicio);']] as [string, string][]) : []),
+    ['Dar valor', 'a->valor = 5;'],
+    ['Liberar', 'free(a);'],
+  ];
+}
+
 /** Chuleta de sentencias según las estructuras del ejercicio. */
 export function Chuleta({ ctx }: { ctx: Contexto }) {
   const nombres = ctx.structs.map((s) => s.nombre);
   const nodo = ctx.structs.find((s) => s.nombre === 'Nodo');
   const dato = nodo?.campos.find((c) => c.tipo.base === 'int')?.nombre ?? 'valor';
   const filas: [string, string][] = [];
-  if (nodo) {
+  if (ctx.tipoLista) filas.push(...filasLista(ctx.tipoLista));
+  else if (nodo) {
     filas.push(
       ['Crear un nodo', 'Nodo *a = malloc(sizeof(Nodo));'],
       ['Puntero auxiliar', 'Nodo *aux = cab;'],

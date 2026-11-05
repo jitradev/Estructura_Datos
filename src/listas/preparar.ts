@@ -20,6 +20,12 @@ export interface Parametros {
 /** La lista con esos valores, como la dejaría crearLista + insertarFinal, y `lista` en main. */
 export function construirLista(t: TipoLista, valores: number[]): Memoria {
   const m = memoriaVacia();
+  ponerLista(m, t, valores);
+  return m;
+}
+
+/** Adds that list to a memory, with `lista` in main. */
+export function ponerLista(m: Memoria, t: TipoLista, valores: number[]): void {
   const cab = nuevoObjeto(m, t.ctx, t.lista, true);
   const nodos = valores.map((v) => {
     const o = nuevoObjeto(m, t.ctx, t.nodo, true);
@@ -43,7 +49,6 @@ export function construirLista(t: TipoLista, valores: number[]): Memoria {
     if (t.id === 'circular-doble') cab.campos.acceso = ref(nodos[0]);
   }
   m.marcos[0].vars.push({ nombre: 'lista', tipo: { base: t.lista, ptr: 1 }, valor: ref(cab) });
-  return m;
 }
 
 /** Los valores de la lista en orden, leyendo desde la memoria (para comprobar). */

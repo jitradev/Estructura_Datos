@@ -8,7 +8,7 @@ La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/
 
 | Tema | Programar a mano | Escribe la función | Encuentra el fallo | Función misteriosa |
 |---|---|---|---|---|
-| 2 · Listas | 8 | 10 | 13 | 8 |
+| 2 · Listas | 20 | 21 | 23 | 12 |
 | 3 · Pilas | 6 | 7 | 10 | 6 |
 | 4 · Colas | 6 | 7 | 10 | 6 |
 
@@ -46,7 +46,7 @@ Igual que la de Lenguajes Formales: subir la carpeta a un repositorio de GitHub 
 
 ## Cómo añadir ejercicios
 
-Están en `src/ejercicios/tema2.ts`, `tema3.ts`, `tema4.ts` y `tema5.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
+Están en `src/ejercicios/tema2.ts`, `tema2Listas.ts` (listas doble, circular y circular doble, sobre los structs del TAD Lista, con `lista` en main y el dibujo de Visualizar; cada uno lleva su `bloque`), `tema3.ts`, `tema4.ts` y `tema5.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
 
 Los de coste (`tema5.ts`) no tienen casos: llevan `codigo`, la `pregunta` de qué se cuenta, `contar` (el mismo fragmento dejando la cuenta en `x`, si el que se enseña no lo hace; `n`, `x`, `i`, `j` y `k` ya están declaradas), el `coste` y los tres `pasos` de la explicación. La cuenta no se escribe a mano: la hace el intérprete (`src/ejercicios/coste.ts`). `npm test` comprueba que se cuenta sin errores y que la cuenta crece como dice `coste` entre dos valores de n (`nCrecimiento`, por defecto 32 y 256; en el peor caso si depende de n).
 
@@ -69,5 +69,4 @@ Los temas que no se ven en la web están en `OCULTOS`, en `src/ejercicios/regist
 ## Pendiente
 
 - Ejercicios de C «de verdad» compilados en el navegador (Clang en WebAssembly), según el plan.
-- Ejercicios de lista doble y circular (ya se dibujan en Visualizar, pero aún no hay ejercicios corregidos).
 - Limitaciones: todo es frontend, así que las soluciones viajan en el JavaScript; y el progreso se guarda por navegador.

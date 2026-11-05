@@ -9,7 +9,7 @@ import { EditorCodigo, EstadoLinea } from '../EditorCodigo';
 import { Chuleta, estadosLineas } from '../piezas';
 import { Reproductor, useReproductor } from '../Reproductor';
 
-const TIPOS: TipoFallo[] = ['nulo', 'liberado', 'fuga', 'pierde', 'colgante', 'array', 'bucle', 'caso'];
+const TIPOS: TipoFallo[] = ['nulo', 'liberado', 'fuga', 'pierde', 'colgante', 'array', 'bucle', 'caso', 'enlace'];
 
 interface Avance {
   caso?: string; // el caso que falla, en cuanto lo encuentra

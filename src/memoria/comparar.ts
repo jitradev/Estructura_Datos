@@ -109,7 +109,7 @@ export function describir(m: Memoria, ctx: Contexto, nombre: string): string {
   return describirValor(m, ctx, nombre, v.valor);
 }
 
-function cadena(m: Memoria, ctx: Contexto, inicio: Valor): string {
+function cadena(m: Memoria, ctx: Contexto, inicio: Valor, enlace = 'siguiente'): string {
   const partes: string[] = [];
   const vistos = new Set<number>();
   let v = inicio;
@@ -140,7 +140,7 @@ function cadena(m: Memoria, ctx: Contexto, inicio: Valor): string {
       break;
     }
     partes.push(t);
-    v = o.campos.siguiente as Valor;
+    v = o.campos[enlace] as Valor;
   }
   return partes.join(' -> ');
 }
@@ -161,8 +161,12 @@ function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): st
     if (Array.isArray(c)) partes.push(`${k === 'en orden' ? 'en orden' : `${nombre}->${k}`}: [${c.map((x) => (x.k === 'int' ? x.v : '?')).join(', ')}]`);
     else {
       const def = s.campos.find((x) => x.nombre === k);
-      if (def && def.tipo.ptr > 0) partes.push(`${nombre}->${k} -> ${cadena(m, ctx, c)}`);
-      else partes.push(`${nombre}->${k} = ${c.k === 'int' ? c.v : '?'}`);
+      if (def && def.tipo.ptr > 0) {
+        // a double list can be wrong in one direction only: cabeza is read forwards, cola backwards, acceso both ways
+        const doble = structDe(ctx, def.tipo.base)?.campos.some((x) => x.nombre === 'anterior');
+        if (!doble || k !== 'cola') partes.push(`${nombre}->${k} -> ${cadena(m, ctx, c)}`);
+        if (doble && k !== 'cabeza') partes.push(`${nombre}->${k} hacia atrás -> ${cadena(m, ctx, c, 'anterior')}`);
+      } else partes.push(`${nombre}->${k} = ${c.k === 'int' ? c.v : '?'}`);
     }
   }
   return partes.join(', ');

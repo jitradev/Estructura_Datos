@@ -89,8 +89,8 @@ export function Inicio() {
 
 const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo', 'Función misteriosa'];
 
-/** Section of the topic page: the exercise type, or its block for the cost ones. */
-const grupo = (e: Ejercicio) => (e.tipo === 'coste' || e.tipo === 'especificacion' ? e.bloque : nombreTipo(e));
+/** Section of the topic page: its block if it has one, or the exercise type. */
+const grupo = (e: Ejercicio) => e.bloque ?? nombreTipo(e);
 
 export function TemaPagina({ id }: { id: string }) {
   const resueltos = useResueltos();

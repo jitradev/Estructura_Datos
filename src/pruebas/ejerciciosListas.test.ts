@@ -16,7 +16,7 @@ const predicciones = (id: string) => {
 
 describe('exercises on the double and circular lists', () => {
   it('every exercise is in a section and draws its list', () => {
-    expect(EJERCICIOS_LISTAS.length).toBe(37);
+    expect(EJERCICIOS_LISTAS.length).toBe(74);
     for (const e of EJERCICIOS_LISTAS) {
       expect(e.bloque, e.id).toMatch(/^Lista /);
       expect(e.ctx.tipoLista, e.id).toBeDefined();
@@ -46,6 +46,21 @@ describe('exercises on the double and circular lists', () => {
     expect(informe('2-C11', '9 → 3 → 7 ↺').detalle!.join('\n')).toContain('liberado');
     expect(informe('2-C12', 'Lista vacía').detalle![0]).toContain('5 -> NULL');
     expect(informe('2-E9', 'El único').detalle!.join('\n')).toContain('liberado');
+    expect(informe('2-D21', 'Un nodo').resultado.error?.linea).toBe(5);
+    expect(informe('2-D21', '9 ⇄ 3 ⇄ 7').ok).toBe(true);
+    expect(informe('2-D22', 'Un nodo').ok).toBe(false);
+    expect(informe('2-D22', '9 ⇄ 3 ⇄ 7').ok).toBe(true);
+    expect(informe('2-D23', '9 ⇄ 3 ⇄ 7').titulo).toContain('Fuga de memoria');
+    expect(informe('2-C23', 'Lista vacía').resultado.error?.linea).toBe(5);
+    expect(informe('2-C24', 'Tras el 9').ok).toBe(true);
+    expect(informe('2-C24', 'Tras el último').ok).toBe(false);
+    expect(informe('2-C25', 'Un nodo').detalle!.join('\n')).toContain('liberado');
+    expect(informe('2-C26', '9 → 3 → 7 ↺').resultado.error?.linea).toBe(5);
+    expect(informe('2-E19', 'Lista vacía').ok).toBe(true);
+    expect(informe('2-E19', '9 ⇄ 3 ⇄ 7 ↺').detalle![0]).toContain('lista->acceso -> 9');
+    expect(informe('2-E20', '9 ⇄ 3 ⇄ 7 ↺').detalle![0]).toContain('hacia atrás');
+    expect(informe('2-E21', 'Un nodo').ok).toBe(true);
+    expect(informe('2-E21', '9 ⇄ 3 ⇄ 7 ↺').resultado.error?.mensaje).toMatch(/bucle|pasos/i);
   });
 
   it('a fix that only works forwards is not accepted', () => {
@@ -59,6 +74,10 @@ describe('exercises on the double and circular lists', () => {
     expect(predicciones('2-C13')).toEqual(['2 3 4 1', '4 1 2 3', '1 2 3 4']);
     expect(predicciones('2-C14')).toEqual(['3', '1', '5']);
     expect(predicciones('2-E11')).toEqual(['1', '2', '0']);
+    expect(predicciones('2-D24')).toEqual(['4 3 2 1', '5 8 6', '7']);
+    expect(predicciones('2-C27')).toEqual(['3', '2', '7']);
+    expect(predicciones('2-C28')).toEqual(['2 3 1', '4 1 4', '5']);
+    expect(predicciones('2-E22')).toEqual(['9 1 3', '5 2', '7 1 2']);
   });
 
   it('rotating is forbidden to touch the links', () => {

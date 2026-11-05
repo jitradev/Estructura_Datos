@@ -8,7 +8,7 @@ La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/
 
 | Tema | Programar a mano | Escribe la función | Encuentra el fallo | Función misteriosa |
 |---|---|---|---|---|
-| 2 · Listas | 20 | 21 | 23 | 12 |
+| 2 · Listas | 32 | 32 | 33 | 16 |
 | 3 · Pilas | 6 | 7 | 10 | 6 |
 | 4 · Colas | 6 | 7 | 10 | 6 |
 | 6 · Tablas hash | 2 | 4 | 5 | 3 |

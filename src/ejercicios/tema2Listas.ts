@@ -373,6 +373,365 @@ const DOBLE: EjCodigo[] = [
     correcta: 0,
     explicacion: 'Empieza por la `cola` y retrocede hasta dar con `x`, contando los que deja atrás. Como va de atrás adelante, la aparición que encuentra es la última de la lista.',
   },
+  {
+    id: '2-D13',
+    tipo: 'programar',
+    titulo: 'Quitar el primero',
+    enunciado: 'Quita el primer nodo y libéralo. Sin tocar ningún `valor`.',
+    pistas: ['Guarda el primero antes de mover `lista->cabeza`.', 'El nuevo primero no tiene a nadie detrás: su `anterior` pasa a NULL.'],
+    ctx: ctxD,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      NodoDoble *aux = lista->cabeza;
+      lista->cabeza = aux->siguiente;
+      lista->cabeza->anterior = NULL;
+      free(aux);`),
+  },
+  {
+    id: '2-D14',
+    tipo: 'programar',
+    titulo: 'Intercambiar los dos primeros',
+    enunciado: 'Deja `9 ⇄ 3 ⇄ 7` como `3 ⇄ 9 ⇄ 7` **moviendo enlaces**: no se puede tocar ningún `valor`.',
+    pistas: ['Guarda los tres nodos en auxiliares y ya no hay orden que respetar.', 'Cambian seis punteros: los dos de cada uno de los dos primeros, el `anterior` del 7 y `cabeza`.'],
+    alResolver: 'En la lista simple eran tres enlaces y aquí son seis: cada enlace cuenta por dos.',
+    ctx: ctxD,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      NodoDoble *a = lista->cabeza;
+      NodoDoble *b = a->siguiente;
+      NodoDoble *d = b->siguiente;
+      a->siguiente = d;
+      a->anterior = b;
+      b->siguiente = a;
+      b->anterior = NULL;
+      d->anterior = a;
+      lista->cabeza = b;`),
+  },
+  {
+    id: '2-D15',
+    tipo: 'programar',
+    titulo: 'Pasar el último al principio',
+    enunciado: 'Mueve el último nodo delante de todos: `9 ⇄ 3 ⇄ 7` queda `7 ⇄ 9 ⇄ 3`. Sin bucles, sin `malloc`, sin `free` y sin tocar `valor`.',
+    pistas: ['Primero descuélgalo por la cola, como en 2-D2 pero sin liberarlo.', 'Después engánchalo por la cabeza, como en 2-D1.'],
+    ctx: ctxD,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      NodoDoble *u = lista->cola;
+      lista->cola = u->anterior;
+      lista->cola->siguiente = NULL;
+      u->anterior = NULL;
+      u->siguiente = lista->cabeza;
+      lista->cabeza->anterior = u;
+      lista->cabeza = u;`),
+  },
+  {
+    id: '2-D16',
+    tipo: 'programar',
+    titulo: 'Vaciar la lista',
+    enunciado: 'Libera todos los nodos y deja la lista vacía: `cabeza` y `cola` a NULL. Necesitarás un `while`.',
+    pistas: ['Puedes ir quitando siempre el primero mientras `lista->cabeza != NULL`.', 'No olvides `cola`: el bucle no la toca y se queda colgando.'],
+    ctx: ctxD,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7) }],
+    observar: ['lista'],
+    solucion: c(`
+      while (lista->cabeza != NULL) {
+          NodoDoble *aux = lista->cabeza;
+          lista->cabeza = aux->siguiente;
+          free(aux);
+      }
+      lista->cola = NULL;`),
+  },
+  {
+    id: '2-D17',
+    tipo: 'programar',
+    titulo: 'Escribe insertarOrdenado',
+    enunciado: 'La lista está ordenada de menor a mayor. Mete `x` en su sitio. Se prueba al principio, en medio, al final y con la lista vacía.',
+    pistas: ['Busca el primer nodo `p` que no sea menor que `x`: el nuevo va justo delante. Si no hay ninguno, `p` acaba en NULL.', 'Si `p` es NULL, el anterior del nuevo es `lista->cola`; si no, `p->anterior`.', 'Después cada lado por separado: sin anterior cambia `cabeza`, y sin siguiente cambia `cola`.'],
+    ctx: ctxD,
+    casos: [
+      { nombre: 'Lista vacía', inicial: D(), llamada: 'insertarOrdenado(lista, 5)' },
+      { nombre: 'Al principio', inicial: D(3, 7, 9), llamada: 'insertarOrdenado(lista, 1)' },
+      { nombre: 'En medio', inicial: D(3, 7, 9), llamada: 'insertarOrdenado(lista, 5)' },
+      { nombre: 'Al final', inicial: D(3, 7, 9), llamada: 'insertarOrdenado(lista, 12)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      void insertarOrdenado(ListaDoble *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      void insertarOrdenado(ListaDoble *lista, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          NodoDoble *p = lista->cabeza;
+          while (p != NULL && p->valor < x)
+              p = p->siguiente;
+          nuevo->siguiente = p;
+          if (p == NULL)
+              nuevo->anterior = lista->cola;
+          else
+              nuevo->anterior = p->anterior;
+          if (nuevo->anterior == NULL)
+              lista->cabeza = nuevo;
+          else
+              nuevo->anterior->siguiente = nuevo;
+          if (p == NULL)
+              lista->cola = nuevo;
+          else
+              p->anterior = nuevo;
+      }`),
+  },
+  {
+    id: '2-D18',
+    tipo: 'programar',
+    titulo: 'Escribe desdeElFinal',
+    enunciado: 'Devuelve el valor que está `k` puestos antes del final: con `k = 0`, el último. Si no hay tantos nodos, devuelve **-1**.',
+    pistas: ['Empieza en `lista->cola` y retrocede `k` veces.', 'Comprueba en cada paso que `p` no se ha quedado en NULL.'],
+    alResolver: 'En la lista simple esto pide dos recorridos o dos punteros separados. Aquí basta con andar hacia atrás.',
+    ctx: ctxD,
+    casos: [
+      { nombre: 'Lista vacía, k = 0', inicial: D(), llamada: 'desdeElFinal(lista, 0)' },
+      { nombre: '9 ⇄ 3 ⇄ 7, k = 0', inicial: D(9, 3, 7), llamada: 'desdeElFinal(lista, 0)' },
+      { nombre: '9 ⇄ 3 ⇄ 7, k = 2', inicial: D(9, 3, 7), llamada: 'desdeElFinal(lista, 2)' },
+      { nombre: '9 ⇄ 3 ⇄ 7, k = 3', inicial: D(9, 3, 7), llamada: 'desdeElFinal(lista, 3)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      int desdeElFinal(ListaDoble *lista, int k)
+      {
+
+      }`),
+    solucion: c(`
+      int desdeElFinal(ListaDoble *lista, int k)
+      {
+          NodoDoble *p = lista->cola;
+          for (int i = 0; i < k && p != NULL; i++)
+              p = p->anterior;
+          if (p == NULL) return -1;
+          return p->valor;
+      }`),
+  },
+  {
+    id: '2-D19',
+    tipo: 'programar',
+    titulo: 'Escribe suprimirTodos',
+    enunciado: 'Quita y libera todos los nodos que valen `x`. Pueden estar en cualquier sitio, y pueden ser todos.',
+    pistas: ['Guarda `p->siguiente` antes de liberar `p`.', 'Para quitar cada nodo, lo mismo que en `suprimirNodo` (2-D6): cada lado por separado.'],
+    ctx: ctxD,
+    casos: [
+      { nombre: 'Lista vacía', inicial: D(), llamada: 'suprimirTodos(lista, 3)' },
+      { nombre: '3 ⇄ 9 ⇄ 3 ⇄ 3 ⇄ 7 ⇄ 3', inicial: D(3, 9, 3, 3, 7, 3), llamada: 'suprimirTodos(lista, 3)' },
+      { nombre: 'No está', inicial: D(9, 7), llamada: 'suprimirTodos(lista, 3)' },
+      { nombre: 'Todos valen 3', inicial: D(3, 3), llamada: 'suprimirTodos(lista, 3)' },
+    ],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    codigoInicial: c(`
+      void suprimirTodos(ListaDoble *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      void suprimirTodos(ListaDoble *lista, int x)
+      {
+          NodoDoble *p = lista->cabeza;
+          while (p != NULL) {
+              NodoDoble *sig = p->siguiente;
+              if (p->valor == x) {
+                  if (p->anterior != NULL)
+                      p->anterior->siguiente = p->siguiente;
+                  else
+                      lista->cabeza = p->siguiente;
+                  if (p->siguiente != NULL)
+                      p->siguiente->anterior = p->anterior;
+                  else
+                      lista->cola = p->anterior;
+                  free(p);
+              }
+              p = sig;
+          }
+      }`),
+  },
+  {
+    id: '2-D20',
+    tipo: 'programar',
+    titulo: 'Escribe moverAlFrente',
+    enunciado: 'Mueve el nodo `n` al principio de la lista, sin `malloc`, sin `free` y sin tocar `valor`. Si ya es el primero, no hace nada.',
+    pistas: ['Si no es el primero, seguro que tiene anterior: ese lado no necesita `if`.', 'Por el otro lado sí: si `n` era el último, cambia `cola`.'],
+    alResolver: 'Es lo que hace una caché LRU: lo último que se usa pasa delante, en O(1), gracias a que el nodo conoce a sus vecinos.',
+    ctx: ctxD,
+    casos: [
+      { nombre: 'El primero', inicial: D(9, 3, 7), llamada: 'moverAlFrente(lista, lista->cabeza)' },
+      { nombre: 'Uno del medio', inicial: D(9, 3, 7), llamada: 'moverAlFrente(lista, lista->cabeza->siguiente)' },
+      { nombre: 'El último', inicial: D(9, 3, 7), llamada: 'moverAlFrente(lista, lista->cola)' },
+    ],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    codigoInicial: c(`
+      void moverAlFrente(ListaDoble *lista, NodoDoble *n)
+      {
+
+      }`),
+    solucion: c(`
+      void moverAlFrente(ListaDoble *lista, NodoDoble *n)
+      {
+          if (n == lista->cabeza) return;
+          n->anterior->siguiente = n->siguiente;
+          if (n->siguiente != NULL)
+              n->siguiente->anterior = n->anterior;
+          else
+              lista->cola = n->anterior;
+          n->anterior = NULL;
+          n->siguiente = lista->cabeza;
+          lista->cabeza->anterior = n;
+          lista->cabeza = n;
+      }`),
+  },
+  {
+    id: '2-D21',
+    tipo: 'fallo',
+    titulo: 'quitarUltimo que no piensa en el único',
+    enunciado: 'Es el código de 2-D2 metido en una función. Allí la lista tenía tres nodos.',
+    ctx: ctxD,
+    casos: [
+      { nombre: 'Un nodo', inicial: D(9), llamada: 'quitarUltimo(lista)' },
+      { nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7), llamada: 'quitarUltimo(lista)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      void quitarUltimo(ListaDoble *lista)
+      {
+          NodoDoble *aux = lista->cola;
+          lista->cola = aux->anterior;
+          lista->cola->siguiente = NULL;
+          free(aux);
+      }`),
+    lineasFallo: [5],
+    preguntaLinea: 'Marca la línea donde se rompe',
+    tiposFallo: ['nulo', 'caso'],
+    explicacion: 'Con un solo nodo, `aux->anterior` es NULL: `lista->cola` se queda a NULL y la línea siguiente no tiene a quién cambiarle el `siguiente`. En ese caso lo que hay que poner a NULL es `lista->cabeza`.',
+    solucion: c(`
+      void quitarUltimo(ListaDoble *lista)
+      {
+          NodoDoble *aux = lista->cola;
+          lista->cola = aux->anterior;
+          if (lista->cola == NULL)
+              lista->cabeza = NULL;
+          else
+              lista->cola->siguiente = NULL;
+          free(aux);
+      }`),
+  },
+  {
+    id: '2-D22',
+    tipo: 'fallo',
+    titulo: 'quitarPrimero que se deja la cola',
+    enunciado: 'Aquí sí se comprueba que hay un nuevo primero. Falta pensar en lo que pasa si no lo hay.',
+    ctx: ctxD,
+    casos: [
+      { nombre: 'Un nodo', inicial: D(9), llamada: 'quitarPrimero(lista)' },
+      { nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7), llamada: 'quitarPrimero(lista)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      void quitarPrimero(ListaDoble *lista)
+      {
+          NodoDoble *aux = lista->cabeza;
+          lista->cabeza = aux->siguiente;
+          if (lista->cabeza != NULL)
+              lista->cabeza->anterior = NULL;
+          free(aux);
+      }`),
+    lineasFallo: [5, 6, 7],
+    preguntaLinea: 'Marca dónde falta algo',
+    tiposFallo: ['colgante', 'caso'],
+    explicacion: 'Con un solo nodo, `cabeza` queda a NULL pero `cola` sigue apuntando al nodo que se libera. La lista parece vacía por un lado y llena por el otro. Falta `else lista->cola = NULL;`.',
+    solucion: c(`
+      void quitarPrimero(ListaDoble *lista)
+      {
+          NodoDoble *aux = lista->cabeza;
+          lista->cabeza = aux->siguiente;
+          if (lista->cabeza != NULL)
+              lista->cabeza->anterior = NULL;
+          else
+              lista->cola = NULL;
+          free(aux);
+      }`),
+  },
+  {
+    id: '2-D23',
+    tipo: 'fallo',
+    titulo: 'sacarUltimo que devuelve bien y deja rastro',
+    enunciado: 'Devuelve el valor correcto y la lista queda perfecta. Y aun así está mal.',
+    ctx: ctxD,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7', inicial: D(9, 3, 7), llamada: 'sacarUltimo(lista)' }],
+    observar: ['lista'],
+    codigo: c(`
+      int sacarUltimo(ListaDoble *lista)
+      {
+          int x = lista->cola->valor;
+          lista->cola = lista->cola->anterior;
+          lista->cola->siguiente = NULL;
+          return x;
+      }`),
+    lineasFallo: [4, 5, 6],
+    preguntaLinea: 'Marca dónde se pierde el nodo',
+    tiposFallo: ['fuga'],
+    explicacion: 'Nadie apunta ya al nodo del 7 y nadie lo ha liberado. Hay que guardarlo en un auxiliar antes de mover `cola` y hacer `free` antes del `return`.',
+    solucion: c(`
+      int sacarUltimo(ListaDoble *lista)
+      {
+          NodoDoble *aux = lista->cola;
+          int x = aux->valor;
+          lista->cola = aux->anterior;
+          lista->cola->siguiente = NULL;
+          free(aux);
+          return x;
+      }`),
+  },
+  {
+    id: '2-D24',
+    tipo: 'misterio',
+    titulo: 'Dos punteros que se encuentran',
+    enunciado: 'Predice cómo queda la lista en cada caso, leída desde el primero, y después di qué hace.',
+    ctx: ctxD,
+    casos: [
+      { nombre: '1 ⇄ 2 ⇄ 3 ⇄ 4', inicial: D(1, 2, 3, 4), llamada: 'misterio(lista)' },
+      { nombre: '6 ⇄ 8 ⇄ 5', inicial: D(6, 8, 5), llamada: 'misterio(lista)' },
+      { nombre: 'Un nodo', inicial: D(7), llamada: 'misterio(lista)' },
+    ],
+    observar: ['lista'],
+    responder: ['lista'],
+    solucion: c(`
+      void misterio(ListaDoble *lista)
+      {
+          NodoDoble *i = lista->cabeza;
+          NodoDoble *d = lista->cola;
+          while (i != d && i->anterior != d) {
+              int t = i->valor;
+              i->valor = d->valor;
+              d->valor = t;
+              i = i->siguiente;
+              d = d->anterior;
+          }
+      }`),
+    opciones: [
+      'Invierte la lista cambiando los valores, sin mover ningún nodo.',
+      'Invierte la lista moviendo los enlaces.',
+      'Intercambia solo el primero y el último.',
+      'Ordena la lista de mayor a menor.',
+    ],
+    correcta: 0,
+    explicacion: 'Un puntero entra por cada extremo y se intercambian los valores hasta que se encuentran o se cruzan. El resultado se lee igual que en 2-D8, pero aquí los nodos no se mueven.',
+  },
 ];
 
 // ------------------------------------------------------------------ circular
@@ -801,6 +1160,401 @@ const CIRCULAR: EjCodigo[] = [
     correcta: 0,
     explicacion: 'Es el problema de Josefo: cada vuelta se salta un nodo, elimina el siguiente y sigue en círculo. Una lista circular es justo esto: no hay que volver al principio al llegar al final.',
   },
+  {
+    id: '2-C15',
+    tipo: 'programar',
+    titulo: 'Quitar el último',
+    enunciado: 'Quita el último nodo y libéralo. Aquí sí hace falta un `while`: el acceso apunta al último, pero para quitarlo necesitas al de antes. Sin tocar ningún `valor`.',
+    pistas: ['Busca desde el primero el nodo cuyo `siguiente` es `lista->acceso`.', 'Ese nodo pasa a apuntar al primero, y `acceso` tiene que pasar a ser él.'],
+    alResolver: 'Quitar el primero es O(1) y quitar el último, O(n). Es el precio de tener un solo enlace.',
+    ctx: ctxC,
+    casos: [{ nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      Nodo *ant = lista->acceso->siguiente;
+      while (ant->siguiente != lista->acceso)
+          ant = ant->siguiente;
+      ant->siguiente = lista->acceso->siguiente;
+      free(lista->acceso);
+      lista->acceso = ant;`),
+  },
+  {
+    id: '2-C16',
+    tipo: 'programar',
+    titulo: 'Insertar el 5 entre el 3 y el 7',
+    enunciado: 'Mete un nodo con el **5** entre el 3 y el 7. El 7 es el último y el 9 es `lista->acceso->siguiente`: cuenta bien para llegar al 3.',
+    pistas: ['Al 3 llegas con `lista->acceso->siguiente->siguiente`.', 'El `acceso` no cambia: el 7 sigue siendo el último.'],
+    ctx: ctxC,
+    casos: [{ nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7) }],
+    observar: ['lista'],
+    solucion: c(`
+      Nodo *tres = lista->acceso->siguiente->siguiente;
+      Nodo *nuevo = malloc(sizeof(Nodo));
+      nuevo->valor = 5;
+      nuevo->siguiente = tres->siguiente;
+      tres->siguiente = nuevo;`),
+  },
+  {
+    id: '2-C17',
+    tipo: 'programar',
+    titulo: 'Intercambiar los dos primeros',
+    enunciado: 'Deja `9 → 3 → 7` como `3 → 9 → 7` **moviendo enlaces**: no se puede tocar ningún `valor`.',
+    pistas: ['Es como en 2-05, pero quien apunta al primero no es una variable `cab`: es el último.'],
+    ctx: ctxC,
+    casos: [{ nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      Nodo *a = lista->acceso->siguiente;
+      Nodo *b = a->siguiente;
+      a->siguiente = b->siguiente;
+      b->siguiente = a;
+      lista->acceso->siguiente = b;`),
+  },
+  {
+    id: '2-C18',
+    tipo: 'programar',
+    titulo: 'Romper el círculo',
+    enunciado: 'Convierte la lista en una simple: declara `Nodo *cab` apuntando al primero, haz que el último apunte a NULL y deja `lista->acceso` a NULL.',
+    pistas: ['Guarda el primero en `cab` antes de tocar nada: quien lo apunta es el último.', 'El orden importa: `lista->acceso` hace falta para llegar al último.'],
+    alResolver: 'Una sola sentencia separa una lista circular de una simple. Lo que cambia es cómo se recorre.',
+    ctx: ctxC,
+    casos: [{ nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7) }],
+    observar: ['cab', 'lista'],
+    solucion: c(`
+      Nodo *cab = lista->acceso->siguiente;
+      lista->acceso->siguiente = NULL;
+      lista->acceso = NULL;`),
+  },
+  {
+    id: '2-C19',
+    tipo: 'programar',
+    titulo: 'Escribe buscar',
+    enunciado: 'Devuelve **1** si `x` está en la lista y **0** si no. Tiene que terminar aunque no lo encuentre.',
+    pistas: ['La lista vacía va aparte.', 'Da una vuelta con `do … while` y sal con `return 1` en cuanto lo veas.'],
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Lista vacía', inicial: C(), llamada: 'buscar(lista, 3)' },
+      { nombre: 'Está', inicial: C(9, 3, 7), llamada: 'buscar(lista, 3)' },
+      { nombre: 'Es el último', inicial: C(9, 3, 7), llamada: 'buscar(lista, 7)' },
+      { nombre: 'No está', inicial: C(9, 3, 7), llamada: 'buscar(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      int buscar(ListaCircular *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      int buscar(ListaCircular *lista, int x)
+      {
+          if (lista->acceso == NULL) return 0;
+          Nodo *p = lista->acceso;
+          do {
+              if (p->valor == x) return 1;
+              p = p->siguiente;
+          } while (p != lista->acceso);
+          return 0;
+      }`),
+  },
+  {
+    id: '2-C20',
+    tipo: 'programar',
+    titulo: 'Escribe insertarPrincipio',
+    enunciado: 'Completa `insertarPrincipio`. Se prueba con la lista vacía, con un nodo y con varios.',
+    pistas: ['Con la lista vacía, el nuevo se apunta a sí mismo y `acceso` pasa a ser él: es a la vez primero y último.', 'Con la lista llena, `acceso` no se mueve.'],
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Lista vacía', inicial: C(), llamada: 'insertarPrincipio(lista, 5)' },
+      { nombre: 'Un nodo', inicial: C(9), llamada: 'insertarPrincipio(lista, 5)' },
+      { nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7), llamada: 'insertarPrincipio(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      void insertarPrincipio(ListaCircular *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      void insertarPrincipio(ListaCircular *lista, int x)
+      {
+          Nodo *nuevo = malloc(sizeof(Nodo));
+          nuevo->valor = x;
+          if (lista->acceso == NULL) {
+              nuevo->siguiente = nuevo;
+              lista->acceso = nuevo;
+          } else {
+              nuevo->siguiente = lista->acceso->siguiente;
+              lista->acceso->siguiente = nuevo;
+          }
+      }`),
+  },
+  {
+    id: '2-C21',
+    tipo: 'programar',
+    titulo: 'Escribe anular',
+    enunciado: 'Libera todos los nodos y deja `lista->acceso` a NULL. El struct de la lista no se libera.',
+    pistas: ['Una forma sencilla: rompe el círculo poniendo a NULL el `siguiente` del último, y libera como en una lista simple.', 'Guarda el siguiente antes de cada `free`.'],
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Lista vacía', inicial: C(), llamada: 'anular(lista)' },
+      { nombre: 'Un nodo', inicial: C(9), llamada: 'anular(lista)' },
+      { nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7), llamada: 'anular(lista)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      void anular(ListaCircular *lista)
+      {
+
+      }`),
+    solucion: c(`
+      void anular(ListaCircular *lista)
+      {
+          if (lista->acceso == NULL) return;
+          Nodo *p = lista->acceso->siguiente;
+          lista->acceso->siguiente = NULL;
+          while (p != NULL) {
+              Nodo *sig = p->siguiente;
+              free(p);
+              p = sig;
+          }
+          lista->acceso = NULL;
+      }`),
+  },
+  {
+    id: '2-C22',
+    tipo: 'programar',
+    titulo: 'Escribe girarHasta',
+    enunciado: 'Gira la lista para que `x` pase a ser el primero y devuelve **1**. Si no está, la lista no cambia y devuelve **0**. No se puede cambiar ningún `valor` ni ningún `siguiente`.',
+    pistas: ['Para que `x` sea el primero, `acceso` tiene que quedar en el nodo de **detrás** de `x`.', 'Recorre con un puntero `ant` y mira `ant->siguiente->valor`.', 'No muevas `lista->acceso` hasta saber que `x` está.'],
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Lista vacía', inicial: C(), llamada: 'girarHasta(lista, 3)' },
+      { nombre: 'Ya es el primero (9)', inicial: C(9, 3, 7), llamada: 'girarHasta(lista, 9)' },
+      { nombre: 'Uno del medio (3)', inicial: C(9, 3, 7), llamada: 'girarHasta(lista, 3)' },
+      { nombre: 'El último (7)', inicial: C(9, 3, 7), llamada: 'girarHasta(lista, 7)' },
+      { nombre: 'No está (5)', inicial: C(9, 3, 7), llamada: 'girarHasta(lista, 5)' },
+    ],
+    observar: ['lista'],
+    prohibidos: ['valor', 'siguiente'],
+    codigoInicial: c(`
+      int girarHasta(ListaCircular *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      int girarHasta(ListaCircular *lista, int x)
+      {
+          if (lista->acceso == NULL) return 0;
+          Nodo *ant = lista->acceso;
+          do {
+              if (ant->siguiente->valor == x) {
+                  lista->acceso = ant;
+                  return 1;
+              }
+              ant = ant->siguiente;
+          } while (ant != lista->acceso);
+          return 0;
+      }`),
+  },
+  {
+    id: '2-C23',
+    tipo: 'fallo',
+    titulo: 'buscar que da por hecho que hay nodos',
+    enunciado: 'La condición del bucle está bien y termina siempre que hay nodos.',
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Lista vacía', inicial: C(), llamada: 'buscar(lista, 3)' },
+      { nombre: 'Está', inicial: C(9, 3, 7), llamada: 'buscar(lista, 3)' },
+      { nombre: 'No está', inicial: C(9, 3, 7), llamada: 'buscar(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      int buscar(ListaCircular *lista, int x)
+      {
+          Nodo *p = lista->acceso;
+          do {
+              if (p->valor == x) return 1;
+              p = p->siguiente;
+          } while (p != lista->acceso);
+          return 0;
+      }`),
+    lineasFallo: [4, 5],
+    preguntaLinea: 'Marca la línea donde se rompe',
+    tiposFallo: ['nulo', 'caso'],
+    explicacion: 'El `do` entra sin preguntar: con la lista vacía `p` es NULL y `p->valor` no existe. Hay que comprobar `lista->acceso == NULL` antes del bucle.',
+    solucion: c(`
+      int buscar(ListaCircular *lista, int x)
+      {
+          if (lista->acceso == NULL) return 0;
+          Nodo *p = lista->acceso;
+          do {
+              if (p->valor == x) return 1;
+              p = p->siguiente;
+          } while (p != lista->acceso);
+          return 0;
+      }`),
+  },
+  {
+    id: '2-C24',
+    tipo: 'fallo',
+    titulo: 'insertarTras que mete el nodo donde no toca',
+    enunciado: 'Los enlaces están bien en todos los casos: el círculo nunca se rompe. Pero mira dónde acaba el 5 cuando `n` es el último.',
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Tras el 9', inicial: C(9, 3, 7), llamada: 'insertarTras(lista, lista->acceso->siguiente, 5)' },
+      { nombre: 'Tras el último', inicial: C(9, 3, 7), llamada: 'insertarTras(lista, lista->acceso, 5)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      void insertarTras(ListaCircular *lista, Nodo *n, int x)
+      {
+          Nodo *nuevo = malloc(sizeof(Nodo));
+          nuevo->valor = x;
+          nuevo->siguiente = n->siguiente;
+          n->siguiente = nuevo;
+      }`),
+    lineasFallo: [6, 7],
+    preguntaLinea: 'Marca dónde falta algo',
+    tiposFallo: ['caso', 'enlace'],
+    explicacion: 'Detrás del último, en el círculo, está el primero: el 5 queda como primero en lugar de como último. Si `n` era el último, `lista->acceso` tiene que pasar al nuevo.',
+    solucion: c(`
+      void insertarTras(ListaCircular *lista, Nodo *n, int x)
+      {
+          Nodo *nuevo = malloc(sizeof(Nodo));
+          nuevo->valor = x;
+          nuevo->siguiente = n->siguiente;
+          n->siguiente = nuevo;
+          if (n == lista->acceso) lista->acceso = nuevo;
+      }`),
+  },
+  {
+    id: '2-C25',
+    tipo: 'fallo',
+    titulo: 'suprimirPrimero sin el caso del único',
+    enunciado: 'Es 2-C3 metido en una función. Prueba con la lista más corta que puedas.',
+    ctx: ctxC,
+    casos: [
+      { nombre: 'Un nodo', inicial: C(9), llamada: 'suprimirPrimero(lista)' },
+      { nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7), llamada: 'suprimirPrimero(lista)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      void suprimirPrimero(ListaCircular *lista)
+      {
+          Nodo *primero = lista->acceso->siguiente;
+          lista->acceso->siguiente = primero->siguiente;
+          free(primero);
+      }`),
+    lineasFallo: [4, 5],
+    preguntaLinea: 'Marca dónde falta algo',
+    tiposFallo: ['colgante', 'caso'],
+    explicacion: 'Con un solo nodo, el primero y el último son el mismo: se libera y `lista->acceso` se queda apuntándole. Si `primero == lista->acceso`, la lista tiene que quedar con `acceso` a NULL.',
+    solucion: c(`
+      void suprimirPrimero(ListaCircular *lista)
+      {
+          Nodo *primero = lista->acceso->siguiente;
+          if (primero == lista->acceso)
+              lista->acceso = NULL;
+          else
+              lista->acceso->siguiente = primero->siguiente;
+          free(primero);
+      }`),
+  },
+  {
+    id: '2-C26',
+    tipo: 'fallo',
+    titulo: 'sacarPrimero que libera antes de tiempo',
+    enunciado: 'Dos líneas cambiadas de orden. En tu ordenador quizá funcione, y eso es lo peligroso.',
+    ctx: ctxC,
+    casos: [{ nombre: '9 → 3 → 7 ↺', inicial: C(9, 3, 7), llamada: 'sacarPrimero(lista)' }],
+    observar: ['lista'],
+    codigo: c(`
+      void sacarPrimero(ListaCircular *lista)
+      {
+          Nodo *primero = lista->acceso->siguiente;
+          free(primero);
+          lista->acceso->siguiente = primero->siguiente;
+      }`),
+    lineasFallo: [4, 5],
+    preguntaLinea: 'Marca la línea que usa memoria ya liberada',
+    tiposFallo: ['liberado'],
+    explicacion: 'Tras el `free`, `primero->siguiente` es memoria que ya no es tuya. Primero se salta el nodo y después se libera.',
+    solucion: c(`
+      void sacarPrimero(ListaCircular *lista)
+      {
+          Nodo *primero = lista->acceso->siguiente;
+          lista->acceso->siguiente = primero->siguiente;
+          free(primero);
+      }`),
+  },
+  {
+    id: '2-C27',
+    tipo: 'misterio',
+    titulo: 'Uno corre y el otro anda',
+    enunciado: 'Predice qué devuelve en cada caso y después di qué hace.',
+    ctx: ctxC,
+    casos: [
+      { nombre: '1 → 2 → 3 → 4 → 5 ↺', inicial: C(1, 2, 3, 4, 5), llamada: 'misterio(lista)' },
+      { nombre: '1 → 2 → 3 → 4 ↺', inicial: C(1, 2, 3, 4), llamada: 'misterio(lista)' },
+      { nombre: 'Un nodo', inicial: C(7), llamada: 'misterio(lista)' },
+    ],
+    observar: ['lista'],
+    responder: ['devuelve'],
+    solucion: c(`
+      int misterio(ListaCircular *lista)
+      {
+          Nodo *lento = lista->acceso->siguiente;
+          Nodo *rapido = lento;
+          while (rapido != lista->acceso && rapido->siguiente != lista->acceso) {
+              lento = lento->siguiente;
+              rapido = rapido->siguiente->siguiente;
+          }
+          return lento->valor;
+      }`),
+    opciones: [
+      'Devuelve el valor del nodo central (con un número par de nodos, el primero de los dos centrales).',
+      'Devuelve el valor del penúltimo nodo.',
+      'Devuelve la mitad de la longitud de la lista.',
+      'Devuelve la media de los valores.',
+    ],
+    correcta: 0,
+    explicacion: '`rapido` avanza de dos en dos y `lento` de uno en uno: cuando el rápido llega al último, el lento va por la mitad. Se encuentra el centro con una sola vuelta y sin contar los nodos.',
+  },
+  {
+    id: '2-C28',
+    tipo: 'misterio',
+    titulo: 'Valores que se corren',
+    enunciado: 'Predice cómo queda la lista en cada caso, leída desde el primero, y después di qué hace. Fíjate en qué se asigna.',
+    ctx: ctxC,
+    casos: [
+      { nombre: '1 → 2 → 3 ↺', inicial: C(1, 2, 3), llamada: 'misterio(lista)' },
+      { nombre: '4 → 4 → 1 ↺', inicial: C(4, 4, 1), llamada: 'misterio(lista)' },
+      { nombre: 'Un nodo', inicial: C(5), llamada: 'misterio(lista)' },
+    ],
+    observar: ['lista'],
+    responder: ['lista'],
+    solucion: c(`
+      void misterio(ListaCircular *lista)
+      {
+          Nodo *p = lista->acceso->siguiente;
+          int x = p->valor;
+          while (p != lista->acceso) {
+              p->valor = p->siguiente->valor;
+              p = p->siguiente;
+          }
+          p->valor = x;
+      }`),
+    opciones: [
+      'Corre los valores una posición hacia el principio y el primero pasa al último, sin mover ningún nodo.',
+      'Mueve `acceso` al nodo siguiente.',
+      'Copia el valor del primero en todos los nodos.',
+      'Invierte los valores de la lista.',
+    ],
+    correcta: 0,
+    explicacion: 'Se lee igual que 2-C4, pero el coste no: allí bastaba mover `acceso`, O(1), y aquí se reescriben todos los nodos, O(n).',
+  },
 ];
 
 // ------------------------------------------------------------------ circular doble
@@ -1134,6 +1888,335 @@ const CIRCULAR_DOBLE: EjCodigo[] = [
     ],
     correcta: 0,
     explicacion: 'Cada nodo se compara con su `anterior`. Como en el círculo todos tienen anterior, el primero se compara con el último, y un nodo solo se compara consigo mismo: por eso da 0.',
+  },
+  {
+    id: '2-E12',
+    tipo: 'programar',
+    titulo: 'Quitar el primero',
+    enunciado: 'Quita el primer nodo y libéralo. Sin tocar ningún `valor`.',
+    pistas: ['Sus vecinos son el último y el segundo: se saltan el uno al otro.', 'El segundo pasa a ser `acceso`. Hazlo antes del `free`.'],
+    ctx: ctxE,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      NodoDoble *aux = lista->acceso;
+      aux->anterior->siguiente = aux->siguiente;
+      aux->siguiente->anterior = aux->anterior;
+      lista->acceso = aux->siguiente;
+      free(aux);`),
+  },
+  {
+    id: '2-E13',
+    tipo: 'programar',
+    titulo: 'Insertar el 5 entre el 3 y el 7',
+    enunciado: 'Mete un nodo con el **5** entre el 3 y el 7. Hay dos formas de llegar: desde `acceso` hacia delante o hacia atrás.',
+    pistas: ['El 7 es `lista->acceso->anterior` y el 3, su `anterior`.', 'Cuatro enlaces, y `acceso` no se mueve.'],
+    ctx: ctxE,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7) }],
+    observar: ['lista'],
+    solucion: c(`
+      NodoDoble *der = lista->acceso->anterior;
+      NodoDoble *izq = der->anterior;
+      NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+      nuevo->valor = 5;
+      nuevo->anterior = izq;
+      nuevo->siguiente = der;
+      izq->siguiente = nuevo;
+      der->anterior = nuevo;`),
+  },
+  {
+    id: '2-E14',
+    tipo: 'programar',
+    titulo: 'Suprimir el del medio',
+    enunciado: 'Quita el **3** de `9 ⇄ 3 ⇄ 7` y libéralo. Sin tocar ningún `valor`.',
+    pistas: ['Las mismas líneas que en 2-D4, cambiando solo cómo se llega al nodo.'],
+    alResolver: 'En el círculo todo nodo es «del medio»: estas tres líneas valen para cualquiera, mientras no sea el de `acceso` ni el único.',
+    ctx: ctxE,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7) }],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    solucion: c(`
+      NodoDoble *aux = lista->acceso->siguiente;
+      aux->anterior->siguiente = aux->siguiente;
+      aux->siguiente->anterior = aux->anterior;
+      free(aux);`),
+  },
+  {
+    id: '2-E15',
+    tipo: 'programar',
+    titulo: 'Romper el círculo',
+    enunciado: 'Abre el círculo por entre el último y el primero: declara `NodoDoble *cab` apuntando al primero, pon a NULL los dos enlaces que cierran el círculo y deja `lista->acceso` a NULL.',
+    pistas: ['Los dos enlaces que sobran son el `siguiente` del último y el `anterior` del primero.', 'Llega al último antes de cortar el `anterior` del primero.'],
+    ctx: ctxE,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7) }],
+    observar: ['cab', 'lista'],
+    solucion: c(`
+      NodoDoble *cab = lista->acceso;
+      cab->anterior->siguiente = NULL;
+      cab->anterior = NULL;
+      lista->acceso = NULL;`),
+  },
+  {
+    id: '2-E16',
+    tipo: 'programar',
+    titulo: 'Escribe insertarPrincipio',
+    enunciado: 'Completa `insertarPrincipio`. Se prueba con la lista vacía, con un nodo y con varios.',
+    pistas: ['Con un nodo en la lista, el último y el primero son el mismo: el enganche general también funciona.', 'Tanto si está vacía como si no, `acceso` acaba en el nuevo.'],
+    ctx: ctxE,
+    casos: [
+      { nombre: 'Lista vacía', inicial: E(), llamada: 'insertarPrincipio(lista, 5)' },
+      { nombre: 'Un nodo', inicial: E(9), llamada: 'insertarPrincipio(lista, 5)' },
+      { nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7), llamada: 'insertarPrincipio(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      void insertarPrincipio(ListaCircularDoble *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      void insertarPrincipio(ListaCircularDoble *lista, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          if (lista->acceso == NULL) {
+              nuevo->siguiente = nuevo;
+              nuevo->anterior = nuevo;
+          } else {
+              NodoDoble *ult = lista->acceso->anterior;
+              nuevo->siguiente = lista->acceso;
+              nuevo->anterior = ult;
+              ult->siguiente = nuevo;
+              lista->acceso->anterior = nuevo;
+          }
+          lista->acceso = nuevo;
+      }`),
+  },
+  {
+    id: '2-E17',
+    tipo: 'programar',
+    titulo: 'Escribe distanciaAlFinal',
+    enunciado: 'Busca `x` **hacia atrás** desde el último y devuelve cuántos pasos has dado: 0 si es el último. Si no está, devuelve **-1**.',
+    pistas: ['Empieza en `lista->acceso->anterior` y retrocede.', 'Has dado la vuelta cuando vuelves a ese mismo nodo.'],
+    ctx: ctxE,
+    casos: [
+      { nombre: 'Lista vacía', inicial: E(), llamada: 'distanciaAlFinal(lista, 3)' },
+      { nombre: 'El último (7)', inicial: E(9, 3, 7), llamada: 'distanciaAlFinal(lista, 7)' },
+      { nombre: 'El primero (9)', inicial: E(9, 3, 7), llamada: 'distanciaAlFinal(lista, 9)' },
+      { nombre: 'Repetido: 3 ⇄ 8 ⇄ 3 ⇄ 1 ↺', inicial: E(3, 8, 3, 1), llamada: 'distanciaAlFinal(lista, 3)' },
+      { nombre: 'No está (5)', inicial: E(9, 3, 7), llamada: 'distanciaAlFinal(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigoInicial: c(`
+      int distanciaAlFinal(ListaCircularDoble *lista, int x)
+      {
+
+      }`),
+    solucion: c(`
+      int distanciaAlFinal(ListaCircularDoble *lista, int x)
+      {
+          if (lista->acceso == NULL) return -1;
+          NodoDoble *ult = lista->acceso->anterior;
+          NodoDoble *p = ult;
+          int n = 0;
+          do {
+              if (p->valor == x) return n;
+              n++;
+              p = p->anterior;
+          } while (p != ult);
+          return -1;
+      }`),
+  },
+  {
+    id: '2-E18',
+    tipo: 'programar',
+    titulo: 'Dar la vuelta a la lista',
+    enunciado: 'Escribe `invertir`: `9 ⇄ 3 ⇄ 7` queda `7 ⇄ 3 ⇄ 9`. Moviendo enlaces, sin tocar ningún `valor`.',
+    pistas: ['En cada nodo se intercambian `siguiente` y `anterior`, igual que en 2-D8.', 'El recorrido para al volver a `lista->acceso`, así que no lo muevas hasta el final.', 'El nuevo primero es el antiguo último.'],
+    ctx: ctxE,
+    casos: [
+      { nombre: 'Lista vacía', inicial: E(), llamada: 'invertir(lista)' },
+      { nombre: 'Un nodo', inicial: E(9), llamada: 'invertir(lista)' },
+      { nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7), llamada: 'invertir(lista)' },
+    ],
+    observar: ['lista'],
+    prohibidos: ['valor'],
+    codigoInicial: c(`
+      void invertir(ListaCircularDoble *lista)
+      {
+
+      }`),
+    solucion: c(`
+      void invertir(ListaCircularDoble *lista)
+      {
+          if (lista->acceso == NULL) return;
+          NodoDoble *p = lista->acceso;
+          do {
+              NodoDoble *sig = p->siguiente;
+              p->siguiente = p->anterior;
+              p->anterior = sig;
+              p = sig;
+          } while (p != lista->acceso);
+          lista->acceso = lista->acceso->siguiente;
+      }`),
+  },
+  {
+    id: '2-E19',
+    tipo: 'fallo',
+    titulo: 'insertarPrincipio que inserta al final',
+    enunciado: 'El nodo entra en el círculo y todos los enlaces están bien. Pero no queda donde dice la función.',
+    ctx: ctxE,
+    casos: [
+      { nombre: 'Lista vacía', inicial: E(), llamada: 'insertarPrincipio(lista, 5)' },
+      { nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7), llamada: 'insertarPrincipio(lista, 5)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      void insertarPrincipio(ListaCircularDoble *lista, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          if (lista->acceso == NULL) {
+              nuevo->siguiente = nuevo;
+              nuevo->anterior = nuevo;
+              lista->acceso = nuevo;
+              return;
+          }
+          NodoDoble *ult = lista->acceso->anterior;
+          nuevo->siguiente = lista->acceso;
+          nuevo->anterior = ult;
+          ult->siguiente = nuevo;
+          lista->acceso->anterior = nuevo;
+      }`),
+    lineasFallo: [15, 16],
+    preguntaLinea: 'Marca dónde falta algo',
+    tiposFallo: ['caso', 'enlace'],
+    explicacion: 'Principio y final son el mismo hueco del círculo: lo que los distingue es `acceso`. Sin `lista->acceso = nuevo;` al final, esta función es `insertarFinal`.',
+    solucion: c(`
+      void insertarPrincipio(ListaCircularDoble *lista, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          if (lista->acceso == NULL) {
+              nuevo->siguiente = nuevo;
+              nuevo->anterior = nuevo;
+              lista->acceso = nuevo;
+              return;
+          }
+          NodoDoble *ult = lista->acceso->anterior;
+          nuevo->siguiente = lista->acceso;
+          nuevo->anterior = ult;
+          ult->siguiente = nuevo;
+          lista->acceso->anterior = nuevo;
+          lista->acceso = nuevo;
+      }`),
+  },
+  {
+    id: '2-E20',
+    tipo: 'fallo',
+    titulo: 'insertarTras con dos líneas al revés',
+    enunciado: 'Se llama con `insertarTras(lista->acceso, 5)` para meter el 5 detrás del 9. Hacia delante todo va bien.',
+    ctx: ctxE,
+    casos: [{ nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7), llamada: 'insertarTras(lista->acceso, 5)' }],
+    observar: ['lista'],
+    codigo: c(`
+      void insertarTras(NodoDoble *n, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          nuevo->anterior = n;
+          nuevo->siguiente = n->siguiente;
+          n->siguiente = nuevo;
+          n->siguiente->anterior = nuevo;
+      }`),
+    lineasFallo: [7, 8],
+    preguntaLinea: 'Marca una de las dos líneas cambiadas',
+    tiposFallo: ['enlace'],
+    explicacion: 'Después de `n->siguiente = nuevo`, `n->siguiente` ya es el nuevo: la última línea hace que el nuevo se apunte hacia atrás a sí mismo, y el 3 sigue mirando al 9. Hay que cambiar el `anterior` del vecino antes de mover `n->siguiente`.',
+    solucion: c(`
+      void insertarTras(NodoDoble *n, int x)
+      {
+          NodoDoble *nuevo = malloc(sizeof(NodoDoble));
+          nuevo->valor = x;
+          nuevo->anterior = n;
+          nuevo->siguiente = n->siguiente;
+          n->siguiente->anterior = nuevo;
+          n->siguiente = nuevo;
+      }`),
+  },
+  {
+    id: '2-E21',
+    tipo: 'fallo',
+    titulo: 'sumar que avanza y retrocede',
+    enunciado: 'Con un solo nodo funciona. Con más, no termina nunca. Lee con calma lo que hace el avance.',
+    ctx: ctxE,
+    casos: [
+      { nombre: 'Un nodo', inicial: E(9), llamada: 'sumar(lista)' },
+      { nombre: '9 ⇄ 3 ⇄ 7 ↺', inicial: E(9, 3, 7), llamada: 'sumar(lista)' },
+    ],
+    observar: ['lista'],
+    codigo: c(`
+      int sumar(ListaCircularDoble *lista)
+      {
+          if (lista->acceso == NULL) return 0;
+          NodoDoble *p = lista->acceso;
+          int s = p->valor;
+          while (p != lista->acceso->anterior) {
+              p = p->siguiente->anterior;
+              s = s + p->valor;
+          }
+          return s;
+      }`),
+    lineasFallo: [7],
+    preguntaLinea: 'Marca la línea que hace que `p` no avance',
+    tiposFallo: ['bucle'],
+    explicacion: 'El `anterior` de tu `siguiente` eres tú mismo: `p->siguiente->anterior` es `p`. El puntero se queda quieto y nunca llega al último. Basta con `p = p->siguiente;`.',
+    solucion: c(`
+      int sumar(ListaCircularDoble *lista)
+      {
+          if (lista->acceso == NULL) return 0;
+          NodoDoble *p = lista->acceso;
+          int s = p->valor;
+          while (p != lista->acceso->anterior) {
+              p = p->siguiente;
+              s = s + p->valor;
+          }
+          return s;
+      }`),
+  },
+  {
+    id: '2-E22',
+    tipo: 'misterio',
+    titulo: 'Un acceso que elige',
+    enunciado: 'Predice cómo queda la lista en cada caso, leída desde el primero, y después di qué hace.',
+    ctx: ctxE,
+    casos: [
+      { nombre: '3 ⇄ 9 ⇄ 1 ↺', inicial: E(3, 9, 1), llamada: 'misterio(lista)' },
+      { nombre: '5 ⇄ 2 ↺', inicial: E(5, 2), llamada: 'misterio(lista)' },
+      { nombre: '1 ⇄ 2 ⇄ 7 ↺', inicial: E(1, 2, 7), llamada: 'misterio(lista)' },
+    ],
+    observar: ['lista'],
+    responder: ['lista'],
+    solucion: c(`
+      void misterio(ListaCircularDoble *lista)
+      {
+          NodoDoble *m = lista->acceso;
+          NodoDoble *p = m->siguiente;
+          while (p != lista->acceso) {
+              if (p->valor > m->valor) m = p;
+              p = p->siguiente;
+          }
+          lista->acceso = m;
+      }`),
+    opciones: [
+      'Gira la lista para que el mayor valor quede el primero, sin cambiar el orden del círculo.',
+      'Ordena la lista de mayor a menor.',
+      'Mueve el mayor valor al principio y deja los demás en su orden original.',
+      'Intercambia el primero con el mayor.',
+    ],
+    correcta: 0,
+    explicacion: 'Busca el nodo mayor y le da el `acceso`. Ningún enlace cambia: los demás siguen en el mismo orden circular, solo que se empieza a leer por otro sitio.',
   },
 ];
 

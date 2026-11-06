@@ -11,6 +11,9 @@ import { Miga } from './Miga';
 import { Especificacion } from './tipos/Especificacion';
 import { Dispersion } from './tipos/Dispersion';
 
+export const EtiquetaLista = ({ lista }: { lista?: string }) =>
+  lista ? <span className={`etiqueta-lista ${lista.toLowerCase().replace(/ /g, '-')}`}>{lista}</span> : null;
+
 export function nombreTipo(e: Ejercicio): string {
   if (e.tipo === 'fallo') return 'Encuentra el fallo';
   if (e.tipo === 'coste') return 'Calcula el coste';
@@ -55,7 +58,7 @@ export function EjercicioPagina({ id }: { id: string }) {
       />
       <header className="cabecera-ej">
         <div>
-          <span className={`etiqueta-tipo ${ej.tipo}`}>{nombreTipo(ej)}</span>
+          <span className={`etiqueta-tipo ${ej.tipo}`}>{nombreTipo(ej)}</span> <EtiquetaLista lista={ej.lista} />
           <h1>
             <span className="num-ej">{ej.id}</span> {ej.titulo}
           </h1>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TEMAS } from '../ejercicios/registro';
 import { Ejercicio } from '../ejercicios/tipos';
 import { borrarProgreso, useResueltos } from '../progreso';
-import { nombreTipo } from './EjercicioPagina';
+import { EtiquetaLista, nombreTipo } from './EjercicioPagina';
 import { DIBUJOS_TEMAS } from './DibujosTemas';
 import { Miga } from './Miga';
 
@@ -96,6 +96,7 @@ const grupo = (e: Ejercicio) => e.bloque ?? nombreTipo(e);
 export function TemaPagina({ id }: { id: string }) {
   const resueltos = useResueltos();
   const [filtro, setFiltro] = useState<string | null>(null);
+  const [filtroLista, setFiltroLista] = useState<string | null>(null);
   const [pendientes, setPendientes] = useState(false);
   const tema = TEMAS.find((t) => t.id === id);
   if (!tema) return <p className="contenido">No existe ese tema.</p>;
@@ -103,6 +104,9 @@ export function TemaPagina({ id }: { id: string }) {
   const hechos = tema.ejercicios.filter((e) => resueltos.has(e.id)).length;
   const total = tema.ejercicios.length;
   const siguiente = tema.ejercicios.find((e) => !resueltos.has(e.id));
+  const listas = [...new Set(tema.ejercicios.flatMap((e) => e.lista ?? []))];
+  const deLaLista = tema.ejercicios.filter((e) => filtroLista === null || e.lista === filtroLista);
+  const delGrupo = tema.ejercicios.filter((e) => filtro === null || grupo(e) === filtro);
   return (
     <main className="contenido">
       <Miga pasos={[['Ejercicios', '#/temas']]} />
@@ -139,15 +143,29 @@ export function TemaPagina({ id }: { id: string }) {
         <nav className="filtro-tipos" aria-label="Tipo de ejercicio">
           <button className={filtro === null ? 'on' : ''} aria-pressed={filtro === null} onClick={() => setFiltro(null)}>
             Todos
-            <span className="cuenta-filtro">{total}</span>
+            <span className="cuenta-filtro">{deLaLista.length}</span>
           </button>
           {grupos.map((g) => (
             <button key={g} className={filtro === g ? 'on' : ''} aria-pressed={filtro === g} onClick={() => setFiltro(g)}>
               {g}
-              <span className="cuenta-filtro">{tema.ejercicios.filter((e) => grupo(e) === g).length}</span>
+              <span className="cuenta-filtro">{deLaLista.filter((e) => grupo(e) === g).length}</span>
             </button>
           ))}
         </nav>
+        {listas.length > 0 && (
+          <nav className="filtro-tipos" aria-label="Tipo de lista">
+            <button className={filtroLista === null ? 'on' : ''} aria-pressed={filtroLista === null} onClick={() => setFiltroLista(null)}>
+              Todas las listas
+              <span className="cuenta-filtro">{delGrupo.length}</span>
+            </button>
+            {listas.map((l) => (
+              <button key={l} className={filtroLista === l ? 'on' : ''} aria-pressed={filtroLista === l} onClick={() => setFiltroLista(l)}>
+                {l}
+                <span className="cuenta-filtro">{delGrupo.filter((e) => e.lista === l).length}</span>
+              </button>
+            ))}
+          </nav>
+        )}
         <label className="solo-pendientes">
           <input type="checkbox" checked={pendientes} onChange={(e) => setPendientes(e.target.checked)} /> Solo los pendientes
         </label>
@@ -156,7 +174,7 @@ export function TemaPagina({ id }: { id: string }) {
       {grupos
         .filter((g) => filtro === null || filtro === g)
         .map((g) => {
-          const todos = tema.ejercicios.filter((e) => grupo(e) === g);
+          const todos = deLaLista.filter((e) => grupo(e) === g);
           const es = todos.filter((e) => !pendientes || !resueltos.has(e.id));
           const h = todos.filter((e) => resueltos.has(e.id)).length;
           return (
@@ -176,7 +194,9 @@ export function TemaPagina({ id }: { id: string }) {
                           {resueltos.has(e.id) ? '✓' : ''}
                         </span>
                         <span className="num-ej">{e.id}</span>
-                        <span className="tit">{e.titulo}</span>
+                        <span className="tit">
+                          {e.titulo} <EtiquetaLista lista={e.lista} />
+                        </span>
                       </a>
                     </li>
                   ))}

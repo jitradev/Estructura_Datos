@@ -13,7 +13,7 @@ interface Registro {
 
 function leer(): Record<string, Registro> {
   try {
-    return migrarPilasColas(migrar(JSON.parse(localStorage.getItem(CLAVE) || '{}')));
+    return migrarListas(migrarPilasColas(migrar(JSON.parse(localStorage.getItem(CLAVE) || '{}'))));
   } catch {
     return {};
   }
@@ -50,6 +50,21 @@ function migrarPilasColas(todo: Record<string, Registro>): Record<string, Regist
   if ((todo as Record<string, unknown>)[MIGRADO_PILAS_COLAS]) return todo;
   for (const [id, r] of Object.entries(todo)) if (/^[34]-/.test(id) && r?.datos) delete r.datos;
   (todo as Record<string, unknown>)[MIGRADO_PILAS_COLAS] = { resuelto: false };
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(todo));
+  } catch {
+    /* sin almacenamiento: no pasa nada */
+  }
+  return todo;
+}
+
+// The double and circular list exercises were sorted by type and renumbered: what was saved
+// under the old ids belongs to other exercises now, so it is dropped once.
+const MIGRADO_LISTAS = '__listas-por-tipo-v4';
+function migrarListas(todo: Record<string, Registro>): Record<string, Registro> {
+  if ((todo as Record<string, unknown>)[MIGRADO_LISTAS]) return todo;
+  for (const id of Object.keys(todo)) if (/^2-[DCE]\d/.test(id)) delete todo[id];
+  (todo as Record<string, unknown>)[MIGRADO_LISTAS] = { resuelto: false };
   try {
     localStorage.setItem(CLAVE, JSON.stringify(todo));
   } catch {

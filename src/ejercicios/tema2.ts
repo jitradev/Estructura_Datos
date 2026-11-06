@@ -1,18 +1,26 @@
 import { CTX_LISTA, lista } from '../memoria/construir';
 import { c } from './sangrado';
 import { EJERCICIOS_LISTAS } from './tema2Listas';
-import { Tema } from './tipos';
+import { Ejercicio, Tema } from './tipos';
 
 export { c };
 
 const ctx = CTX_LISTA;
 const L = (...v: number[]) => [lista('cab', v)];
 
+/** Same order as the sections of the topic page, so that "next" follows the list on screen. */
+const rangoTipo = (e: Ejercicio) => {
+  if (e.tipo === 'fallo') return 2;
+  if (e.tipo === 'misterio') return 3;
+  return e.tipo === 'programar' && e.codigoInicial?.includes('(') ? 1 : 0;
+};
+const porTipo = (ejercicios: Ejercicio[]) => ejercicios.map((e) => ({ lista: 'Lista simple', ...e })).sort((a, b) => rangoTipo(a) - rangoTipo(b));
+
 export const tema2: Tema = {
   id: '2',
   titulo: 'Listas enlazadas',
-  resumen: 'Crear, enlazar y liberar nodos sin perder el resto; después, las funciones de lista.h y sus fallos típicos, y al final las listas doble, circular y circular doble.',
-  ejercicios: [
+  resumen: 'Crear, enlazar y liberar nodos sin perder el resto; después, las funciones de lista.h y sus fallos típicos, y también las listas doble, circular y circular doble.',
+  ejercicios: porTipo([
     // ------------------------------------------------------------ a mano
     {
       id: '2-01',
@@ -1210,5 +1218,5 @@ export const tema2: Tema = {
       explicacion: 'Cada vuelta salta y libera el nodo de detrás de `p`, y después avanza `p` al siguiente que queda: se queda con el 1.º, 3.º, 5.º… Que en `1 2 3 4 5` coincida con quitar los pares es casualidad: mira posiciones, no valores.',
     },
     ...EJERCICIOS_LISTAS,
-  ],
+  ]),
 };

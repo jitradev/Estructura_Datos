@@ -17,8 +17,10 @@ interface Base {
   enunciado: string;
   pistas?: string[];
   alResolver?: string;
-  /** Section of the topic page, when it is not the exercise type («Lista doble»...). */
+  /** Section of the topic page, when it is not the exercise type. */
   bloque?: string;
+  /** List it works on («Lista doble»...): a tag on the exercise and a filter on the topic page. */
+  lista?: string;
   ctx: Contexto;
   casos: Caso[];
   /** Variables de main que se comparan con la solución. */
@@ -199,7 +201,7 @@ export interface EjDispersion {
   explicacion: string;
 }
 
-export type Ejercicio = EjCodigo | EjCoste | EjEspec | EjDispersion;
+export type Ejercicio = (EjCodigo | EjCoste | EjEspec | EjDispersion) & { lista?: string };
 
 export interface Tema {
   id: string;

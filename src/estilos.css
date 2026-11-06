@@ -469,6 +469,10 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .filtro-tipos button:hover { color: var(--tinta); background: rgba(255, 255, 255, 0.55); }
 .filtro-tipos button.on { background: #fff; color: var(--tinta); box-shadow: 0 1px 3px rgba(60, 30, 20, 0.12); }
 .filtro-tipos button.on .cuenta-filtro { background: var(--carmin); color: #fff; }
+.etiqueta-lista { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--arena); color: #7a3a0f; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.etiqueta-lista.lista-doble { background: #dbe8f5; color: #27507a; }
+.etiqueta-lista.lista-circular { background: #dcefe0; color: #2a6a3c; }
+.etiqueta-lista.lista-circular-doble { background: #e6e1f5; color: #4a3a86; }
 .solo-pendientes { display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--grafito); cursor: pointer; }
 @media (max-width: 640px) {
   .cab-pagina-tema .num-grande { display: none; }

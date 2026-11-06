@@ -67,6 +67,30 @@ export function Chuleta({ ctx }: { ctx: Contexto }) {
       ['Liberar', 'eliminarNodoSimple(a);'],
       ['¿Vacía?', 'estaVaciaColaEnlazada(cola)'],
     );
+  if (nombres.includes('BicolaArray'))
+    filas.push(
+      ['Avanzar con vuelta', 'cola->final = (cola->final + 1) % TAM_BICOLA_ARRAY;'],
+      ['Retroceder con vuelta', 'cola->frente = (cola->frente - 1 + TAM_BICOLA_ARRAY) % TAM_BICOLA_ARRAY;'],
+      ['¿Vacía? ¿Llena?', 'estaVaciaBicolaArray(cola)  estaLLenaBicolaArray(cola)'],
+    );
+  if (nombres.includes('BicolaEnlazada'))
+    filas.push(
+      ['Primero y último', 'cola->inicio  cola->final'],
+      ['Crear un nodo', 'NodoDoble *aux = crearNodoDoble(5);'],
+      ['Enlazar', 'establecerSiguienteNodoDoble(a, b);  establecerAnteriorNodoDoble(b, a);'],
+      ['Leer', 'obtenerValorNodoDoble(a)  obtenerSiguienteNodoDoble(a)  obtenerAnteriorNodoDoble(a)'],
+      ['Liberar', 'eliminarNodoDoble(a);'],
+      ['¿Vacía?', 'estaVaciaBicolaEnlazada(cola)'],
+    );
+  if (nombres.includes('ColaPrioridadLista'))
+    filas.push(
+      ['Crear un nodo', 'NodoPrioridad *aux = crearNodoPrioridad(5, 1);'],
+      ['Enlazar', 'establecerSiguienteNodoPrioridad(a, b);'],
+      ['Leer', 'obtenerValorNodoPrioridad(a)  obtenerPrioridadNodoPrioridad(a)  obtenerSiguienteNodoPrioridad(a)'],
+      ['Liberar', 'eliminarNodoPrioridad(a);'],
+      ['¿Vacía?', 'estaVaciaColaPrioridadLista(cola)'],
+    );
+  if (nombres.includes('ColaPrioridadArray')) filas.push(['Cola de una prioridad', 'cola->colas[2]'], ['Recorrer las prioridades', 'for (int i = 0; i < NUM_PRIORIDADES; i++)']);
   filas.push(['Bucles y condiciones', 'while (…) { … }   if (…) … else …']);
   return (
     <details className="chuleta">

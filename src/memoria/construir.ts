@@ -26,7 +26,7 @@ Nodo *crearNodo(int x) {
 };
 
 /** The functions of a project's .c files (without the print ones), for the preludio. */
-const funcionesDe = (...srcs: string[]) =>
+export const funcionesDe = (...srcs: string[]) =>
   '\n' +
   srcs
     .flatMap((s) => [...trocear(s).funciones.values()])

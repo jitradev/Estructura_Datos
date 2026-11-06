@@ -14,7 +14,7 @@ function deLista(id: IdLista) {
   return { ctx: { ...t.ctx, tipoLista: id }, inicial };
 }
 
-const deLaLista = (lista: string, ejercicios: EjCodigo[]): EjCodigo[] => ejercicios.map((e) => ({ ...e, lista }));
+const deLaLista = (estructura: string, ejercicios: EjCodigo[]): EjCodigo[] => ejercicios.map((e) => ({ ...e, estructura }));
 
 // ------------------------------------------------------------------ doble
 

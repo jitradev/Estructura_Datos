@@ -1,5 +1,8 @@
 import { colaArray, colaEnlazada, CTX_COLA_ARRAY, CTX_COLA_ENLAZADA, entero } from '../memoria/construir';
 import { c } from './tema2';
+import { porTipo } from './orden';
+import { EJERCICIOS_BICOLAS_PRIORIDAD } from './tema4Bicolas';
+import { EJERCICIOS_COLAS_MAS } from './tema4Mas';
 import { Tema } from './tipos';
 
 // Los structs y las funciones son los del proyecto Colas: ColaArray.c y ColaEnlazada.c,
@@ -12,8 +15,8 @@ const LLENA = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 export const tema4: Tema = {
   id: '4',
   titulo: 'Colas',
-  resumen: 'La cola con array circular y contador (TAM_COLA_ARRAY 10, el % que da la vuelta) y la cola enlazada con inicio y final sobre el TAD NodoSimple. Los structs y las funciones de ColaArray.c y ColaEnlazada.c.',
-  ejercicios: [
+  resumen: 'La cola con array circular y contador (TAM_COLA_ARRAY 10, el % que da la vuelta) y la cola enlazada con inicio y final sobre el TAD NodoSimple. También las bicolas y las colas con prioridad, con array y enlazadas. Los structs y las funciones son los del proyecto Colas.',
+  ejercicios: porTipo([
     {
       id: '4-01',
       tipo: 'programar',
@@ -802,5 +805,7 @@ export const tema4: Tema = {
       correcta: 0,
       explicacion: 'Da una vuelta entera (`t` elementos) y solo reencola los de posición par (contando desde 0). En `6 7 8 9` quedan el 6 y el 8: mira posiciones, no valores.',
     },
-  ],
+    ...EJERCICIOS_COLAS_MAS,
+    ...EJERCICIOS_BICOLAS_PRIORIDAD,
+  ], (e) => (e.ctx === CA ? 'Cola array' : 'Cola enlazada')),
 };

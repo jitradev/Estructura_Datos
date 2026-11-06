@@ -158,7 +158,8 @@ function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): st
   const s = structDe(ctx, o.tipo)!;
   const partes: string[] = [];
   for (const [k, c] of camposLogicos(o)) {
-    if (Array.isArray(c)) partes.push(`${k === 'en orden' ? 'en orden' : `${nombre}->${k}`}: [${c.map((x) => (x.k === 'int' ? x.v : '?')).join(', ')}]`);
+    if (Array.isArray(c) && c.some((x) => x.k === 'ref')) c.forEach((x, i) => partes.push(describirValor(m, ctx, `${nombre}->${k}[${i}]`, x)));
+    else if (Array.isArray(c)) partes.push(`${k === 'en orden' ? 'en orden' : `${nombre}->${k}`}: [${c.map((x) => (x.k === 'int' ? x.v : '?')).join(', ')}]`);
     else {
       const def = s.campos.find((x) => x.nombre === k);
       if (def && def.tipo.ptr > 0) {

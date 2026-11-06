@@ -9,8 +9,8 @@ La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/
 | Tema | Programar a mano | Escribe la función | Encuentra el fallo | Función misteriosa |
 |---|---|---|---|---|
 | 2 · Listas | 32 | 32 | 33 | 16 |
-| 3 · Pilas | 6 | 7 | 10 | 6 |
-| 4 · Colas | 6 | 7 | 10 | 6 |
+| 3 · Pilas | 12 | 14 | 20 | 12 |
+| 4 · Colas | 24 | 26 | 36 | 20 |
 | 6 · Tablas hash | 2 | 4 | 5 | 3 |
 
 El tema 1 (Tipos Abstractos de Datos) tiene 10 de **Especifica el TAD**: Fracción, Conjunto y Complejo de clase, y Contador, Fecha, Vector2D, Bolsa, Agenda, BarraVida y Temporizador de la tanda de práctica y el cuadernillo.
@@ -48,7 +48,7 @@ Igual que la de Lenguajes Formales: subir la carpeta a un repositorio de GitHub 
 
 ## Cómo añadir ejercicios
 
-Están en `src/ejercicios/tema2.ts`, `tema2Listas.ts` (listas doble, circular y circular doble, sobre los structs del TAD Lista, con `lista` en main y el dibujo de Visualizar; cada uno lleva su `lista`, que da la etiqueta y el filtro de la página del tema), `tema3.ts`, `tema4.ts`, `tema5.ts` y `tema6.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
+Están en `src/ejercicios/tema2.ts`, `tema2Listas.ts` (listas doble, circular y circular doble, sobre los structs del TAD Lista, con `lista` en main y el dibujo de Visualizar; cada uno lleva su `estructura`, que da la etiqueta y el filtro de la página del tema), `tema3.ts`, `tema3Mas.ts`, `tema4.ts`, `tema4Mas.ts`, `tema4Bicolas.ts` (bicolas y colas con prioridad, dibujadas como en Visualizar), `tema5.ts` y `tema6.ts`. Cada uno lleva `ctx` (los structs del tema, de `src/memoria/construir.ts`), `casos` (estado inicial y, si es una función, la llamada), `observar` (las variables de main que se comparan) y `solucion`. Los de fallo llevan además `codigo`, `lineasFallo`, `tiposFallo` y `explicacion`. Los misteriosos enseñan `solucion` y llevan `responder` (`'devuelve'` o variables de main), `opciones`, `correcta` y `explicacion`; lo que hay que predecir lo calcula el intérprete. Al añadir uno, `npm test` comprueba solo que la solución funciona y que el fallo falla.
 
 Los de coste (`tema5.ts`) no tienen casos: llevan `codigo`, la `pregunta` de qué se cuenta, `contar` (el mismo fragmento dejando la cuenta en `x`, si el que se enseña no lo hace; `n`, `x`, `i`, `j` y `k` ya están declaradas), el `coste` y los tres `pasos` de la explicación. La cuenta no se escribe a mano: la hace el intérprete (`src/ejercicios/coste.ts`). `npm test` comprueba que se cuenta sin errores y que la cuenta crece como dice `coste` entre dos valores de n (`nCrecimiento`, por defecto 32 y 256; en el peor caso si depende de n).
 

@@ -65,6 +65,8 @@ export interface Contexto {
   preludio?: string;
   /** Exercises on one of the TAD lists: they are drawn with DibujoLista. */
   tipoLista?: 'simple' | 'doble' | 'circular' | 'circular-doble';
+  /** Exercises on a deque or a priority queue: they are drawn with QueueDrawing. */
+  tipoCola?: string;
 }
 
 export const clonar = (m: Memoria): Memoria => structuredClone(m);

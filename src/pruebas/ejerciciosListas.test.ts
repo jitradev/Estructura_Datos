@@ -20,14 +20,14 @@ describe('exercises on the double and circular lists', () => {
     expect(EJERCICIOS_LISTAS.length).toBe(74);
     for (const e of EJERCICIOS_LISTAS) {
       expect(e.bloque, e.id).toBeUndefined();
-      expect(e.lista, e.id).toMatch(/^Lista (doble|circular|circular doble)$/);
+      expect(e.estructura, e.id).toMatch(/^Lista (doble|circular|circular doble)$/);
       expect(e.ctx.tipoLista, e.id).toBeDefined();
     }
   });
 
   it('the rest of topic 2 is tagged as the simple list', () => {
-    expect(tema2.ejercicios.find((e) => e.id === '2-01')!.lista).toBe('Lista simple');
-    expect(new Set(tema2.ejercicios.map((e) => e.lista)).size).toBe(4);
+    expect(tema2.ejercicios.find((e) => e.id === '2-01')!.estructura).toBe('Lista simple');
+    expect(new Set(tema2.ejercicios.map((e) => e.estructura)).size).toBe(4);
   });
 
   it('topic 2 goes by exercise type, each list numbered in that order', () => {

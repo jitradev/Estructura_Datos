@@ -4,6 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Dibujo } from '../dibujo/Dibujo';
 import { Paso } from '../interprete/ejecutar';
 import { DibujoLista } from '../listas/DibujoLista';
+import { COLAS } from '../queues/catalog';
+import { QueueDrawing } from '../queues/QueueDrawing';
 import { LISTAS } from '../listas/catalogo';
 import { Contexto, Memoria } from '../memoria/modelo';
 
@@ -60,6 +62,7 @@ export function Reproductor({
   const prev = pasos && i > 0 ? pasos[i - 1].mem : undefined;
   const n = pasos?.length ?? 0;
   const tipoLista = LISTAS.find((t) => t.id === ctx.tipoLista);
+  const tipoCola = COLAS.find((t) => t.id === ctx.tipoCola);
 
   useEffect(() => {
     if (!teclas || !n) return;
@@ -78,7 +81,7 @@ export function Reproductor({
   return (
     <div className={`reproductor ${controlesArriba ? 'arriba' : ''}`}>
       <div className="lienzo-memoria">
-        {dibujar ? dibujar(mem, prev) : tipoLista ? <DibujoLista mem={mem} prev={prev} tipo={tipoLista} /> : <Dibujo mem={mem} prev={prev} ctx={ctx} />}
+        {dibujar ? dibujar(mem, prev) : tipoLista ? <DibujoLista mem={mem} prev={prev} tipo={tipoLista} /> : tipoCola ? <QueueDrawing mem={mem} prev={prev} tipo={tipoCola} /> : <Dibujo mem={mem} prev={prev} ctx={ctx} />}
       </div>
       <div className={`nota-paso ${paso?.error ? 'error' : ''}`} aria-live="polite">
         {!pasos && <span>{vacio}</span>}

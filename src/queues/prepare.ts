@@ -49,38 +49,41 @@ function cadena(m: Memoria, t: QueueType, tipo: string, elems: { valor: number; 
   return s;
 }
 
-/** The queue as crear + one insertion per value would leave it, plus main's `cola` and `x`. */
+/** Reserves the queue as crear + one insertion per value would leave it, and points to it. */
+export function ponerCola(m: Memoria, t: QueueType, p: Pick<QueueParams, 'valores' | 'prioridades' | 'frente'>): Valor {
+  const elems = t.prioridades ? ordenPrioridad(p.valores, p.prioridades) : p.valores.map((valor) => ({ valor, prioridad: 0 }));
+  if (esArray(t)) {
+    const c = nuevoObjeto(m, t.ctx, t.struct, true);
+    const arr = c.campos.array as Valor[];
+    const n = arr.length;
+    const f = ((p.frente % n) + n) % n;
+    p.valores.forEach((v, i) => (arr[(f + i) % n] = int(v)));
+    c.campos.frente = int(f);
+    c.campos.final = int((f + p.valores.length) % n);
+    c.campos.numElementos = int(p.valores.length);
+    return ref(c);
+  } else if (t.subcola) {
+    const c = nuevoObjeto(m, t.ctx, t.struct, true);
+    const colas = c.campos.colas as Valor[];
+    for (let i = 0; i < NUM_PRIORIDADES; i++)
+      colas[i] = ref(
+        cadena(
+          m,
+          t,
+          t.subcola,
+          elems.filter((e) => e.prioridad === i),
+        ),
+      );
+    c.campos.tamano = int(elems.length);
+    return ref(c);
+  }
+  return ref(cadena(m, t, t.struct, elems));
+}
+
+/** The queue, plus main's `cola` and `x`. */
 export function buildQueue(t: QueueType, p: Pick<QueueParams, 'valores' | 'prioridades' | 'frente'>, creada = true): Memoria {
   const m = memoriaVacia();
-  let cola: Valor = BASURA;
-  if (creada) {
-    const elems = t.prioridades ? ordenPrioridad(p.valores, p.prioridades) : p.valores.map((valor) => ({ valor, prioridad: 0 }));
-    if (esArray(t)) {
-      const c = nuevoObjeto(m, t.ctx, t.struct, true);
-      const arr = c.campos.array as Valor[];
-      const n = arr.length;
-      const f = ((p.frente % n) + n) % n;
-      p.valores.forEach((v, i) => (arr[(f + i) % n] = int(v)));
-      c.campos.frente = int(f);
-      c.campos.final = int((f + p.valores.length) % n);
-      c.campos.numElementos = int(p.valores.length);
-      cola = ref(c);
-    } else if (t.subcola) {
-      const c = nuevoObjeto(m, t.ctx, t.struct, true);
-      const colas = c.campos.colas as Valor[];
-      for (let i = 0; i < NUM_PRIORIDADES; i++)
-        colas[i] = ref(
-          cadena(
-            m,
-            t,
-            t.subcola,
-            elems.filter((e) => e.prioridad === i),
-          ),
-        );
-      c.campos.tamano = int(elems.length);
-      cola = ref(c);
-    } else cola = ref(cadena(m, t, t.struct, elems));
-  }
+  const cola = creada ? ponerCola(m, t, p) : BASURA;
   m.marcos[0].vars.push({ nombre: 'cola', tipo: { base: t.struct, ptr: 1 }, valor: cola });
   m.marcos[0].vars.push({ nombre: 'x', tipo: { base: 'int', ptr: 0 }, valor: int(0) });
   if (t.prioridades) m.marcos[0].vars.push({ nombre: 'prioridad', tipo: { base: 'int', ptr: 0 }, valor: int(0) });

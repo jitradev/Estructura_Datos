@@ -1,5 +1,7 @@
 import { CTX_PILA_ARRAY, CTX_PILA_ENLAZADA, entero, pilaArray, pilaEnlazada, TAM_PILA_EJERCICIOS } from '../memoria/construir';
 import { c } from './tema2';
+import { porTipo } from './orden';
+import { EJERCICIOS_PILAS_MAS } from './tema3Mas';
 import { Tema } from './tipos';
 
 // Los structs y las funciones son los del proyecto Pilas: en cada ejercicio están todas
@@ -12,7 +14,7 @@ export const tema3: Tema = {
   id: '3',
   titulo: 'Pilas',
   resumen: `Push y pop con array (la cima es un índice) y con enlaces (la cima es el primer nodo), con overflow y underflow. Los structs y las funciones de PilaArray.c y PilaEnlazada.c, con TAM ${TAM_PILA_EJERCICIOS}.`,
-  ejercicios: [
+  ejercicios: porTipo([
     {
       id: '3-01',
       tipo: 'programar',
@@ -747,5 +749,6 @@ export const tema3: Tema = {
       correcta: 0,
       explicacion: 'Con una pila solo se ve la cima: para encontrar algo hay que ir sacando. El que se busca también sale. Si no está, la pila acaba vacía: para buscar sin destruirla haría falta una pila auxiliar donde ir guardando lo sacado.',
     },
-  ],
+    ...EJERCICIOS_PILAS_MAS,
+  ], (e) => (e.ctx === A ? 'Pila array' : 'Pila enlazada')),
 };

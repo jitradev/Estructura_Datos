@@ -49,7 +49,7 @@ export function Menu() {
           </span>
           <strong>Visualizar</strong>
           <span className="resumen">
-            {lista(['Las cuatro listas', temaVisible('3') && 'las dos pilas', temaVisible('4') && 'las siete colas'], 'y')}: cómo es cada una en memoria y sus operaciones paso a paso, con el código del proyecto.
+            {lista(['Las cuatro listas', temaVisible('3') && 'las dos pilas', temaVisible('4') && 'las siete colas'], 'y')}: cómo es cada una en memoria y sus operaciones paso a paso, con el código del proyecto. Y los algoritmos de ordenación y la búsqueda binaria, animados.
           </span>
           <span className="pie-menu">
             <span className="cta-tema">Ver estructuras →</span>

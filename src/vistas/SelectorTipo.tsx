@@ -4,9 +4,9 @@
 
 import { Miga } from './Miga';
 
-export type GrupoVer = 'listas' | 'pilas' | 'colas';
+export type GrupoVer = 'listas' | 'pilas' | 'colas' | 'ordenacion';
 
-export const NOMBRE_GRUPO: Record<GrupoVer, string> = { listas: 'Listas', pilas: 'Pilas', colas: 'Colas' };
+export const NOMBRE_GRUPO: Record<GrupoVer, string> = { listas: 'Listas', pilas: 'Pilas', colas: 'Colas', ordenacion: 'Ordenación' };
 
 /** Where the selector lives: Visualizar (#/ver/<id>) or the Laboratorio (#/lab/e/<id>). */
 const SECCION = {
@@ -36,7 +36,7 @@ export function SelectorTipo({
           [NOMBRE_GRUPO[grupo], sec.grupo(grupo)],
         ]}
       />
-      <nav className="selector-tipo" aria-label={`Cambiar de ${NOMBRE_GRUPO[grupo].toLowerCase().slice(0, -1)}`}>
+      <nav className="selector-tipo" aria-label={grupo === 'ordenacion' ? 'Cambiar de algoritmo' : `Cambiar de ${NOMBRE_GRUPO[grupo].toLowerCase().slice(0, -1)}`}>
         {familias.map((f) => (
           <div key={f} className="selector-grupo">
             {f && <span className="selector-etiqueta">{f}</span>}

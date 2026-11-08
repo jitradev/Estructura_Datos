@@ -68,6 +68,14 @@ Los de código del tema 6 usan `tabla_abierta.c` tal cual (`src/hash/c/`, copia 
 
 `src/queues/c/` y `src/queues/h/` son copias del proyecto `Colas`, con una función de consulta añadida en cada cola (`frenteColaArray`, `principioBicolaArray`, `finalBicolaArray`...), que está en el TAD de las diapositivas. Como en las pilas, main tiene el puntero `cola` que devuelve `crear...` y `x`; se ejecuta solo la función elegida paso a paso y el resto (las del mismo archivo, las del TAD del nodo y, en la de prioridad con array, las de `ColaEnlazada`) va de un solo paso. Las funciones `mostrar` no se cargan. `TAM_COLA_ARRAY` vale 10, como en el código; `TAM_BICOLA_ARRAY` vale 100 en el código y 10 en el dibujo (`TAM_BICOLA_DIBUJO` en `src/queues/catalog.ts`). `npm test` repite el `main.c` de las colas.
 
+## Visualizar: ordenación y búsqueda (tema 7)
+
+En `#/ver/ordenacion` están los cinco algoritmos del tema (selection, insertion, bubble, merge sort y quicksort) y la búsqueda binaria, animados paso a paso: el array con sus índices y las marcas (`i`, `j`, `min`, `pivote`, `ini`, `med`...), el código del deck al lado con la línea que se ejecuta, una nota por paso, las cuentas de comparaciones y movimientos y, en merge sort y quicksort, la pila de llamadas. Cada uno tiene su página (`#/ver/seleccion`, `#/ver/mezcla`...), con el array de clase (`5 2 8 1 4`), uno aleatorio, casi ordenado, al revés o uno propio. `#/ver/carrera` pone dos algoritmos con los mismos datos (hasta n = 100, en barras) y los hace avanzar por operaciones, no por segundos, con la tabla de los cinco debajo.
+
+Los colores tienen un solo significado en todos: rojo, lo que cambia en ese paso; sombreado, en su sitio definitivo; discontinuo, lo que sigue escrito pero ya no cuenta; llave gris, ordenado entre sí (insertion sort); raya roja, los que ya son ≤ pivote (quicksort).
+
+Todo está en `src/ordenacion/`: `pasos.ts` ejecuta cada algoritmo y guarda una foto por paso (el código es el del deck y de `ordenacion.c`), `Lienzo.tsx` dibuja un paso en casillas o en barras y `OrdenacionVer.tsx` tiene la galería, las páginas y la carrera. `src/pruebas/ordenacion.test.ts` comprueba que todos ordenan, que cada paso señala una línea que existe y que con `[5, 2, 8, 1, 4]` salen las cifras de los dibujos del deck (selection 10 y 4, insertion 8 y 6, bubble 10 y 6). Los ejercicios del tema 7 están pendientes.
+
 ## Temas ocultos
 
 Los temas que no se ven en la web están en `OCULTOS`, en `src/ejercicios/registro.ts` (ahora ninguno). Los tests los siguen comprobando.

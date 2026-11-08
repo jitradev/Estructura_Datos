@@ -103,7 +103,7 @@ const colas: MesaLab[] = COLAS.map((t) => {
   };
 });
 
-const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4' };
+const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4', ordenacion: '7' };
 
 /** Only the structures of the visible topics. */
 export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas].filter((m) => temaVisible(TEMA[m.grupo]));

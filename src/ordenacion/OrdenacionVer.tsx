@@ -210,9 +210,6 @@ function Animacion({ id }: { id: AlgId }) {
           </label>
         )}
         {esBin && <span className="nota">La binaria necesita el array ordenado: se ordena antes de empezar.</span>}
-        <a className="btn secundario ord-al-lab" href={`#/lab/e/${id}`}>
-          Abrir en el Laboratorio →
-        </a>
       </div>
 
       <div className="ord-rejilla">
@@ -489,9 +486,6 @@ function Carrera() {
         >
           Al principio
         </button>
-        <a className="btn secundario ord-al-lab" href="#/lab/e/array">
-          Escribe la tuya en el Laboratorio →
-        </a>
       </div>
 
       <div className="ord-carrera">

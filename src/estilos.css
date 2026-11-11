@@ -675,3 +675,4 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .ord-leyenda.barras .mu.raya { background: var(--carmin); }
 @keyframes ob-entra { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ob-col, .ob-barra, .ob-marca { transition: none; animation: none; } }
+.ord-al-lab { margin-left: auto; }

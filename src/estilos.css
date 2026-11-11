@@ -597,3 +597,81 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .ord-tabla table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
 .ord-tabla th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gris); border-bottom: 2px solid var(--tinta); padding: 6px 10px; }
 .ord-tabla td { border-bottom: 1px solid var(--linea); padding: 8px 10px; }
+
+/* ------------------------------------------------ int arrays (topic 7) */
+.dibujo-vector { display: flex; flex-direction: column; gap: 14px; padding: 8px 4px; min-width: 0; }
+.vector-fila { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.vector-nombre { font-weight: 600; padding-top: 9px; min-width: 2.5em; text-align: right; }
+.vector-celdas { display: flex; flex-wrap: wrap; row-gap: 6px; min-width: 0; }
+.vector-celda { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.vector-celda b { display: grid; place-items: center; width: 42px; height: 38px; margin-left: -1.5px; border: 1.5px solid var(--tinta); background: var(--papel); font: 600 0.95rem var(--f-mono); transition: background 0.2s; }
+.vector-celda.basura b { color: var(--palo); }
+.vector-celda.cambia b { color: var(--carmin); background: var(--rojo-claro); border-color: var(--carmin); position: relative; z-index: 1; }
+.vector-celda small { font: 0.72rem var(--f-mono); color: var(--gris); }
+.vector-marcas { font: normal 600 0.75rem var(--f-mono); color: var(--carmin); min-height: 1.1em; }
+.dibujo-vector.compacto .vector-celda b { width: 30px; height: 28px; font-size: 0.8rem; }
+.vector-marcos { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--linea); padding-top: 10px; }
+.vector-marco { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 0.88rem; color: var(--gris); }
+.vector-marco.actual { color: var(--tinta); }
+.vector-funcion { font-weight: 700; min-width: 7em; }
+.vector-var.cambia { color: var(--carmin); font-weight: 700; }
+.vector-vacio { margin: 12px; }
+
+/* ------------------------------------------------ trace exercises (topic 7) */
+.etiqueta-tipo.traza { background: #dbe8f5; color: #27507a; }
+.ficha-traza { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-bottom: 6px; }
+.codigo-traza { font: 0.85rem/1.5 var(--f-mono); background: var(--hueso); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 6px 0 0; }
+.traza-editable, .traza-resuelta { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.fila-traza { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.fila-traza > code { min-width: 9.5em; background: none; padding: 0; color: var(--grafito); }
+.fila-traza .fila-celdas { margin: 0; }
+.traza input.corta { width: 64px; text-align: center; }
+.traza .tabla-traza td { vertical-align: middle; }
+.traza .fila-espec { display: flex; align-items: center; gap: 10px; }
+.lam-caja.def { fill: var(--arena); }
+.etiqueta-estructura.selección, .etiqueta-estructura.mezcla { background: #dbe8f5; color: #27507a; }
+.etiqueta-estructura.inserción, .etiqueta-estructura.quicksort { background: #dcefe0; color: #2a6a3c; }
+.etiqueta-estructura.búsqueda-binaria, .etiqueta-estructura.arrays { background: #e6e1f5; color: #4a3a86; }
+
+/* Tema 7: animated bars, VisuAlgo style */
+.ord-vista { display: inline-flex; border: 1.5px solid #d9c9c1; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.ord-vista button { font: 600 0.85rem var(--f-txt); padding: 6px 14px; min-height: 36px; border: none; background: #fff; color: var(--grafito); cursor: pointer; }
+.ord-vista button + button { border-left: 1.5px solid #d9c9c1; }
+.ord-vista button.activo { background: var(--tinta); color: #fff; }
+.ob-escena { --ob-t: 400ms; position: relative; width: 100%; box-sizing: border-box; align-self: stretch; padding: 34px 6px 4px; font-family: var(--f-mono); }
+.ob-zona { position: relative; height: 230px; border-bottom: 2px solid var(--grafito); }
+.ob-zona.ob-aux { height: 130px; margin-top: 14px; }
+.ob-nombre { position: absolute; left: 0; bottom: 4px; width: var(--ob-w); text-align: center; color: var(--gris); font-size: 0.95rem; }
+.ob-col { position: absolute; bottom: 0; height: 100%; width: var(--ob-w); transition: left var(--ob-t) ease-in-out, opacity var(--ob-t); animation: ob-entra var(--ob-t) ease-out; }
+.ob-col.vacia { animation: none; }
+.ob-col.vacia .ob-barra { height: 8%; background: none; border: 1.5px dashed #d9c9c1; border-bottom: none; }
+.ob-barra { position: absolute; bottom: 0; left: 9%; right: 9%; background: #cdbdb6; border-radius: 4px 4px 0 0; transition: height var(--ob-t) ease-in-out, background-color 0.2s, border-color 0.2s; box-sizing: border-box; border: 2px solid transparent; border-bottom: none; }
+.ob-valor { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); padding-bottom: 3px; font-size: 0.95rem; font-weight: 600; color: var(--tinta); white-space: nowrap; }
+.ob-col.mirada .ob-barra { background: var(--albaric); border-color: var(--ambar); }
+.ob-col.cambia .ob-barra { background: var(--carmin); }
+.ob-col.cambia .ob-valor { color: var(--carmin); font-weight: 700; }
+.ob-col.definitiva .ob-barra { background: var(--verde); }
+.ob-col.definitiva .ob-valor { color: var(--verde); }
+.ob-col.descartada .ob-barra { background: transparent; border: 2px dashed var(--palo); border-bottom: none; }
+.ob-col.descartada .ob-valor { color: var(--palo); }
+.ob-col.tenue { opacity: 0.3; }
+.ob-mano { position: absolute; top: -26px; width: var(--ob-w); text-align: center; color: var(--carmin); font-weight: 700; }
+.ob-base { position: relative; height: 40px; }
+.ob-indice { position: absolute; top: 3px; width: var(--ob-w); text-align: center; font-size: 0.75rem; color: var(--palo); }
+.ob-menores { position: absolute; top: 0; height: 5px; background: var(--carmin); border-radius: 2px; transition: width var(--ob-t), left var(--ob-t); }
+.ob-llave { position: absolute; top: 20px; height: 8px; box-sizing: border-box; border: 2px solid var(--gris); border-top: none; font-size: 0.72rem; color: var(--gris); text-align: center; line-height: 26px; transition: width var(--ob-t), left var(--ob-t); }
+.ob-marcas { position: relative; height: 32px; margin-top: 6px; }
+.ob-marca { position: absolute; top: 0; width: var(--ob-w); display: flex; flex-direction: column; align-items: center; font-size: 0.85rem; font-weight: 600; color: var(--gris); white-space: nowrap; line-height: 1.1; transition: left var(--ob-t) ease-in-out; }
+.ob-marca.roja { color: var(--carmin); }
+.ob-flecha { font-size: 0.7rem; }
+.ord-leyenda.barras .mu { border-radius: 3px 3px 0 0; border: 2px solid transparent; background: #cdbdb6; }
+.ord-leyenda.barras .mu.mirada { background: var(--albaric); border-color: var(--ambar); }
+.ord-leyenda.barras .mu.cambia { background: var(--carmin); border-color: var(--carmin); }
+.ord-leyenda.barras .mu.definitiva { background: var(--verde); border-color: var(--verde); }
+.ord-leyenda.barras .mu.descartada { background: none; border: 2px dashed var(--palo); }
+.ord-leyenda.barras .mu.tenue { opacity: 0.3; }
+.ord-leyenda.barras .mu.llave, .ord-leyenda.barras .mu.raya { background: none; border-color: transparent; }
+.ord-leyenda.barras .mu.llave { border-bottom: 2px solid var(--gris); border-left: 2px solid var(--gris); border-right: 2px solid var(--gris); border-top: none; border-radius: 0; }
+.ord-leyenda.barras .mu.raya { background: var(--carmin); }
+@keyframes ob-entra { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ob-col, .ob-barra, .ob-marca { transition: none; animation: none; } }

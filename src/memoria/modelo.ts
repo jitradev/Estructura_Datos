@@ -45,6 +45,8 @@ export interface Variable {
   nombre: string;
   tipo: Tipo;
   valor: Valor;
+  /** It is the array itself (int v[5]), not a pointer: it cannot be assigned. */
+  array?: boolean;
 }
 
 export interface Marco {
@@ -67,6 +69,8 @@ export interface Contexto {
   tipoLista?: 'simple' | 'doble' | 'circular' | 'circular-doble';
   /** Exercises on a deque or a priority queue: they are drawn with QueueDrawing. */
   tipoCola?: string;
+  /** Topic 7: plain int arrays (int v[]), which can be declared in the code; drawn with DibujoVector. */
+  tipoArray?: boolean;
 }
 
 export const clonar = (m: Memoria): Memoria => structuredClone(m);
@@ -100,6 +104,18 @@ export function nuevoObjeto(m: Memoria, ctx: Contexto, tipo: string, heap: boole
   m.objetos[o.id] = o;
   return o;
 }
+
+/** Type of a plain int array: an object with a single field named like the array. */
+export const TIPO_ARRAY = 'int[]';
+
+export function nuevoArray(m: Memoria, nombre: string, valores: Valor[]): Objeto {
+  const o: Objeto = { id: m.sigId++, tipo: TIPO_ARRAY, campos: { [nombre]: valores }, heap: false, liberado: false, nombre };
+  m.objetos[o.id] = o;
+  return o;
+}
+
+/** What an array variable holds: a pointer to its first cell, as in C. */
+export const aPrimera = (o: Objeto): Valor => ({ k: 'ref', r: { k: 'elem', id: o.id, campo: Object.keys(o.campos)[0], i: 0 } });
 
 export function mismoValor(a: Valor, b: Valor): boolean {
   if (a.k !== b.k) return false;

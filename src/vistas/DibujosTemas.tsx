@@ -169,4 +169,25 @@ export const DIBUJOS_TEMAS: Record<string, JSX.Element> = {
       ))}
     </svg>
   ),
+  // a pass of selection sort: the first ones in place and a swap arc
+  '7': (
+    <svg viewBox="0 0 280 110" aria-hidden>
+      <Punta id="pt-t7" />
+      {[1, 2, 8, 5, 4].map((v, i) => (
+        <g key={i}>
+          <rect x={52 + i * 36} y="40" width="36" height="32" className={`lam-caja ${i < 2 ? 'def' : ''}`} />
+          <text x={70 + i * 36} y="61" className={`lam-t ${i === 2 || i === 4 ? 'lam-rojo' : ''}`}>
+            {v}
+          </text>
+          <text x={70 + i * 36} y="88" className="lam-et centro">
+            {i}
+          </text>
+        </g>
+      ))}
+      <path d="M214 37C214 12 142 12 142 35" className="lam-flecha" markerEnd="url(#pt-t7)" markerStart="url(#pt-t7)" />
+      <text x="142" y="104" className="lam-et centro">
+        i = 2 · min = 4
+      </text>
+    </svg>
+  ),
 };

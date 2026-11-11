@@ -11,6 +11,7 @@ function cuentas(es: Ejercicio[]): [string, number][] {
   const n = (f: (e: Ejercicio) => boolean) => es.filter(f).length;
   return (
     [
+      ['de traza', n((e) => e.tipo === 'traza')],
       ['de programar', n((e) => e.tipo === 'programar')],
       ['de fallos', n((e) => e.tipo === 'fallo')],
       ['misteriosas', n((e) => e.tipo === 'misterio')],
@@ -88,7 +89,7 @@ export function Inicio() {
   );
 }
 
-const GRUPOS = ['Programar a mano', 'Escribe la función', 'Encuentra el fallo', 'Función misteriosa'];
+const GRUPOS = ['Haz la traza', 'Programar a mano', 'Escribe la función', 'Encuentra el fallo', 'Función misteriosa'];
 
 /** Section of the topic page: its block if it has one, or the exercise type. */
 const grupo = (e: Ejercicio) => e.bloque ?? nombreTipo(e);

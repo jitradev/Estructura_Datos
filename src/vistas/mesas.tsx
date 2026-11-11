@@ -16,6 +16,9 @@ import { StackDrawing } from '../stacks/StackDrawing';
 import { PILAS } from '../stacks/catalog';
 import { buildStack } from '../stacks/prepare';
 import { GrupoVer } from './SelectorTipo';
+import { DibujoVector } from '../dibujo/DibujoVector';
+import { construir, CTX_VECTOR, entero, vector } from '../memoria/construir';
+import { AlgId, ALGORITMOS } from '../ordenacion/pasos';
 
 
 export interface MesaLab {
@@ -31,6 +34,8 @@ export interface MesaLab {
   /** Headers of the functions that can be called. */
   funciones: string[];
   ejemplo: string;
+  /** Code already in the editor when the table opens. */
+  codigoInicial?: string;
 }
 
 /** Printing is left out: the students do not print. */
@@ -103,7 +108,78 @@ const colas: MesaLab[] = COLAS.map((t) => {
   };
 });
 
+/** Topic 7: an int array with every function of ordenacion.c, to sort it by hand or with them. */
+const ordenacion: MesaLab[] = (() => {
+  const envoltorios = `
+void ordMezcla(int v[], int n) {
+    int aux[n];
+    mezclaRec(v, aux, 0, n - 1);
+}
+
+void ordRapida(int v[], int n) {
+    rapidaRec(v, 0, n - 1);
+}`;
+  const { preludio, cabeceras } = funcionesDe([CTX_VECTOR.preludio!, ...ALGORITMOS.map((a) => a.codigo), envoltorios]);
+  const ctx = { ...CTX_VECTOR, preludio };
+  const dibujar: MesaLab['dibujar'] = (mem, prev, mini) => <DibujoVector mem={mem} prev={prev} compacto={mini} />;
+  const conDatos = (datos: number[]) => () => construir(CTX_VECTOR, [vector('v', datos), entero('n', datos.length)]);
+  const FAMILIA: Record<AlgId, string> = { seleccion: 'Sencillos', insercion: 'Sencillos', burbuja: 'Sencillos', mezcla: 'Divide y vencerás', rapida: 'Divide y vencerás', binaria: 'Búsqueda' };
+  const CORTO: Record<AlgId, string> = { seleccion: 'Selection', insercion: 'Insertion', burbuja: 'Bubble', mezcla: 'Merge', rapida: 'Quicksort', binaria: 'Binaria' };
+  const LLAMADA: Record<AlgId, string> = {
+    seleccion: 'ordSeleccion(v, n);',
+    insercion: 'ordInsercion(v, n);',
+    burbuja: 'ordBurbuja(v, n);',
+    mezcla: 'int aux[n];\nmezclaRec(v, aux, 0, n - 1);',
+    rapida: 'rapidaRec(v, 0, n - 1);',
+    binaria: 'int pos = busquedaBinaria(v, n, 23);',
+  };
+  // one table per algorithm: its example is the code of the deck, so it runs line by line
+  const porAlgoritmo: MesaLab[] = ALGORITMOS.map((a) => {
+    const datos = a.id === 'binaria' ? [2, 5, 8, 12, 16, 23, 38, 56, 72, 91] : [5, 2, 8, 1, 4];
+    return {
+      id: a.id,
+      grupo: 'ordenacion',
+      nombre: a.nombre,
+      corto: CORTO[a.id],
+      familia: FAMILIA[a.id],
+      resumen: `${a.idea} Empiezas con \`v = {${datos.join(', ')}}\` y \`n = ${datos.length}\`: el código ya está cargado: pulsa «Paso a paso» para verlo, o cámbialo y prueba tu versión.`,
+      ctx,
+      inicial: conDatos(datos),
+      dibujar,
+      funciones: cabeceras,
+      ejemplo: `${a.codigo}\n\n${LLAMADA[a.id]}\n`,
+      codigoInicial: `${a.codigo}\n\n${LLAMADA[a.id]}\n`,
+    };
+  });
+  return [
+    ...porAlgoritmo,
+    {
+      id: 'array',
+      grupo: 'ordenacion',
+      nombre: 'Array libre',
+      corto: 'Libre',
+      familia: 'Libre',
+      resumen:
+        'Empiezas con `int v[] = {5, 2, 8, 1, 4}` y `n = 5`. Escribe tu propia ordenación (funciones incluidas) y mírala paso a paso, o declara más arrays, como `int w[] = {9, 3, 7};` o `int aux[8];`.',
+      ctx,
+      inicial: conDatos([5, 2, 8, 1, 4]),
+      dibujar,
+      funciones: cabeceras,
+      ejemplo: `void miBurbuja(int v[], int n) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - 1 - i; j++)
+            if (v[j] > v[j + 1])
+                intercambiar(&v[j], &v[j + 1]);
+}
+
+miBurbuja(v, n);
+int pos = busquedaBinaria(v, n, 4);
+`,
+    },
+  ];
+})();
+
 const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4', ordenacion: '7' };
 
 /** Only the structures of the visible topics. */
-export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas].filter((m) => temaVisible(TEMA[m.grupo]));
+export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas, ...ordenacion].filter((m) => temaVisible(TEMA[m.grupo]));

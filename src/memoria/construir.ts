@@ -2,7 +2,7 @@
 // ejercicios. Las pilas y las colas usan los structs y las funciones de los proyectos
 // Pilas y Colas (los mismos que se ejecutan en Visualizar).
 
-import { Contexto, int, Memoria, memoriaVacia, NULO, nuevoObjeto, Valor } from './modelo';
+import { aPrimera, Contexto, int, Memoria, memoriaVacia, nuevoArray, NULO, nuevoObjeto, Valor } from './modelo';
 import { trocear } from '../listas/trocear';
 import srcPilaArray from '../stacks/c/PilaArray.c?raw';
 import srcPilaEnlazada from '../stacks/c/PilaEnlazada.c?raw';
@@ -100,6 +100,18 @@ export const CTX_TABLA_ABIERTA: Contexto = {
   ],
   constantes: { TAM: 10, ...MARCAS },
   preludio: funcionesDe(srcTablaAbierta),
+};
+
+/** Tema 7: plain int arrays, with the intercambiar of ordenacion.c. */
+export const CTX_VECTOR: Contexto = {
+  structs: [],
+  tipoArray: true,
+  preludio: `
+void intercambiar(int *a, int *b) {
+  int t = *a;
+  *a = *b;
+  *b = t;
+}`,
 };
 
 // ------------------------------------------------------------------ constructores
@@ -220,6 +232,14 @@ export const tablaAbierta =
     });
     o.campos.n = int(n);
     declarar(m, nombre, 'TablaHash', 1, ref(o.id));
+  };
+
+/** An int array of main, «int v[] = {5, 2, 8}»; with `tam` it has more cells, left at 0. */
+export const vector =
+  (nombre: string, valores: number[], tam = valores.length): Constructor =>
+  (m) => {
+    const o = nuevoArray(m, nombre, Array.from({ length: tam }, (_, k) => int(valores[k] ?? 0)));
+    m.marcos[0].vars.push({ nombre, tipo: { base: 'int', ptr: 1 }, valor: aPrimera(o), array: true });
   };
 
 export function construir(ctx: Contexto, partes: Constructor[]): Memoria {

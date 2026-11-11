@@ -3,8 +3,8 @@ import { ejecutar } from '../interprete/ejecutar';
 import { MESAS } from '../vistas/mesas';
 
 describe('Laboratorio structures', () => {
-  it('has every list, stack and queue', () => {
-    expect(MESAS.length).toBe(13);
+  it('has every list, stack and queue, and the sorting tables of topic 7', () => {
+    expect(MESAS.length).toBe(20);
   });
 
   it.each(MESAS.map((m) => [m.nombre, m]))('%s starts empty and runs its example', (_, m) => {
@@ -12,7 +12,7 @@ describe('Laboratorio structures', () => {
     const r = ejecutar(m.ejemplo, m.ctx, ini, { maxPasos: 5000 });
     expect(r.error).toBeUndefined();
     expect(r.fugas).toEqual([]);
-    expect(JSON.stringify(r.memFinal.objetos)).not.toBe(JSON.stringify(ini.objetos));
+    expect(JSON.stringify(r.memFinal)).not.toBe(JSON.stringify(ini));
     expect(m.funciones.length).toBeGreaterThan(3);
   });
 });

@@ -5,6 +5,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { EditorCodigo } from '../vistas/EditorCodigo';
 import { SelectorTipo } from '../vistas/SelectorTipo';
+import { BarrasAnimadas } from './BarrasAnimadas';
+import { identidades } from './identidades';
 import { Barras, Lienzo } from './Lienzo';
 import { AlgId, ALGORITMOS, ejecutar, generarDatos, ORDENACIONES, Paso, TipoDatos } from './pasos';
 
@@ -131,6 +133,9 @@ function Animacion({ id }: { id: AlgId }) {
   const [idx, setIdx] = useState(0);
   const [enMarcha, setEnMarcha] = useState(false);
   const [vel, setVel] = useState(1);
+  const [vista, setVista] = useState<'barras' | 'casillas'>('barras');
+  const ids = useMemo(() => identidades(pasos.map((p) => p.v)), [pasos]);
+  const escala = useMemo<[number, number]>(() => [Math.min(0, ...datos), Math.max(1, ...datos)], [datos]);
   useEffect(() => {
     setIdx(0);
     setEnMarcha(false);
@@ -209,8 +214,19 @@ function Animacion({ id }: { id: AlgId }) {
 
       <div className="ord-rejilla">
         <section className="panel">
+          <div className="ord-vista" role="group" aria-label="Dibujo">
+            {(['barras', 'casillas'] as const).map((v) => (
+              <button key={v} className={vista === v ? 'activo' : ''} aria-pressed={vista === v} onClick={() => setVista(v)}>
+                {v === 'barras' ? 'Barras' : 'Casillas'}
+              </button>
+            ))}
+          </div>
           <div className="lienzo-memoria ord-lienzo-caja">
-            <Lienzo paso={paso} mano={id === 'insercion'} />
+            {vista === 'barras' ? (
+              <BarrasAnimadas paso={paso} ids={ids[Math.min(idx, ultimo)]} mano={id === 'insercion'} ms={Math.min(Math.round(VELOCIDADES[vel].ms * 0.6), 520)} escala={escala} />
+            ) : (
+              <Lienzo paso={paso} mano={id === 'insercion'} />
+            )}
           </div>
           <div className="nota-paso" aria-live="polite">
             <span className="cuenta-paso">
@@ -264,7 +280,7 @@ function Animacion({ id }: { id: AlgId }) {
             </label>
           </div>
           <p className="nota ord-teclas">También con las flechas ← y → del teclado.</p>
-          <LeyendaOrd id={id} />
+          <LeyendaOrd id={id} barras={vista === 'barras'} />
         </section>
 
         <section className="panel">
@@ -303,9 +319,14 @@ function Animacion({ id }: { id: AlgId }) {
   );
 }
 
-function LeyendaOrd({ id }: { id: AlgId }) {
+function LeyendaOrd({ id, barras }: { id: AlgId; barras: boolean }) {
   return (
-    <ul className="ord-leyenda" aria-label="Leyenda">
+    <ul className={`ord-leyenda${barras ? ' barras' : ''}`} aria-label="Leyenda">
+      {barras && (
+        <li>
+          <span className="mu mirada" /> señalado (i, j, min...)
+        </li>
+      )}
       <li>
         <span className="mu cambia" /> cambia en este paso
       </li>
@@ -332,7 +353,7 @@ function LeyendaOrd({ id }: { id: AlgId }) {
           <span className="mu tenue" /> fuera del tramo de esta llamada
         </li>
       )}
-      {(id === 'seleccion' || id === 'burbuja' || id === 'rapida') && (
+      {!barras && (id === 'seleccion' || id === 'burbuja' || id === 'rapida') && (
         <li>
           <span className="mu arco" /> intercambio
         </li>

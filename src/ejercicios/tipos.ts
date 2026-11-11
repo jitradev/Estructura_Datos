@@ -3,6 +3,7 @@
 
 import { Constructor } from '../memoria/construir';
 import { Contexto } from '../memoria/modelo';
+import type { AlgId } from '../ordenacion/pasos';
 
 export interface Caso {
   nombre: string; // «Lista vacía», «9 → 3 → 7»
@@ -201,7 +202,31 @@ export interface EjDispersion {
   explicacion: string;
 }
 
-export type Ejercicio = (EjCodigo | EjCoste | EjEspec | EjDispersion) & { estructura?: string };
+/**
+ * Topic 7: run a sorting algorithm (or binary search) by hand, writing the array after each
+ * pass, and then count its comparisons. The rows are simulated (src/ejercicios/traza.ts).
+ */
+export interface EjTraza {
+  id: string;
+  tipo: 'traza';
+  titulo: string;
+  bloque?: string;
+  /** The algorithm, as a tag and a filter on the topic page. */
+  estructura?: string;
+  enunciado: string;
+  pistas?: string[];
+  alResolver?: string;
+  alg: AlgId;
+  datos: number[];
+  /** Binary search: the value looked for. */
+  x?: number;
+  /** Ask the comparisons and the moves once the trace is done. */
+  cuentas?: boolean;
+  /** Shown once solved. */
+  explicacion: string;
+}
+
+export type Ejercicio = (EjCodigo | EjCoste | EjEspec | EjDispersion | EjTraza) & { estructura?: string };
 
 export interface Tema {
   id: string;

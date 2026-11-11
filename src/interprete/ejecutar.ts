@@ -4,12 +4,14 @@
 // array) paran la ejecución en su línea con un mensaje pensado para el alumno.
 
 import {
+  aPrimera,
   BASURA,
   clonar,
   Contexto,
   int,
   Memoria,
   NULO,
+  nuevoArray,
   nuevoObjeto,
   Objeto,
   Ref,
@@ -89,8 +91,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
   let prog: Programa;
   let preludio: Programa = { funciones: [], sentencias: [] };
   try {
-    prog = analizar(src, tipos);
-    if (ctx.preludio) preludio = analizar(ctx.preludio, tipos);
+    prog = analizar(src, tipos, !!ctx.tipoArray);
+    if (ctx.preludio) preludio = analizar(ctx.preludio, tipos, !!ctx.tipoArray);
   } catch (e) {
     if (e instanceof ErrorSintaxis) return { pasos, error: { linea: e.linea, mensaje: e.message, tipo: 'sintaxis' }, memFinal: m, fugas: [] };
     throw e;
@@ -140,6 +142,7 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
 
   function objeto(id: number, e: Expr, desde?: Expr): Objeto {
     const o = m.objetos[id];
+    if (!o) return fallar(e.linea, 'liberado', `«${txt(desde ?? e)}» apunta a un array local de una función que ya ha terminado: ese array ya no existe.`);
     if (o.liberado) {
       const quien = desde ? `«${txt(desde)}» apunta a un nodo que` : 'Ese nodo';
       fallar(e.linea, 'liberado', `${quien} se liberó en la línea ${o.liberadoEn}: después de free no se puede usar. «${txt(e)}» lee o escribe memoria liberada.`);
@@ -162,9 +165,12 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
 
   function escribir(l: Loc, v: Valor, e: Expr) {
     switch (l.k) {
-      case 'var':
-        m.marcos[l.marco].vars.find((x) => x.nombre === l.nombre)!.valor = v;
+      case 'var': {
+        const x = m.marcos[l.marco].vars.find((y) => y.nombre === l.nombre)!;
+        if (x.array) fallar(e.linea, 'tipo', `«${x.nombre}» es un array: no se le puede asignar nada entero. Cambia sus casillas, como ${x.nombre}[0] = 5.`);
+        x.valor = v;
         return;
+      }
       case 'campo':
         objeto(l.id, e).campos[l.campo] = v;
         return;
@@ -230,13 +236,27 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
       }
       case 'idx': {
         const l = loc(e.a);
-        if (l.k !== 'campo' || !Array.isArray(m.objetos[l.id].campos[l.campo]))
-          return fallar(e.linea, 'tipo', `«${txt(e.a)}» no es un array.`);
-        const i = entero(valor(e.i), e.i);
-        const n = (m.objetos[l.id].campos[l.campo] as Valor[]).length;
+        let id: number;
+        let campo: string;
+        let base = 0;
+        if (l.k === 'campo' && Array.isArray(m.objetos[l.id].campos[l.campo])) {
+          id = l.id;
+          campo = l.campo;
+        } else {
+          // a pointer to a cell of an array: int v[] as a parameter, or a local array
+          const pv = l.k === 'objeto' ? null : leer(l, e.a);
+          if (pv?.k === 'nulo') return fallar(e.linea, 'nulo', `«${txt(e.a)}» vale NULL: no hay ningún array al que ir.`);
+          if (pv?.k === 'basura') return fallar(e.linea, 'basura', `«${txt(e.a)}» no está inicializado.`);
+          if (pv?.k !== 'ref' || pv.r.k !== 'elem') return fallar(e.linea, 'tipo', `«${txt(e.a)}» no es un array.`);
+          id = objeto(pv.r.id, e, e.a).id;
+          campo = pv.r.campo;
+          base = pv.r.i;
+        }
+        const i = base + entero(valor(e.i), e.i);
+        const n = (m.objetos[id].campos[campo] as Valor[]).length;
         if (i < 0 || i >= n)
           fallar(e.linea, 'array', `«${txt(e)}» se sale del array: tiene ${n} casillas (de 0 a ${n - 1}) y el índice vale ${i}.`);
-        return { k: 'elem', id: l.id, campo: l.campo, i };
+        return { k: 'elem', id, campo, i };
       }
     }
     return fallar(e.linea, 'tipo', `«${txt(e)}» no es algo a lo que se pueda asignar un valor.`);
@@ -385,6 +405,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
     if (f.params.length !== e.args.length)
       return fallar(e.linea, 'tipo', `${e.f} recibe ${f.params.length} argumento${f.params.length === 1 ? '' : 's'} y le pasas ${e.args.length}.`);
     const args = e.args.map((a) => valor(a));
+    if (m.marcos.length > 150)
+      fallar(e.linea, 'bucle', `Más de 150 llamadas anidadas: la recursión no termina. ¿Se acerca cada llamada al caso base?`);
     // Los punteros a variables del marco de quien llama siguen apuntando allí
     m.marcos.push({ funcion: f.nombre, vars: f.params.map((p, i) => ({ nombre: p.nombre, tipo: p.tipo, valor: args[i] })) });
     if (f.silenciosa && silencio++ === 0) llamadaVisible = txt(e);
@@ -400,7 +422,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
       fuentes.pop();
       if (f.silenciosa) silencio--;
     }
-    m.marcos.pop();
+    // the local arrays of the call die with it (pointers to them are left dangling, as in C)
+    for (const v of m.marcos.pop()!.vars) if (v.array && v.valor.k === 'ref' && v.valor.r.k === 'elem') delete m.objetos[v.valor.r.id];
     return r ?? NULO;
   }
 
@@ -418,6 +441,18 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
         contar(s.linea);
         const mc = m.marcos[marco()];
         for (const v of s.vars) {
+          if (v.arr) {
+            const tam = v.arr.tam ? entero(valor(v.arr.tam), v.arr.tam) : v.arr.lista!.length;
+            const lista = (v.arr.lista ?? []).map((x) => int(entero(valor(x), x)));
+            if (tam < 1 || tam > 64) fallar(s.linea, 'array', `El array «${v.nombre}» tendría ${tam} casillas: aquí caben de 1 a 64.`);
+            if (lista.length > tam) fallar(s.linea, 'array', `«${v.nombre}» tiene ${tam} casillas y le das ${lista.length} valores.`);
+            const o = nuevoArray(m, v.nombre, Array.from({ length: tam }, (_, k) => lista[k] ?? (v.arr!.lista ? int(0) : BASURA)));
+            const nueva = { nombre: v.nombre, tipo: { base: 'int', ptr: 1 }, valor: aPrimera(o), array: true };
+            const i = mc.vars.findIndex((x) => x.nombre === v.nombre);
+            if (i >= 0) mc.vars[i] = nueva;
+            else mc.vars.push(nueva);
+            continue;
+          }
           const tipo: Tipo = { base: s.tipo.base, ptr: v.ptr };
           if (tipo.ptr === 0 && tipo.base !== 'int')
             fallar(s.linea, 'tipo', `Declara un puntero (${tipo.base} *${v.nombre}): los ${tipo.base} ya los tiene la estructura o se crean con malloc.`);

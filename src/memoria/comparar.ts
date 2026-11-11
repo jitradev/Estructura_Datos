@@ -2,7 +2,7 @@
 // mismas variables, se llega a los mismos valores con la misma forma, sin importar
 // qué id tenga cada nodo. Y describir un estado en texto para los mensajes.
 
-import { campoDato, Contexto, esNodo, Memoria, Objeto, Ref, structDe, Valor } from './modelo';
+import { campoDato, Contexto, esNodo, Memoria, Objeto, Ref, structDe, TIPO_ARRAY, Valor } from './modelo';
 
 /** Ids de los objetos a los que se llega desde las variables de los marcos dados. */
 export function alcanzables(m: Memoria, marcos: number[]): Set<number> {
@@ -21,7 +21,7 @@ export function alcanzables(m: Memoria, marcos: number[]): Set<number> {
   Object.values(m.objetos).forEach((o) => !o.heap && mirar({ k: 'ref', r: { k: 'obj', id: o.id } }));
   while (pila.length) {
     const o = m.objetos[pila.pop()!];
-    if (o.liberado) continue;
+    if (!o || o.liberado) continue;
     for (const c of Object.values(o.campos)) (Array.isArray(c) ? c : [c]).forEach(mirar);
   }
   return vistos;
@@ -75,7 +75,7 @@ export function huella(m: Memoria, observar: string[]): string {
     if (ids.has(id)) return `#${ids.get(id)}`;
     ids.set(id, ids.size);
     const o = m.objetos[id];
-    if (o.liberado) return `LIBERADO#${ids.get(id)}`;
+    if (!o || o.liberado) return `LIBERADO#${ids.get(id)}`;
     return `${o.tipo}#${ids.get(id)}{${camposLogicos(o)
       .map(([k, v]) => `${k}:${Array.isArray(v) ? `[${v.map(sv).join(',')}]` : sv(v)}`)
       .join(';')}}`;
@@ -152,7 +152,12 @@ function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): st
   const r = v.r;
   if (r.k === 'var') return `${nombre} -> &${r.nombre}`;
   if (r.k === 'campo') return `${nombre} -> &(campo ${r.campo})`;
-  if (r.k === 'elem') return `${nombre} -> &${r.campo}[${r.i}]`;
+  if (r.k === 'elem') {
+    const o = m.objetos[r.id];
+    if (!o) return `${nombre} -> un array que ya no existe`;
+    if (o.tipo === TIPO_ARRAY && r.i === 0) return `${nombre} = [${(o.campos[r.campo] as Valor[]).map((x) => (x.k === 'int' ? x.v : '?')).join(', ')}]`;
+    return `${nombre} -> &${r.campo}[${r.i}]`;
+  }
   const o = m.objetos[r.id];
   if (esNodo(ctx, o.tipo)) return `${nombre} -> ${cadena(m, ctx, v)}`;
   const s = structDe(ctx, o.tipo)!;

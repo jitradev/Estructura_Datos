@@ -112,7 +112,7 @@ export type Expr = Pos &
   );
 
 export type Sent =
-  | { k: 'decl'; tipo: Tipo; vars: { nombre: string; ptr: number; init?: Expr }[]; linea: number }
+  | { k: 'decl'; tipo: Tipo; vars: VarDecl[]; linea: number }
   | { k: 'expr'; e: Expr; linea: number }
   | { k: 'while'; c: Expr; s: Sent; linea: number }
   | { k: 'dowhile'; c: Expr; s: Sent; linea: number; lineaC: number }
@@ -123,6 +123,14 @@ export type Sent =
   | { k: 'break'; linea: number }
   | { k: 'continue'; linea: number }
   | { k: 'vacia'; linea: number };
+
+/** A declared variable; `arr` when it is a local array (`int v[5]` or `int v[] = {3, 1, 2}`). */
+export interface VarDecl {
+  nombre: string;
+  ptr: number;
+  init?: Expr;
+  arr?: { tam?: Expr; lista?: Expr[] };
+}
 
 export interface Funcion {
   nombre: string;
@@ -139,7 +147,7 @@ export interface Programa {
 
 // ------------------------------------------------------------------ sintaxis
 
-export function analizar(src: string, tipos: string[]): Programa {
+export function analizar(src: string, tipos: string[], arraysLocales = false): Programa {
   const toks = lexico(src);
   let p = 0;
   const TIPOS = new Set(['int', 'void', 'char', ...tipos]);
@@ -192,6 +200,13 @@ export function analizar(src: string, tipos: string[]): Programa {
                 const pn = ver();
                 if (pn.t !== 'id') throw new ErrorSintaxis(pn.linea, 'Falta el nombre del parámetro.');
                 p++;
+                // int v[] (or int v[N]) as a parameter is a pointer
+                if (es('[')) {
+                  p++;
+                  if (!es(']')) expresion();
+                  comer(']');
+                  pt.ptr++;
+                }
                 params.push({ nombre: pn.v, tipo: pt });
               } while (es(',') && ++p);
           }
@@ -221,19 +236,38 @@ export function analizar(src: string, tipos: string[]): Programa {
   function declaracion(): Sent {
     const linea = ver().linea;
     const t = tipo();
-    const vars: { nombre: string; ptr: number; init?: Expr }[] = [];
+    const vars: VarDecl[] = [];
     let ptr = t.ptr;
     for (;;) {
       const n = ver();
       if (n.t !== 'id') throw new ErrorSintaxis(n.linea, `Falta el nombre de la variable.`);
       p++;
-      if (es('[')) throw new ErrorSintaxis(n.linea, 'Aquí no se pueden declarar arrays: usa los que ya tiene la estructura.');
-      let init: Expr | undefined;
-      if (es('=')) {
+      if (es('[')) {
+        if (!arraysLocales) throw new ErrorSintaxis(n.linea, 'Aquí no se pueden declarar arrays: usa los que ya tiene la estructura.');
+        if (ptr > 0 || t.base !== 'int') throw new ErrorSintaxis(n.linea, 'Solo se pueden declarar arrays de int.');
         p++;
-        init = expresion();
+        const tam = es(']') ? undefined : expresion();
+        comer(']', 'para cerrar el tamaño del array');
+        let lista: Expr[] | undefined;
+        if (es('=')) {
+          p++;
+          comer('{', 'para empezar los valores del array');
+          lista = [];
+          if (!es('}'))
+            do lista.push(expresion());
+            while (es(',') && ++p && !es('}'));
+          comer('}', 'para cerrar los valores del array');
+        }
+        if (!tam && !lista) throw new ErrorSintaxis(n.linea, `Di el tamaño de «${n.v}», como en int ${n.v}[10], o dale valores: int ${n.v}[] = {3, 1, 2}.`);
+        vars.push({ nombre: n.v, ptr: 1, arr: { tam, lista } });
+      } else {
+        let init: Expr | undefined;
+        if (es('=')) {
+          p++;
+          init = expresion();
+        }
+        vars.push({ nombre: n.v, ptr, init });
       }
-      vars.push({ nombre: n.v, ptr, init });
       if (!es(',')) break;
       p++;
       ptr = 0;

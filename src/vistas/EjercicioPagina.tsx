@@ -10,6 +10,7 @@ import { Programar } from './tipos/Programar';
 import { Miga } from './Miga';
 import { Especificacion } from './tipos/Especificacion';
 import { Dispersion } from './tipos/Dispersion';
+import { Traza } from './tipos/Traza';
 
 export const EtiquetaEstructura = ({ estructura }: { estructura?: string }) =>
   estructura ? <span className={`etiqueta-estructura ${estructura.toLowerCase().replace(/ /g, '-')}`}>{estructura}</span> : null;
@@ -20,6 +21,7 @@ export function nombreTipo(e: Ejercicio): string {
   if (e.tipo === 'especificacion') return 'Especifica el TAD';
   if (e.tipo === 'dispersion') return 'Rellena la tabla';
   if (e.tipo === 'misterio') return 'Función misteriosa';
+  if (e.tipo === 'traza') return 'Haz la traza';
   return e.codigoInicial && e.codigoInicial.includes('(') ? 'Escribe la función' : 'Programar a mano';
 }
 
@@ -93,6 +95,8 @@ export function EjercicioPagina({ id }: { id: string }) {
         <Especificacion key={ej.id} ej={ej} onResuelto={onResuelto} />
       ) : ej.tipo === 'dispersion' ? (
         <Dispersion key={ej.id} ej={ej} onResuelto={onResuelto} />
+      ) : ej.tipo === 'traza' ? (
+        <Traza key={ej.id} ej={ej} onResuelto={onResuelto} />
       ) : (
         <Coste key={ej.id} ej={ej} onResuelto={onResuelto} />
       )}

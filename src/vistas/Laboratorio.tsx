@@ -10,9 +10,9 @@ import { MesaLab, MESAS } from './mesas';
 import { GrupoVer, NOMBRE_GRUPO, SelectorTipo } from './SelectorTipo';
 import { Miga } from './Miga';
 
-const GRUPOS: GrupoVer[] = ['listas', 'pilas', 'colas'];
+const GRUPOS: GrupoVer[] = ['listas', 'pilas', 'colas', 'ordenacion'];
 
-/** #/lab/<listas|pilas|colas> chooses a structure, #/lab/e/<id> works on it, #/lab/coste is the calculator. */
+/** #/lab/<listas|pilas|colas|ordenacion> chooses a structure, #/lab/e/<id> works on it, #/lab/coste is the calculator. */
 export function Laboratorio({ ruta = [] }: { ruta?: string[] }) {
   const mesa = ruta[0] === 'e' ? MESAS.find((m) => m.id === ruta[1]) : undefined;
   // inside a structure there is no way to the calculator: only to its sibling structures
@@ -89,7 +89,7 @@ function Elegir({ grupo }: { grupo?: GrupoVer }) {
 }
 
 function Mesa({ m }: { m: MesaLab }) {
-  const [codigo, setCodigo] = useState('');
+  const [codigo, setCodigo] = useState(m.codigoInicial ?? '');
   const [res, setRes] = useState<Resultado | null>(null);
   const rep = useReproductor(res?.pasos ?? null);
   const memInicial = useMemo(() => m.inicial(), [m]);
@@ -114,7 +114,7 @@ function Mesa({ m }: { m: MesaLab }) {
                 setRes(null);
               }}
             >
-              Cargar un ejemplo
+              {m.codigoInicial ? 'Volver al código original' : 'Cargar un ejemplo'}
             </button>
           </div>
           <p className="nota">

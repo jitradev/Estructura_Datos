@@ -37,7 +37,7 @@ export interface EjProgramar extends Base {
   prohibidos?: string[];
 }
 
-export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'bucle' | 'caso' | 'enlace';
+export type TipoFallo = 'nulo' | 'liberado' | 'fuga' | 'pierde' | 'colgante' | 'array' | 'bucle' | 'caso' | 'enlace' | 'recursion';
 
 export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   nulo: 'Acceso a NULL',
@@ -49,6 +49,7 @@ export const NOMBRE_FALLO: Record<TipoFallo, string> = {
   bucle: 'Bucle infinito',
   caso: 'Caso sin contemplar',
   enlace: 'Enlace sin actualizar',
+  recursion: 'Recursión mal planteada',
 };
 
 /** Una función con un fallo típico: encontrar el caso, la línea, el tipo y arreglarla. */
@@ -108,7 +109,7 @@ export interface EjCoste {
  */
 export interface EjMisterio extends Base {
   tipo: 'misterio';
-  /** What is asked in each case: «devuelve» (what the call returns) or variables of main. */
+  /** What is asked in each case: «devuelve» (what the call returns), «salida» (what printf writes) or variables of main. */
   responder: string[];
   /** Descriptions to choose from; `correcta` is the index of the right one. */
   opciones: string[];

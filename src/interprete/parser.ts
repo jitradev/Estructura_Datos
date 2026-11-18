@@ -16,7 +16,7 @@ export class ErrorSintaxis extends Error {
 
 // ------------------------------------------------------------------ léxico
 
-type TipoTok = 'id' | 'num' | 'op' | 'fin';
+type TipoTok = 'id' | 'num' | 'str' | 'op' | 'fin';
 export interface Token {
   t: TipoTok;
   v: string;
@@ -72,6 +72,22 @@ export function lexico(src: string): Token[] {
       i = j;
       continue;
     }
+    if (c === '"') {
+      // string literal: only printf uses it (its escapes \n and \t are kept as text here)
+      let j = i + 1;
+      let v = '';
+      while (j < src.length && src[j] !== '"' && src[j] !== '\n') {
+        if (src[j] === '\\' && j + 1 < src.length) {
+          const e = src[j + 1];
+          v += e === 'n' ? '\n' : e === 't' ? '\t' : e;
+          j += 2;
+        } else v += src[j++];
+      }
+      if (src[j] !== '"') throw new ErrorSintaxis(linea, 'Falta cerrar las comillas de la cadena.');
+      toks.push({ t: 'str', v, linea, ini: i, fin: j + 1 });
+      i = j + 1;
+      continue;
+    }
     if (c === "'" && src[i + 2] === "'") {
       toks.push({ t: 'num', v: String(src.charCodeAt(i + 1)), linea, ini: i, fin: i + 3 });
       i += 3;
@@ -98,6 +114,7 @@ export type Expr = Pos &
   (
     | { k: 'num'; v: number }
     | { k: 'null' }
+    | { k: 'str'; v: string }
     | { k: 'id'; n: string }
     | { k: 'bin'; op: string; a: Expr; b: Expr }
     | { k: 'un'; op: '!' | '-' | '*' | '&' | '++' | '--'; a: Expr }
@@ -152,7 +169,7 @@ export function analizar(src: string, tipos: string[], arraysLocales = false): P
   let p = 0;
   const TIPOS = new Set(['int', 'void', 'char', ...tipos]);
   const ver = (o = 0) => toks[Math.min(p + o, toks.length - 1)];
-  const es = (v: string, o = 0) => ver(o).v === v && ver(o).t !== 'num';
+  const es = (v: string, o = 0) => ver(o).v === v && ver(o).t !== 'num' && ver(o).t !== 'str';
   const comer = (v: string, que?: string) => {
     const t = ver();
     if (t.v !== v || t.t === 'num') throw new ErrorSintaxis(t.linea, `Falta «${v}»${que ? ' ' + que : ''}${t.t === 'fin' ? ' al final' : `, antes de «${t.v}»`}.`);
@@ -447,6 +464,10 @@ export function analizar(src: string, tipos: string[], arraysLocales = false): P
 
   function primaria(): Expr {
     const t = ver();
+    if (t.t === 'str') {
+      p++;
+      return { k: 'str', v: t.v, ini: t.ini, fin: t.fin, linea: t.linea };
+    }
     if (t.t === 'num') {
       p++;
       return { k: 'num', v: Number(t.v), ini: t.ini, fin: t.fin, linea: t.linea };

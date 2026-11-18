@@ -7,6 +7,7 @@ import { Rico } from '../comun';
 import { EditorCodigo } from '../EditorCodigo';
 import { estadosLineas } from '../piezas';
 import { Reproductor, useReproductor } from '../Reproductor';
+import { DibujoArbol } from '../../arboles/DibujoArbol';
 
 interface Avance {
   prediccion?: boolean; // every case predicted (or shown)
@@ -94,6 +95,12 @@ export function Misterio({ ej, onResuelto }: { ej: EjMisterio; onResuelto: () =>
                       </>
                     )}
                   </legend>
+                  {/* a tree written as 8(3,10) is hard to read: it is drawn too */}
+                  {ej.ctx.tipoArbol && (
+                    <div className="mini-arbol">
+                      <DibujoArbol mem={construir(ej.ctx, d.caso.inicial)} compacto titulo={`Árbol del caso ${d.caso.nombre}`} />
+                    </div>
+                  )}
                   {d.preguntas.map((p, j) => {
                     const k = clave(i, j);
                     return (

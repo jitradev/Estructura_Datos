@@ -296,6 +296,8 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
         return int(e.v);
       case 'null':
         return NULO;
+      case 'str':
+        return fallar(e.linea, 'tipo', 'Una cadena entre comillas solo puede ir como primer argumento de printf.');
       case 'id':
         if (ctx.constantes && e.n in ctx.constantes && !buscarVar(e.n)) return int(ctx.constantes[e.n]);
         return leer(loc(e), e);
@@ -399,7 +401,23 @@ export function ejecutar(src: string, ctx: Contexto, inicial: Memoria, op: Opcio
       o.liberadoEn = silencio > 0 ? lineaVisible : e.linea;
       return NULO;
     }
-    if (e.f === 'printf' || e.f === 'puts') return int(0);
+    if (e.f === 'printf' || e.f === 'puts') {
+      const [fmt, ...resto] = e.args;
+      if (!fmt || fmt.k !== 'str') return fallar(e.linea, 'tipo', `${e.f} empieza por una cadena entre comillas, como printf("%d ", x).`);
+      const args = resto.map((a) => valor(a));
+      let k = 0;
+      let escrito = fmt.v.replace(/%[dic%]/g, (f) => {
+        if (f === '%%') return '%';
+        const a = args[k++];
+        if (!a) return fallar(e.linea, 'tipo', `Falta un valor para el ${f} de printf.`);
+        if (a.k === 'basura') return fallar(e.linea, 'basura', `«${txt(resto[k - 1])}» no está inicializado: no se puede escribir.`);
+        if (a.k !== 'int') return fallar(e.linea, 'tipo', `«${txt(resto[k - 1])}» no es un número: printf con ${f} escribe enteros.`);
+        return f === '%c' ? String.fromCharCode(a.v) : String(a.v);
+      });
+      if (e.f === 'puts') escrito += '\n';
+      m.salida = (m.salida ?? '') + escrito;
+      return int(escrito.length);
+    }
     const f = funciones.get(e.f);
     if (!f) return fallar(e.linea, 'nombre', `No existe la función «${e.f}».`);
     if (f.params.length !== e.args.length)

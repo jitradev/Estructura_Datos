@@ -51,6 +51,12 @@ export function comprobarCaso(codigo: string, ej: EjCodigo, caso: Caso): Informe
       titulo: `Devuelve ${r.devuelve ? verValor(r.devuelve) : 'nada'} y tendría que devolver ${verValor(dv)}.`,
     };
   }
+  // what printf writes: only the numbers count, not the spaces or commas between them
+  const numeros = (t?: string) => (t ?? '').match(/-?\d+/g)?.join(' ') ?? '';
+  if (numeros(esperado.memFinal.salida) !== numeros(r.memFinal.salida)) {
+    const ver = (t?: string) => (numeros(t) ? `«${numeros(t)}»` : 'nada');
+    return { ...base, ok: false, titulo: `Escribe ${ver(r.memFinal.salida)} y tendría que escribir ${ver(esperado.memFinal.salida)}.` };
+  }
   if (r.fugas.length) {
     const n = r.fugas.length;
     return {

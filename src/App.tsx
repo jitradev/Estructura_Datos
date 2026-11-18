@@ -9,6 +9,8 @@ import { StackPageRoute } from './vistas/StackView';
 import { QueuePageRoute } from './vistas/QueueView';
 import { temaVisible } from './ejercicios/registro';
 import { IDS_ORDENACION, OrdenacionRoute } from './ordenacion/OrdenacionVer';
+import { ArbolPageRoute } from './vistas/ArbolView';
+import { buscarArbol } from './arboles/catalogo';
 
 // Enrutado con # para que funcione en cualquier alojamiento estático (Vercel incluido).
 function useRuta() {
@@ -28,9 +30,10 @@ export function App() {
   if (partes[0] === 'ej' && partes[1]) pagina = <EjercicioPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'tema' && partes[1]) pagina = <TemaPagina id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'lab') pagina = <Laboratorio ruta={partes.slice(1).map(decodeURIComponent)} />;
-  else if (partes[0] === 'ver' && ['listas', 'pilas', 'colas', 'ordenacion'].includes(partes[1] ?? '')) pagina = <Visualizar grupo={partes[1] as GrupoVer} />;
+  else if (partes[0] === 'ver' && ['listas', 'pilas', 'colas', 'ordenacion', 'arboles'].includes(partes[1] ?? '')) pagina = <Visualizar grupo={partes[1] as GrupoVer} />;
   else if (partes[0] === 'ver' && partes[1]?.startsWith('pila') && temaVisible('3')) pagina = <StackPageRoute id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver' && /^(cola|bicola)/.test(partes[1] ?? '') && temaVisible('4')) pagina = <QueuePageRoute id={decodeURIComponent(partes[1])} />;
+  else if (partes[0] === 'ver' && buscarArbol(partes[1] ?? '') && temaVisible('8-9')) pagina = <ArbolPageRoute id={partes[1]} />;
   else if (partes[0] === 'ver' && IDS_ORDENACION.includes(partes[1] ?? '')) pagina = <OrdenacionRoute id={partes[1]} />;
   else if (partes[0] === 'ver' && partes[1]) pagina = <VisualizarLista id={decodeURIComponent(partes[1])} />;
   else if (partes[0] === 'ver') pagina = <Visualizar />;

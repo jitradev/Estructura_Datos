@@ -190,4 +190,33 @@ export const DIBUJOS_TEMAS: Record<string, JSX.Element> = {
       </text>
     </svg>
   ),
+  // a small search tree with the path of a search in red
+  '8-9': (
+    <svg viewBox="0 0 280 110" aria-hidden>
+      <Punta id="pt-t8" />
+      {(
+        [
+          [140, 8, 'tinta'],
+          [92, 46, 'rojo'],
+          [188, 46, 'tinta'],
+          [64, 84, 'tinta'],
+          [120, 84, 'rojo'],
+          [216, 84, 'tinta'],
+        ] as const
+      ).map(([x, y, t], i) => (
+        <g key={i}>
+          <rect x={x - 14} y={y} width="28" height="20" rx="4" className="lam-caja" />
+          <text x={x} y={y + 14.5} className={`lam-t peq ${t === 'rojo' ? 'lam-rojo' : ''}`}>
+            {[8, 3, 10, 1, 6, 14][i]}
+          </text>
+        </g>
+      ))}
+      <path d="M131 28L101 45" className="lam-flecha" markerEnd="url(#pt-t8)" />
+      <path d="M100 66L112 83" className="lam-flecha" markerEnd="url(#pt-t8)" />
+      <path d="M149 28L179 45M84 66L72 83M196 66L208 83" className="lam-flecha discontinua" />
+      <text x="248" y="18" className="lam-et rojo">
+        6?
+      </text>
+    </svg>
+  ),
 };

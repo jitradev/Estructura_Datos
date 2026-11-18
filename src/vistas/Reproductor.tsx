@@ -8,6 +8,7 @@ import { DibujoLista } from '../listas/DibujoLista';
 import { COLAS } from '../queues/catalog';
 import { QueueDrawing } from '../queues/QueueDrawing';
 import { LISTAS } from '../listas/catalogo';
+import { DibujoArbol } from '../arboles/DibujoArbol';
 import { Contexto, Memoria } from '../memoria/modelo';
 
 export const VELOCIDADES = [
@@ -82,7 +83,7 @@ export function Reproductor({
   return (
     <div className={`reproductor ${controlesArriba ? 'arriba' : ''}`}>
       <div className="lienzo-memoria">
-        {dibujar ? dibujar(mem, prev) : tipoLista ? <DibujoLista mem={mem} prev={prev} tipo={tipoLista} /> : tipoCola ? <QueueDrawing mem={mem} prev={prev} tipo={tipoCola} /> : ctx.tipoArray ? <DibujoVector mem={mem} prev={prev} /> : <Dibujo mem={mem} prev={prev} ctx={ctx} />}
+        {dibujar ? dibujar(mem, prev) : tipoLista ? <DibujoLista mem={mem} prev={prev} tipo={tipoLista} /> : tipoCola ? <QueueDrawing mem={mem} prev={prev} tipo={tipoCola} /> : ctx.tipoArray ? <DibujoVector mem={mem} prev={prev} /> : ctx.tipoArbol ? <DibujoArbol mem={mem} prev={prev} /> : <Dibujo mem={mem} prev={prev} ctx={ctx} />}
       </div>
       <div className={`nota-paso ${paso?.error ? 'error' : ''}`} aria-live="polite">
         {!pasos && <span>{vacio}</span>}

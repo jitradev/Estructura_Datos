@@ -145,6 +145,31 @@ function cadena(m: Memoria, ctx: Contexto, inicio: Valor, enlace = 'siguiente'):
   return partes.join(' -> ');
 }
 
+/** A binary tree node: a struct with izquierda and derecha. */
+const esArbol = (ctx: Contexto, tipo: string) => {
+  const s = structDe(ctx, tipo);
+  return !!s && s.campos.some((c) => c.nombre === 'izquierda') && s.campos.some((c) => c.nombre === 'derecha');
+};
+
+/** «8(3(1,6),10(,14))»: a value and, between brackets, its left and right subtrees. */
+function forma(m: Memoria, v: Valor, vistos = new Set<number>()): string {
+  if (v.k === 'basura') return '?';
+  if (v.k !== 'ref' || v.r.k !== 'obj') return '';
+  const o = m.objetos[v.r.id];
+  if (!o) return '?';
+  if (vistos.has(o.id)) return '(vuelve a un nodo ya visto)';
+  vistos.add(o.id);
+  const d = o.campos.valor as Valor;
+  const t = (d?.k === 'int' ? String(d.v) : '?') + (o.liberado ? ' (liberado)' : '');
+  if (o.liberado) return t;
+  const i = o.campos.izquierda as Valor;
+  const r = o.campos.derecha as Valor;
+  if (i.k === 'nulo' && r.k === 'nulo') return t;
+  return `${t}(${forma(m, i, vistos)},${forma(m, r, vistos)})`;
+}
+
+const verArbol = (m: Memoria, v: Valor) => (v.k === 'nulo' ? 'NULL (árbol vacío)' : `el árbol ${forma(m, v)}`);
+
 function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): string {
   if (v.k === 'int') return `${nombre} = ${v.v}`;
   if (v.k === 'nulo') return `${nombre} = NULL`;
@@ -160,6 +185,7 @@ function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): st
   }
   const o = m.objetos[r.id];
   if (esNodo(ctx, o.tipo)) return `${nombre} -> ${cadena(m, ctx, v)}`;
+  if (esArbol(ctx, o.tipo)) return `${nombre} -> ${verArbol(m, v)}`;
   const s = structDe(ctx, o.tipo)!;
   const partes: string[] = [];
   for (const [k, c] of camposLogicos(o)) {
@@ -167,7 +193,8 @@ function describirValor(m: Memoria, ctx: Contexto, nombre: string, v: Valor): st
     else if (Array.isArray(c)) partes.push(`${k === 'en orden' ? 'en orden' : `${nombre}->${k}`}: [${c.map((x) => (x.k === 'int' ? x.v : '?')).join(', ')}]`);
     else {
       const def = s.campos.find((x) => x.nombre === k);
-      if (def && def.tipo.ptr > 0) {
+      if (def && def.tipo.ptr > 0 && esArbol(ctx, def.tipo.base)) partes.push(`${nombre}->${k} -> ${verArbol(m, c)}`);
+      else if (def && def.tipo.ptr > 0) {
         // a double list can be wrong in one direction only: cabeza is read forwards, cola backwards, acceso both ways
         const doble = structDe(ctx, def.tipo.base)?.campos.some((x) => x.nombre === 'anterior');
         if (!doble || k !== 'cola') partes.push(`${nombre}->${k} -> ${cadena(m, ctx, c)}`);

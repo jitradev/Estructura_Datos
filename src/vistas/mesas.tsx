@@ -19,6 +19,8 @@ import { GrupoVer } from './SelectorTipo';
 import { DibujoVector } from '../dibujo/DibujoVector';
 import { construir, CTX_VECTOR, entero, vector } from '../memoria/construir';
 import { AlgId, ALGORITMOS } from '../ordenacion/pasos';
+import { construirArbol, CTX_ARBOL, srcArbol, srcNodo } from '../arboles/catalogo';
+import { DibujoArbol } from '../arboles/DibujoArbol';
 
 
 export interface MesaLab {
@@ -179,7 +181,48 @@ int pos = busquedaBinaria(v, n, 4);
   ];
 })();
 
-const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4', ordenacion: '7' };
+/** Topics 8 and 9: the tree of the Arboles project, empty or with an example, with every function of Nodo.c and Arbol.c. */
+const arboles: MesaLab[] = (() => {
+  const { preludio, cabeceras } = funcionesDe([srcNodo, srcArbol]);
+  const ctx = { ...CTX_ARBOL, preludio };
+  const dibujar: MesaLab['dibujar'] = (mem, prev, mini) => <DibujoArbol mem={mem} prev={prev} compacto={mini} />;
+  const EJEMPLO = [8, 3, 10, 1, 6, 14, 4];
+  return [
+    {
+      id: 'abb-vacio',
+      grupo: 'arboles',
+      nombre: 'Árbol vacío',
+      corto: 'Vacío',
+      resumen: 'Empiezas con `arbol` creado y vacío (`arbol->raiz` es `NULL`). Inserta con `insertar(arbol, x)` o cuelga los nodos tú con `crearNodo` y `establecerIzquierda`, y recórrelo con `preOrden(arbol->raiz)`: lo que escribe printf sale debajo del dibujo.',
+      ctx,
+      inicial: () => construirArbol([]),
+      dibujar,
+      funciones: cabeceras,
+      ejemplo: [50, 30, 70, 20, 40, 60].map((v) => `insertar(arbol, ${v});\n`).join('') + 'inOrden(arbol->raiz);\n',
+    },
+    {
+      id: 'abb-ejemplo',
+      grupo: 'arboles',
+      nombre: 'Árbol con datos',
+      corto: 'Con datos',
+      resumen: `Empiezas con el ABB que dejan \`insertar\` de ${EJEMPLO.join(', ')}. Escribe tus propias funciones recursivas sobre él y míralas paso a paso: arriba del dibujo salen las llamadas en curso.`,
+      ctx,
+      inicial: () => construirArbol(EJEMPLO),
+      dibujar,
+      funciones: cabeceras,
+      ejemplo: `int sumar(Nodo *raiz) {
+    if (raiz == NULL) return 0;
+    return raiz->valor + sumar(raiz->izquierda) + sumar(raiz->derecha);
+}
+
+int total = sumar(arbol->raiz);
+eliminar(arbol, 3);
+`,
+    },
+  ];
+})();
+
+const TEMA: Record<GrupoVer, string> = { listas: '2', pilas: '3', colas: '4', ordenacion: '7', arboles: '8-9' };
 
 /** Only the structures of the visible topics. */
-export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas, ...ordenacion].filter((m) => temaVisible(TEMA[m.grupo]));
+export const MESAS: MesaLab[] = [...listas, ...pilas, ...colas, ...ordenacion, ...arboles].filter((m) => temaVisible(TEMA[m.grupo]));

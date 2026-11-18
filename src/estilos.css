@@ -675,3 +675,24 @@ body, .editor-codigo, .editor-codigo *, .dibujo text, code, textarea { font-vari
 .ord-leyenda.barras .mu.raya { background: var(--carmin); }
 @keyframes ob-entra { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ob-col, .ob-barra, .ob-marca { transition: none; animation: none; } }
+
+/* Topics 8 and 9: binary trees */
+.dibujo-arbol { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.pila-llamadas, .salida-printf { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 0; font: 0.84rem var(--f-mono); color: var(--grafito); }
+.pila-llamadas span:not(.pila-etiqueta):not(:last-child)::after { content: ' ›'; color: var(--palo); }
+.pila-llamadas .en-curso { color: var(--quemado); font-weight: 700; }
+.pila-etiqueta { font: 700 0.7rem var(--f-txt); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris); margin-right: 4px; }
+.salida-printf code { padding: 3px 8px; min-width: 40px; white-space: pre-wrap; transition: background 0.3s; }
+.salida-printf code.cambia { background: var(--rojo-claro); color: var(--carmin-osc); }
+.etiqueta-var { font: 600 13px var(--f-mono); fill: var(--tinta); }
+.etiqueta-var .local { fill: var(--quemado); }
+.etiqueta-var .rojo { fill: var(--carmin); }
+.nulo-barra { stroke: var(--gris); stroke-width: 1.4; }
+.nulo-barra.rojo { stroke: var(--carmin); stroke-width: 2; }
+.nodo.llamada-pila .caja-valor { fill: #fbeee4; }
+.nodo.llamada-actual .caja-valor { fill: var(--albaric); }
+.etiqueta-estructura.árbol-binario { background: #dcefe0; color: #2a6a3c; }
+.etiqueta-estructura.abb { background: #dbe8f5; color: #27507a; }
+.etiqueta-estructura.recorridos { background: #e6e1f5; color: #4a3a86; }
+.mini-arbol { max-width: 340px; margin: 2px 0 8px; }
+.mini-arbol .dibujo { max-height: 190px; }

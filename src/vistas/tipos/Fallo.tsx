@@ -118,7 +118,7 @@ export function Fallo({ ej, onResuelto }: { ej: EjFallo; onResuelto: () => void 
             <strong>¿Qué tipo de fallo es?</strong>
             {paso >= 3 && (
               <div className="chips">
-                {TIPOS.map((t) => (
+                {(ej.ctx.tipoArbol ? [...TIPOS, 'recursion' as const] : TIPOS).map((t) => (
                   <button key={t} className={`chip-texto ${av.tipo === t ? 'on' : ''}`} onClick={() => elegirTipo(t)} disabled={paso !== 3}>
                     {NOMBRE_FALLO[t]}
                   </button>

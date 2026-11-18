@@ -63,6 +63,7 @@ export function valoresDe(m: Memoria, nombre: string): number[] | null {
 export function preguntas(ej: EjMisterio, caso: Caso): Pregunta[] {
   return ej.responder.map((r) => {
     if (r === 'devuelve') return { responder: r, texto: '¿Qué devuelve?', formato: 'Un número' };
+    if (r === 'salida') return { responder: r, texto: '¿Qué escribe?', formato: 'Los números en orden, p. ej. 4 9 2' };
     const tipo = tipoDe(ej, caso, r);
     if (tipo === 'int') return { responder: r, texto: `¿Cuánto vale \`${r}\` al final?`, formato: 'Un número' };
     const orden = /Pila/.test(tipo) ? ', del fondo a la cima' : /[Cc]ola/.test(tipo) ? ', del frente al final' : /Lista/.test(tipo) ? ', desde el primero' : '';
@@ -85,6 +86,10 @@ export function respuestas(ej: EjMisterio, caso: Caso): { r: Resultado; respuest
     if (p.responder === 'devuelve') {
       const v = r.devuelve?.k === 'int' ? [r.devuelve.v] : null;
       return { valores: v, texto: verValores(v, true) };
+    }
+    if (p.responder === 'salida') {
+      const v = (r.memFinal.salida ?? '').match(/-?\d+/g)?.map(Number) ?? [];
+      return { valores: v, texto: v.length ? v.join(' ') : 'nada' };
     }
     const v = valoresDe(r.memFinal, p.responder);
     return { valores: v, texto: verValores(v, p.formato === 'Un número') };

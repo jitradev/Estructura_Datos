@@ -5,19 +5,20 @@ import { tema4 } from './tema4';
 import { tema5 } from './tema5';
 import { tema6 } from './tema6';
 import { tema7 } from './tema7';
+import { tema8 } from './tema8';
 import { Ejercicio, Tema } from './tipos';
 
 /** Todos los temas (los tests los comprueban todos, se vean o no). */
-export const TODOS_LOS_TEMAS: Tema[] = [tema1, tema2, tema3, tema4, tema5, tema6, tema7];
+export const TODOS_LOS_TEMAS: Tema[] = [tema1, tema2, tema3, tema4, tema5, tema6, tema7, tema8];
 
-/** Topics hidden from the website. Remove an id to publish it (1 = TAD, 3 = stacks, 4 = queues, 5 = algorithm analysis, 6 = hash tables, 7 = sorting). */
+/** Topics hidden from the website. Remove an id to publish it (1 = TAD, 3 = stacks, 4 = queues, 5 = algorithm analysis, 6 = hash tables, 7 = sorting, 8-9 = trees). */
 const OCULTOS = new Set<string>();
 export const TEMAS: Tema[] = TODOS_LOS_TEMAS.filter((t) => !OCULTOS.has(t.id));
 export const temaVisible = (id: string) => !OCULTOS.has(id);
 
 /** «Listas, pilas, colas, coste de algoritmos, tablas hash y ordenación» with only the visible topics. */
 export function nombreTemasVisibles(): string {
-  const n = [temaVisible('1') && 'TAD', temaVisible('2') && 'listas', temaVisible('3') && 'pilas', temaVisible('4') && 'colas', temaVisible('5') && 'coste de algoritmos', temaVisible('6') && 'tablas hash', temaVisible('7') && 'ordenación'].filter(Boolean) as string[];
+  const n = [temaVisible('1') && 'TAD', temaVisible('2') && 'listas', temaVisible('3') && 'pilas', temaVisible('4') && 'colas', temaVisible('5') && 'coste de algoritmos', temaVisible('6') && 'tablas hash', temaVisible('7') && 'ordenación', temaVisible('8-9') && 'árboles'].filter(Boolean) as string[];
   const t = n.length > 1 ? `${n.slice(0, -1).join(', ')} y ${n[n.length - 1]}` : (n[0] ?? '');
   return t.charAt(0).toUpperCase() + t.slice(1);
 }

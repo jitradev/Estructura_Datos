@@ -1,4 +1,4 @@
-# EDA · ejercicios interactivos de listas, pilas, colas, coste de algoritmos y tablas hash
+# EDA · ejercicios interactivos de listas, pilas, colas, coste de algoritmos, tablas hash, ordenación y árboles
 
 Aplicación web, **solo frontend** (React + Vite + TypeScript), hermana de la de Lenguajes Formales. El alumnado escribe C (un C reducido: punteros, nodos, `malloc`, `free`, `if`, `while`, `for`), lo ejecuta y ve la memoria animada línea a línea con el convenio de los decks: en rojo lo que cambia, en gris lo que deja de valer, el nodo liberado con caja discontinua y aspa, y en ámbar los nodos a los que ya no llega nadie (fugas).
 
@@ -12,6 +12,7 @@ La portada (`#/`) es un menú con tres partes: **Ejercicios** (los temas, en `#/
 | 3 · Pilas | 12 | 14 | 20 | 12 |
 | 4 · Colas | 24 | 26 | 36 | 20 |
 | 6 · Tablas hash | 2 | 4 | 5 | 3 |
+| 8-9 · Árboles binarios y ABB | 5 | 15 | 9 | 8 |
 
 El tema 1 (Tipos Abstractos de Datos) tiene 10 de **Especifica el TAD**: Fracción, Conjunto y Complejo de clase, y Contador, Fecha, Vector2D, Bolsa, Agenda, BarraVida y Temporizador de la tanda de práctica y el cuadernillo.
 
@@ -75,6 +76,15 @@ En `#/ver/ordenacion` están los cinco algoritmos del tema (selection, insertion
 Los colores tienen un solo significado en todos: rojo, lo que cambia en ese paso; sombreado, en su sitio definitivo; discontinuo, lo que sigue escrito pero ya no cuenta; llave gris, ordenado entre sí (insertion sort); raya roja, los que ya son ≤ pivote (quicksort).
 
 Todo está en `src/ordenacion/`: `pasos.ts` ejecuta cada algoritmo y guarda una foto por paso (el código es el del deck y de `ordenacion.c`), `Lienzo.tsx` dibuja un paso en casillas o en barras y `OrdenacionVer.tsx` tiene la galería, las páginas y la carrera. `src/pruebas/ordenacion.test.ts` comprueba que todos ordenan, que cada paso señala una línea que existe y que con `[5, 2, 8, 1, 4]` salen las cifras de los dibujos del deck (selection 10 y 4, insertion 8 y 6, bubble 10 y 6). Los ejercicios del tema 7 están pendientes.
+
+## Árboles: temas 8 y 9 juntos
+
+El tema 8 (árboles binarios) y el 9 (árboles binarios de búsqueda) van en una sola sección, `8-9` (`src/ejercicios/tema8.ts`, 37 ejercicios con la etiqueta `Árbol binario` o `ABB`). Usan el proyecto `Arboles`: `src/arboles/c/Nodo.c` es el suyo tal cual (`valor`, `derecha`, `izquierda` y las funciones de acceso) y `src/arboles/c/Arbol.c` completa lo que faltaba (`buscar`, `insertar`, `eliminar`, `liberarArbol`) y añade `contarNodos`, `contarHojas`, `altura`, `minimo` y `maximo`. Dos cambios respecto al `.h` del proyecto: los recorridos escriben `"%d "` con espacio, e `insertar` y `eliminar` reciben el `Arbol *` y se apoyan en `insertarNodo` y `eliminarNodo`, que devuelven la raíz del subárbol (con `Nodo *raiz` por valor no se puede cambiar la raíz de un árbol vacío; el ejercicio 8-F9 va de eso).
+
+- El intérprete entiende ahora cadenas y `printf`/`puts` con `%d`, `%c` y `%%`: lo escrito queda en `memoria.salida`, se ve debajo del dibujo y se corrige comparando solo los números. Las misteriosas pueden preguntar `responder: ['salida']` («¿Qué escribe?»).
+- `src/arboles/DibujoArbol.tsx` dibuja el árbol con las columnas en inorden (un ABB se lee ordenado de izquierda a derecha), las variables que apuntan a nodos como etiquetas encima y las llamadas recursivas en curso arriba, con sus nodos sombreados. Lo usan Visualizar (`#/ver/arbol-binario`, `#/ver/abb`), el Laboratorio (`#/lab/arboles`) y los ejercicios con `ctx.tipoArbol`.
+- En los ejercicios los árboles se escriben `8(3(1,6),10(,14))`: `raizForma('raiz', ...)` construye uno con cualquier forma, `raizABB` y `arbolABB` insertan los valores en orden. En las misteriosas se dibuja el árbol de cada caso.
+- Hay un tipo de fallo más, «Recursión mal planteada», que solo se ofrece en este tema.
 
 ## Temas ocultos
 

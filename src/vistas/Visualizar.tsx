@@ -22,6 +22,8 @@ import { Reproductor, useReproductor } from './Reproductor';
 import { Miga } from './Miga';
 import { OrdenacionGallery } from '../ordenacion/OrdenacionVer';
 import { ALGORITMOS } from '../ordenacion/pasos';
+import { ArbolGallery } from './ArbolView';
+import { ARBOLES } from '../arboles/catalogo';
 
 const COMPARA: { pregunta: string; r: Record<string, string> }[] = [
   { pregunta: 'Enlaces por nodo', r: { simple: '1: siguiente', doble: '2: siguiente y anterior', circular: '1: siguiente', 'circular-doble': '2: siguiente y anterior' } },
@@ -58,6 +60,7 @@ export function Visualizar({ grupo = 'listas' }: { grupo?: GrupoVer }) {
       {actual.id === 'pilas' && <StackGallery />}
       {actual.id === 'colas' && <QueueGallery />}
       {actual.id === 'ordenacion' && <OrdenacionGallery />}
+      {actual.id === 'arboles' && <ArbolGallery />}
     </main>
   );
 }
@@ -67,6 +70,7 @@ const GRUPOS: { id: GrupoVer; cuantas: number; visible: () => boolean }[] = [
   { id: 'pilas', cuantas: PILAS.length, visible: () => temaVisible('3') },
   { id: 'colas', cuantas: COLAS.length, visible: () => temaVisible('4') },
   { id: 'ordenacion', cuantas: ALGORITMOS.length, visible: () => true },
+  { id: 'arboles', cuantas: ARBOLES.length, visible: () => temaVisible('8-9') },
 ];
 
 /** Cards and comparison table of the four lists. */

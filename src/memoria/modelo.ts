@@ -58,6 +58,8 @@ export interface Memoria {
   objetos: Record<number, Objeto>;
   marcos: Marco[];
   sigId: number;
+  /** What printf has written so far. */
+  salida?: string;
 }
 
 export interface Contexto {
@@ -71,6 +73,8 @@ export interface Contexto {
   tipoCola?: string;
   /** Topic 7: plain int arrays (int v[]), which can be declared in the code; drawn with DibujoVector. */
   tipoArray?: boolean;
+  /** Topics 8 and 9: binary trees of Nodo (valor, derecha, izquierda) and Arbol; drawn with DibujoArbol. */
+  tipoArbol?: boolean;
 }
 
 export const clonar = (m: Memoria): Memoria => structuredClone(m);

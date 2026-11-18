@@ -3,8 +3,8 @@ import { ejecutar } from '../interprete/ejecutar';
 import { MESAS } from '../vistas/mesas';
 
 describe('Laboratorio structures', () => {
-  it('has every list, stack and queue, and the sorting tables of topic 7', () => {
-    expect(MESAS.length).toBe(20);
+  it('has every list, stack and queue, the sorting tables of topic 7 and the trees', () => {
+    expect(MESAS.length).toBe(22);
   });
 
   it.each(MESAS.map((m) => [m.nombre, m]))('%s starts empty and runs its example', (_, m) => {

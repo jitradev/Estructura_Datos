@@ -10,9 +10,9 @@ import { MesaLab, MESAS } from './mesas';
 import { GrupoVer, NOMBRE_GRUPO, SelectorTipo } from './SelectorTipo';
 import { Miga } from './Miga';
 
-const GRUPOS: GrupoVer[] = ['listas', 'pilas', 'colas', 'ordenacion'];
+const GRUPOS: GrupoVer[] = ['listas', 'pilas', 'colas', 'ordenacion', 'arboles'];
 
-/** #/lab/<listas|pilas|colas|ordenacion> chooses a structure, #/lab/e/<id> works on it, #/lab/coste is the calculator. */
+/** #/lab/<listas|pilas|colas|ordenacion|arboles> chooses a structure, #/lab/e/<id> works on it, #/lab/coste is the calculator. */
 export function Laboratorio({ ruta = [] }: { ruta?: string[] }) {
   const mesa = ruta[0] === 'e' ? MESAS.find((m) => m.id === ruta[1]) : undefined;
   // inside a structure there is no way to the calculator: only to its sibling structures
